@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Просмотр информации о рецепте</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"></div>
+    <div class="content">
+
+        <div class="ctrl_panel">
+            <span class="ctrl_button"><a href="/profiles">Профили питания</a></span>
+            <span class="ctrl_button"><a href="/recipes">Рецепты</a></span>
+            <span class="ctrl_button"><a href="/products">Продукты</a></span>
+            <span class="ctrl_button"><a href="/tags">Метки</a></span>
+        </div>
+
+        <form action="#" th:action="@{'/recipes/' + ${recipe.recipeId}}" method="get">
+            <table style="border:none;">
+                <tr style="border:none;">
+                    <td style="text-align:right; width:200px; border:none;">Расчетная порционность</td>
+                    <td style="border:none;">
+                        <select name="portions" id="portions">
+                            <option th:each="i : ${#numbers.sequence(1, 10)}" th:value="${i}" th:text="${i}" th:selected="${i==portions}"></option>
+                        </select>
+                    </td>
+                    <td style="text-align:left; border:none;"><input type="submit" value="Пересчитать"></td>
+                </tr>
+            </table>
+        </form>
+
+        <h3 th:text="${recipe.name}"></h3>
+
+        <div class="content_block">
+            <table>
+                <tr>
+                    <td style="min-width:380px; vertical-align: top;"><!--LEFT-->
+                        <table class="table">
+                            <tr class="tr">
+                                <th class="th" colspan="2">Питательность</th>
+                            </tr>
+                            <tr class="tr">
+                                <td class="td">Вес порции, г</td>
+                                <td class="td" style="min-width:50px; text-align:right;" th:text="${recipe.weight}"></td>
+                            </tr>
+                            <tr class="tr">
+                                <td class="td">Калорийность, г</td>
+                                <td class="td" style="min-width:50px; text-align:right;" th:text="${recipe.calories}"></td>
+                            </tr>
+                            <tr class="tr">
+                                <td class="td">Белков, г</td>
+                                <td class="td" style="min-width:50px; text-align:right;" th:text="${recipe.proteins}"></td>
+                            </tr>
+                            <tr class="tr">
+                                <td class="td">Жиров, г</td>
+                                <td class="td" style="min-width:50px; text-align:right;" th:text="${recipe.fats}"></td>
+                            </tr>
+                            <tr class="tr">
+                                <td class="td">Углеводов, г</td>
+                                <td class="td" style="min-width:50px; text-align:right;" th:text="${recipe.carbs}"></td>
+                            </tr>
+                        </table>
+
+                        <div style="padding-top: 20px;">
+                            <span>Ингредиенты:</span>
+                            <div th:switch="${#lists.size(recipe.ingredients)}">
+                                <span th:case="'0'">Нет информации для отображения</span>
+                                <ul th:case="*">
+                                    <li th:each="ingredient : ${recipe.ingredients}">
+                                        <span th:text="${ingredient}"></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="vertical-align: top;"><!--RIGHT-->
+                        <span>Описание:</span>
+                        <div th:switch="${#lists.size(recipe.paragraphs)}">
+                            <span th:case="'0'">Нет информации для отображения</span>
+                            <div th:case="*">
+                                <p th:each="paragraph : ${recipe.paragraphs}"><span th:text="${paragraph}"></span></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="content_block">
+            <span>Источник:</span>
+            <span th:text="${#strings.isEmpty(recipe.source)} ? 'Нет информации для отображения' : ${recipe.source}"></span>
+        </div>
+
+        <div class="content_block">
+            <span>Метки:</span>
+            <div th:switch="${#lists.size(tags)}">
+                <span th:case="'0'">Нет информации для отображения</span>
+                <div th:case="*">
+                    <span th:each="tag : ${tags}">
+                        <a th:href="@{'/tags/' + ${tag.tagId}}"><span th:text="${tag.name}"></span></a>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"></div>
+</div>
+</body>
+</html>

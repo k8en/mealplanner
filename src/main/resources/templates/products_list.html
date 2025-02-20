@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Список продуктов</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <div class="ctrl_panel">
+            <span class="ctrl_button"><a href="/profiles">Профили питания</a></span>
+            <span class="ctrl_button"><a href="/recipes">Рецепты</a></span>
+            <span class="ctrl_button"><a href="/products">Продукты</a></span>
+            <span class="ctrl_button"><a href="/tags">Метки</a></span>
+        </div>
+
+        <h3>Продукты</h3>
+
+        <div th:switch="${#lists.size(products)}">
+            <span th:case="'0'">Нет информации для отображения</span>
+            <div th:case="*">
+                <table class="table">
+                    <tr class="tr">
+                        <th class="th">Название</th>
+                        <th class="th">Калорийность, г</th>
+                        <th class="th">Белков, г</th>
+                        <th class="th">Жиров, г</th>
+                        <th class="th">Углеводов, г</th>
+                        <th class="th">Примечание</th>
+                    </tr>
+                    <tr class="tr" th:each="product : ${products}">
+                        <td class="td"><a th:href="@{'/products/' + ${product.productId}}"><span th:text="${product.name}"></span></a></td>
+                        <td class="td" style="text-align: right;" th:text="${product.calories}"></td>
+                        <td class="td" style="text-align: right;" th:text="${product.proteins}"></td>
+                        <td class="td" style="text-align: right;" th:text="${product.fats}"></td>
+                        <td class="td" style="text-align: right;" th:text="${product.carbs}"></td>
+                        <td class="td" th:text="${product.description}"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

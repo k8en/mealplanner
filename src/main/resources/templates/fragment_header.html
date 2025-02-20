@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Home</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div class="header" th:fragment="header">
+        <div class="navigation">
+            <span class="paddings-medium">
+                <a class="white-link" href="/profiles">ПРОФИЛИ ПИТАНИЯ</a>
+            </span>
+            <span class="paddings-medium">
+                <a class="white-link" href="/recipes">РЕЦЕПТЫ</a>
+            </span>
+            <span class="paddings-medium">
+                <a class="white-link" href="/products">ПРОДУКТЫ</a>
+            </span>
+            <span class="paddings-medium">
+                <a class="white-link" href="/tags">МЕТКИ</a>
+            </span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

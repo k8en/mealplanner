@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Просмотр информации о продукте</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <div class="ctrl_panel">
+            <span class="ctrl_button"><a href="/mealplanner/profiles">Профили питания</a></span>
+            <span class="ctrl_button"><a href="/mealplanner/recipes">Рецепты</a></span>
+            <span class="ctrl_button"><a href="/mealplanner/products">Продукты</a></span>
+            <span class="ctrl_button"><a href="/mealplanner/tags">Метки</a></span>
+        </div>
+
+        <table>
+            <tr>
+                <td>Название</td>
+                <td th:text="${product.name}"></td>
+            </tr>
+            <tr>
+                <td>Калорийность, г</td>
+                <td th:text="${product.calories}"></td>
+            </tr>
+            <tr>
+                <td>Белков, г</td>
+                <td th:text="${product.proteins}"></td>
+            </tr>
+            <tr>
+                <td>Жиров, г</td>
+                <td th:text="${product.fats}"></td>
+            </tr>
+            <tr>
+                <td>Углеводов, г</td>
+                <td th:text="${product.carbs}"></td>
+            </tr>
+            <tr>
+                <td>Примечание</td>
+                <td th:text="${product.description}"></td>
+            </tr>
+        </table>
+
+        <h4>Используется в следующих рецептах</h4>
+
+        <div th:switch="${#lists.size(recipes)}">
+            <span th:case="'0'">Нет информации для отображения</span>
+            <div th:case="*">
+                <div th:each="recipe : ${recipes}">
+                    <a th:href="@{'/mealplanner/recipes/' + ${recipe.recipeId}}"><span th:text="${recipe.name}"></span></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>
