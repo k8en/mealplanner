@@ -5,7 +5,7 @@ import org.kdepo.solutions.mealplanner.model.Recipe;
 import java.math.BigDecimal;
 import java.util.List;
 
-public interface MealPlannerRecipesRepository {
+public interface RecipesRepository {
 
     Recipe addRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs);
 

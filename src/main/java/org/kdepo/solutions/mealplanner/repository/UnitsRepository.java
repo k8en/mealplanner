@@ -4,7 +4,7 @@ import org.kdepo.solutions.mealplanner.model.Unit;
 
 import java.util.List;
 
-public interface MealPlannerUnitsRepository {
+public interface UnitsRepository {
 
     Unit addUnit(Integer unitId, String name, String shortName, Integer accuracy);
 

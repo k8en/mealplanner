@@ -1,7 +1,7 @@
 package org.kdepo.solutions.mealplanner.repository.impl;
 
 import org.kdepo.solutions.mealplanner.model.Tag;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerTagsRepository;
+import org.kdepo.solutions.mealplanner.repository.TagsRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository {
+public class TagsRepositoryImpl implements TagsRepository {
 
     private static final String SQL_ADD_TAG = "INSERT INTO tags (tag_id, name, description) VALUES (?, ?, ?)";
     private static final String SQL_ADD_TAG_TO_RECIPE = "INSERT INTO recipes_tags (recipe_id, tag_id) VALUES (?, ?)";
@@ -26,13 +26,13 @@ public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository 
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MealPlannerTagsRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public TagsRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Tag addTag(Integer tagId, String name, String description) {
-        System.out.println("[ML][TagDao][addTag] Invoked with parameters:"
+        System.out.println("[TagDao][addTag] Invoked with parameters:"
                 + " tagId=" + tagId
                 + ", name='" + name + "'"
                 + ", description='" + description + "'"
@@ -44,7 +44,7 @@ public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository 
 
     @Override
     public void addTagToRecipe(Integer tagId, Integer recipeId) {
-        System.out.println("[ML][TagDao][addTagToRecipe] Invoked with parameters:"
+        System.out.println("[TagDao][addTagToRecipe] Invoked with parameters:"
                 + " tagId=" + tagId
                 + ", recipeId=" + recipeId
         );
@@ -53,7 +53,7 @@ public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository 
 
     @Override
     public void deleteTag(Integer tagId) {
-        System.out.println("[ML][TagDao][deleteTag] Invoked with parameters: tagId=" + tagId);
+        System.out.println("[TagDao][deleteTag] Invoked with parameters: tagId=" + tagId);
 
         if (NOT_FOR_DELETE.contains(tagId)) {
             return;
@@ -64,7 +64,7 @@ public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository 
 
     @Override
     public void deleteTagFromRecipe(Integer tagId, Integer recipeId) {
-        System.out.println("[ML][TagDao][deleteTagFromRecipe] Invoked with parameters:"
+        System.out.println("[TagDao][deleteTagFromRecipe] Invoked with parameters:"
                 + " tagId=" + tagId
                 + ", recipeId=" + recipeId
         );
@@ -73,7 +73,7 @@ public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository 
 
     @Override
     public List<Tag> getAllTags() {
-        System.out.println("[ML][TagDao][getAllTags] Invoked without parameters");
+        System.out.println("[TagDao][getAllTags] Invoked without parameters");
         return jdbcTemplate.query(
                 SQL_GET_ALL_TAGS,
                 (resultSet, rowNum) -> {
@@ -93,7 +93,7 @@ public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository 
 
     @Override
     public List<Tag> getAllTagsForRecipe(Integer recipeId) {
-        System.out.println("[ML][TagDao][getAllTagsForRecipe] Invoked with parameters: recipeId=" + recipeId);
+        System.out.println("[TagDao][getAllTagsForRecipe] Invoked with parameters: recipeId=" + recipeId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_TAGS_FOR_RECIPE,
                 (resultSet, rowNum) -> {
@@ -114,7 +114,7 @@ public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository 
 
     @Override
     public Tag getTag(Integer tagId) {
-        System.out.println("[ML][TagDao][getTag] Invoked with parameters: tagId=" + tagId);
+        System.out.println("[TagDao][getTag] Invoked with parameters: tagId=" + tagId);
         return jdbcTemplate.query(
                 SQL_GET_TAG,
                 resultSet -> {
@@ -135,7 +135,7 @@ public class MealPlannerTagsRepositoryImpl implements MealPlannerTagsRepository 
 
     @Override
     public void updateTag(Integer tagId, String name, String description) {
-        System.out.println("[ML][TagDao][updateTag] Invoked with parameters:"
+        System.out.println("[TagDao][updateTag] Invoked with parameters:"
                 + " tagId=" + tagId
                 + ", name='" + name + "'"
                 + ", description='" + description + "'"

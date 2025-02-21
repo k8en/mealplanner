@@ -5,7 +5,7 @@ import org.kdepo.solutions.mealplanner.model.Product;
 import java.math.BigDecimal;
 import java.util.List;
 
-public interface MealPlannerProductsRepository {
+public interface ProductsRepository {
 
     Product addProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs);
 

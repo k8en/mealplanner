@@ -3,7 +3,7 @@ package org.kdepo.solutions.mealplanner.repository.impl;
 import org.kdepo.solutions.mealplanner.model.Ingredient;
 import org.kdepo.solutions.mealplanner.model.Recipe;
 import org.kdepo.solutions.mealplanner.model.Tag;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerRecipesRepository;
+import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
 import org.kdepo.solutions.mealplanner.tools.DbUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +15,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 @Repository
-public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepository {
+public class RecipesRepositoryImpl implements RecipesRepository {
 
     private static final BigDecimal DECIMAL_MULTIPLIER = BigDecimal.valueOf(10000L);
     private static final Integer DECIMAL_SCALE = 5;
@@ -40,18 +40,18 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private MealPlannerIngredientsRepositoryImpl ingredientsRepository;
+    private IngredientsRepositoryImpl ingredientsRepository;
 
     @Autowired
-    private MealPlannerTagsRepositoryImpl tagsRepository;
+    private TagsRepositoryImpl tagsRepository;
 
-    public MealPlannerRecipesRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public RecipesRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Recipe addRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        System.out.println("[ML][RecipeDao][addRecipe] Invoked with parameters:"
+        System.out.println("[RecipeDao][addRecipe] Invoked with parameters:"
                 + " recipeId=" + recipeId
                 + ", name='" + name + "'"
                 + ", description='" + description + "'"
@@ -77,7 +77,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public void addRecipeToMeal(Integer recipeId, Integer mealId, Integer orderNumber) {
-        System.out.println("[ML][RecipeDao][addRecipeToMeal] Invoked with parameters:"
+        System.out.println("[RecipeDao][addRecipeToMeal] Invoked with parameters:"
                 + " recipeId=" + recipeId
                 + ", mealId=" + mealId
                 + ", orderNumber=" + orderNumber
@@ -87,13 +87,13 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public void deleteRecipe(Integer recipeId) {
-        System.out.println("[ML][RecipeDao][deleteRecipe] Invoked with parameters: recipeId=" + recipeId);
+        System.out.println("[RecipeDao][deleteRecipe] Invoked with parameters: recipeId=" + recipeId);
         jdbcTemplate.update(SQL_DELETE_RECIPE, recipeId);
     }
 
     @Override
     public void deleteRecipeFromMeal(Integer recipeId, Integer mealId) {
-        System.out.println("[ML][RecipeDao][deleteRecipeFromMeal] Invoked with parameters:"
+        System.out.println("[RecipeDao][deleteRecipeFromMeal] Invoked with parameters:"
                 + " recipeId=" + recipeId
                 + ", mealId=" + mealId
         );
@@ -102,7 +102,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public List<Recipe> getAllRecipes() {
-        System.out.println("[ML][RecipeDao][getAllRecipes] Invoked without parameters");
+        System.out.println("[RecipeDao][getAllRecipes] Invoked without parameters");
         return jdbcTemplate.query(
                 SQL_GET_ALL_RECIPES,
                 (resultSet, rowNum) -> {
@@ -153,7 +153,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public List<Recipe> getAllRecipes(List<Integer> products, List<Integer> tags) {
-        System.out.println("[ML][RecipeDao][getAllRecipes] Invoked with parameters:"
+        System.out.println("[RecipeDao][getAllRecipes] Invoked with parameters:"
                 + " products=" + products
                 + ", tags=" + tags
         );
@@ -218,7 +218,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public List<Recipe> getAllRecipesFromMeal(Integer mealId) {
-        System.out.println("[ML][RecipeDao][getAllRecipesFromMeal] Invoked with parameters: mealId=" + mealId);
+        System.out.println("[RecipeDao][getAllRecipesFromMeal] Invoked with parameters: mealId=" + mealId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_RECIPES_FROM_MEAL,
                 (resultSet, rowNum) -> {
@@ -270,7 +270,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public Integer getOrderNumber(Integer mealId) {
-        System.out.println("[ML][RecipeDao][getOrderNumber] Invoked with parameters: mealId=" + mealId);
+        System.out.println("[RecipeDao][getOrderNumber] Invoked with parameters: mealId=" + mealId);
         return jdbcTemplate.query(
                 SQL_GET_ORDER_NUMBER,
                 resultSet -> {
@@ -282,7 +282,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public Recipe getRecipe(Integer recipeId) {
-        System.out.println("[ML][RecipeDao][getRecipe] Invoked with parameters: recipeId=" + recipeId);
+        System.out.println("[RecipeDao][getRecipe] Invoked with parameters: recipeId=" + recipeId);
         Recipe recipe = jdbcTemplate.query(
                 SQL_GET_RECIPE,
                 resultSet -> {
@@ -344,7 +344,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public boolean isUsed(Integer recipeId) {
-        System.out.println("[ML][RecipeDao][isUsed] Invoked with parameters: recipeId=" + recipeId);
+        System.out.println("[RecipeDao][isUsed] Invoked with parameters: recipeId=" + recipeId);
         Integer objectId = jdbcTemplate.query(
                 SQL_IS_USED,
                 resultSet -> {
@@ -357,7 +357,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public void updateMealsContents(Integer mealId, Integer recipeId, Integer orderNumber) {
-        System.out.println("[ML][RecipeDao][updateMealsContents] Invoked with parameters:"
+        System.out.println("[RecipeDao][updateMealsContents] Invoked with parameters:"
                 + " mealId=" + mealId
                 + ", recipeId=" + recipeId
                 + ", orderNumber=" + orderNumber
@@ -367,7 +367,7 @@ public class MealPlannerRecipesRepositoryImpl implements MealPlannerRecipesRepos
 
     @Override
     public void updateRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        System.out.println("[ML][RecipeDao][updateRecipe] Invoked with parameters:"
+        System.out.println("[RecipeDao][updateRecipe] Invoked with parameters:"
                 + " recipeId=" + recipeId
                 + ", name='" + name + "'"
                 + ", description='" + description + "'"

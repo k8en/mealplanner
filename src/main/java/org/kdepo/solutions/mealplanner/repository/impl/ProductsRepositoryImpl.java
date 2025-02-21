@@ -1,7 +1,7 @@
 package org.kdepo.solutions.mealplanner.repository.impl;
 
 import org.kdepo.solutions.mealplanner.model.Product;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerProductsRepository;
+import org.kdepo.solutions.mealplanner.repository.ProductsRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,7 +11,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 @Repository
-public class MealPlannerProductsRepositoryImpl implements MealPlannerProductsRepository {
+public class ProductsRepositoryImpl implements ProductsRepository {
 
     private static final BigDecimal DECIMAL_MULTIPLIER = BigDecimal.valueOf(10000L);
     private static final Integer DECIMAL_SCALE = 5;
@@ -25,13 +25,13 @@ public class MealPlannerProductsRepositoryImpl implements MealPlannerProductsRep
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MealPlannerProductsRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public ProductsRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Product addProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        System.out.println("[ML][ProductDao][addProduct] Invoked with parameters:"
+        System.out.println("[ProductDao][addProduct] Invoked with parameters:"
                 + " productId=" + productId
                 + ", name='" + name + "'"
                 + ", description='" + description + "'"
@@ -53,13 +53,13 @@ public class MealPlannerProductsRepositoryImpl implements MealPlannerProductsRep
 
     @Override
     public void deleteProduct(Integer productId) {
-        System.out.println("[ML][ProductDao][deleteProduct] Invoked with parameters: productId=" + productId);
+        System.out.println("[ProductDao][deleteProduct] Invoked with parameters: productId=" + productId);
         jdbcTemplate.update(SQL_DELETE_PRODUCT, productId);
     }
 
     @Override
     public List<Product> getAllProducts() {
-        System.out.println("[ML][ProductDao][getAllProducts] Invoked without parameters");
+        System.out.println("[ProductDao][getAllProducts] Invoked without parameters");
         return jdbcTemplate.query(
                 SQL_GET_ALL_PRODUCTS,
                 (resultSet, rowNum) -> {
@@ -100,7 +100,7 @@ public class MealPlannerProductsRepositoryImpl implements MealPlannerProductsRep
 
     @Override
     public Product getProduct(Integer productId) {
-        System.out.println("[ML][ProductDao][getProduct] Invoked with parameters: productId=" + productId);
+        System.out.println("[ProductDao][getProduct] Invoked with parameters: productId=" + productId);
         return jdbcTemplate.query(
                 SQL_GET_PRODUCT,
                 resultSet -> {
@@ -142,7 +142,7 @@ public class MealPlannerProductsRepositoryImpl implements MealPlannerProductsRep
 
     @Override
     public boolean isUsed(Integer productId) {
-        System.out.println("[ML][ProductDao][isUsed] Invoked with parameters: productId=" + productId);
+        System.out.println("[ProductDao][isUsed] Invoked with parameters: productId=" + productId);
         Integer objectId = jdbcTemplate.query(
                 SQL_IS_USED,
                 resultSet -> {
@@ -155,7 +155,7 @@ public class MealPlannerProductsRepositoryImpl implements MealPlannerProductsRep
 
     @Override
     public void updateProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        System.out.println("[ML][ProductDao][updateProduct] Invoked with parameters:"
+        System.out.println("[ProductDao][updateProduct] Invoked with parameters:"
                 + " productId=" + productId
                 + ", name='" + name + "'"
                 + ", description='" + description + "'"

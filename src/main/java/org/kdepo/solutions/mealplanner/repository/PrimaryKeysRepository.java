@@ -1,6 +1,6 @@
 package org.kdepo.solutions.mealplanner.repository;
 
-public interface MealPlannerPrimaryKeysRepository {
+public interface PrimaryKeysRepository {
 
     /**
      * Returns next available primary key value by entity primary key name

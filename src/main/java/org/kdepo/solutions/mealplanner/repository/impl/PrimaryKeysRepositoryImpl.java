@@ -1,19 +1,19 @@
 package org.kdepo.solutions.mealplanner.repository.impl;
 
-import org.kdepo.solutions.mealplanner.repository.MealPlannerPrimaryKeysRepository;
+import org.kdepo.solutions.mealplanner.repository.PrimaryKeysRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class MealPlannerPrimaryKeysRepositoryImpl implements MealPlannerPrimaryKeysRepository {
+public class PrimaryKeysRepositoryImpl implements PrimaryKeysRepository {
 
     private static final String SQL_GET_NEXT_VAL = "SELECT next_val FROM primary_keys WHERE name = ?";
     private static final String SQL_MOVE_NEXT_VAL = "UPDATE primary_keys SET next_val = next_val + 1 WHERE name = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MealPlannerPrimaryKeysRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public PrimaryKeysRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

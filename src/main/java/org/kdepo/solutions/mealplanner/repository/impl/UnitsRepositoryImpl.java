@@ -1,7 +1,7 @@
 package org.kdepo.solutions.mealplanner.repository.impl;
 
 import org.kdepo.solutions.mealplanner.model.Unit;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerUnitsRepository;
+import org.kdepo.solutions.mealplanner.repository.UnitsRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class MealPlannerUnitsRepositoryImpl implements MealPlannerUnitsRepository {
+public class UnitsRepositoryImpl implements UnitsRepository {
 
     private static final String SQL_ADD_UNIT = "INSERT INTO units (unit_id, name, short_name, accuracy) VALUES (?, ?, ?, ?)";
     private static final String SQL_DELETE_UNIT = "DELETE FROM units WHERE unit_id = ?";
@@ -20,13 +20,13 @@ public class MealPlannerUnitsRepositoryImpl implements MealPlannerUnitsRepositor
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MealPlannerUnitsRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public UnitsRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Unit addUnit(Integer unitId, String name, String shortName, Integer accuracy) {
-        System.out.println("[ML][UnitDao][addUnit] Invoked with parameters:"
+        System.out.println("[UnitDao][addUnit] Invoked with parameters:"
                 + " unit_id=" + unitId
                 + ", name='" + name + "'"
                 + ", shortName='" + shortName + "'"
@@ -40,13 +40,13 @@ public class MealPlannerUnitsRepositoryImpl implements MealPlannerUnitsRepositor
 
     @Override
     public void deleteUnit(Integer unitId) {
-        System.out.println("[ML][UnitDao][deleteUnit] Invoked with parameters: unitId=" + unitId);
+        System.out.println("[UnitDao][deleteUnit] Invoked with parameters: unitId=" + unitId);
         jdbcTemplate.update(SQL_DELETE_UNIT, unitId);
     }
 
     @Override
     public List<Unit> getAllUnits() {
-        System.out.println("[ML][UnitDao][getAllUnits] Invoked without parameters");
+        System.out.println("[UnitDao][getAllUnits] Invoked without parameters");
         return jdbcTemplate.query(
                 SQL_GET_ALL_UNITS,
                 (resultSet, rowNum) -> {
@@ -68,7 +68,7 @@ public class MealPlannerUnitsRepositoryImpl implements MealPlannerUnitsRepositor
 
     @Override
     public Unit getUnit(Integer unitId) {
-        System.out.println("[ML][UnitDao][getUnit] Invoked with parameters: unitId=" + unitId);
+        System.out.println("[UnitDao][getUnit] Invoked with parameters: unitId=" + unitId);
         return jdbcTemplate.query(
                 SQL_GET_UNIT,
                 resultSet -> {
@@ -91,7 +91,7 @@ public class MealPlannerUnitsRepositoryImpl implements MealPlannerUnitsRepositor
 
     @Override
     public boolean isUnitUsed(Integer unitId) {
-        System.out.println("[ML][UnitDao][isUnitUsed] Invoked with parameters: unitId=" + unitId);
+        System.out.println("[UnitDao][isUnitUsed] Invoked with parameters: unitId=" + unitId);
         Integer objectId = jdbcTemplate.query(
                 SQL_IS_USED,
                 resultSet -> {
@@ -104,7 +104,7 @@ public class MealPlannerUnitsRepositoryImpl implements MealPlannerUnitsRepositor
 
     @Override
     public void updateUnit(Integer unitId, String name, String shortName, Integer accuracy) {
-        System.out.println("[ML][UnitDao][updateUnit] Invoked with parameters:"
+        System.out.println("[UnitDao][updateUnit] Invoked with parameters:"
                 + " unitId=" + unitId
                 + ", name='" + name + "'"
                 + ", shortName='" + shortName + "'"

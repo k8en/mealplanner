@@ -1,7 +1,7 @@
 package org.kdepo.solutions.mealplanner.repository.impl;
 
 import org.kdepo.solutions.mealplanner.model.Week;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerWeeksRepository;
+import org.kdepo.solutions.mealplanner.repository.WeeksRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class MealPlannerWeeksRepositoryImpl implements MealPlannerWeeksRepository {
+public class WeeksRepositoryImpl implements WeeksRepository {
 
     private static final String SQL_ADD_WEEK = "INSERT INTO weeks (week_id, profile_id, name, order_number) VALUES (?, ?, ?, ?)";
     private static final String SQL_DELETE_WEEK = "DELETE FROM weeks WHERE week_id = ?";
@@ -21,13 +21,13 @@ public class MealPlannerWeeksRepositoryImpl implements MealPlannerWeeksRepositor
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MealPlannerWeeksRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public WeeksRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Week addWeek(Integer weekId, Integer profileId, String name, Integer orderNumber) {
-        System.out.println("[ML][WeekDao][addWeek] Invoked with parameters:"
+        System.out.println("[WeekDao][addWeek] Invoked with parameters:"
                 + " weekId=" + weekId
                 + ", profileId=" + profileId
                 + ", name='" + name + "'"
@@ -40,13 +40,13 @@ public class MealPlannerWeeksRepositoryImpl implements MealPlannerWeeksRepositor
 
     @Override
     public void deleteWeek(Integer weekId) {
-        System.out.println("[ML][WeekDao][deleteWeek] Invoked with parameters: weekId=" + weekId);
+        System.out.println("[WeekDao][deleteWeek] Invoked with parameters: weekId=" + weekId);
         jdbcTemplate.update(SQL_DELETE_WEEK, weekId);
     }
 
     @Override
     public List<Week> getAllWeeksFromProfile(Integer profileId) {
-        System.out.println("[ML][WeekDao][getAllWeeksFromProfile] Invoked with parameters: profileId=" + profileId);
+        System.out.println("[WeekDao][getAllWeeksFromProfile] Invoked with parameters: profileId=" + profileId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_WEEKS_FROM_PROFILE,
                 (resultSet, rowNum) -> {
@@ -69,7 +69,7 @@ public class MealPlannerWeeksRepositoryImpl implements MealPlannerWeeksRepositor
 
     @Override
     public Integer getOrderNumber(Integer profileId) {
-        System.out.println("[ML][WeekDao][getOrderNumber] Invoked with parameters: profileId=" + profileId);
+        System.out.println("[WeekDao][getOrderNumber] Invoked with parameters: profileId=" + profileId);
         return jdbcTemplate.query(
                 SQL_GET_ORDER_NUMBER,
                 resultSet -> {
@@ -81,7 +81,7 @@ public class MealPlannerWeeksRepositoryImpl implements MealPlannerWeeksRepositor
 
     @Override
     public Week getWeek(Integer weekId) {
-        System.out.println("[ML][WeekDao][getWeek] Invoked with parameters: weekId=" + weekId);
+        System.out.println("[WeekDao][getWeek] Invoked with parameters: weekId=" + weekId);
         return jdbcTemplate.query(
                 SQL_GET_WEEK,
                 resultSet -> {
@@ -104,7 +104,7 @@ public class MealPlannerWeeksRepositoryImpl implements MealPlannerWeeksRepositor
 
     @Override
     public boolean isUsed(Integer weekId) {
-        System.out.println("[ML][WeekDao][isUsed] Invoked with parameters: weekId=" + weekId);
+        System.out.println("[WeekDao][isUsed] Invoked with parameters: weekId=" + weekId);
         Integer objectId = jdbcTemplate.query(
                 SQL_IS_USED,
                 resultSet -> {
@@ -117,7 +117,7 @@ public class MealPlannerWeeksRepositoryImpl implements MealPlannerWeeksRepositor
 
     @Override
     public void updateWeek(Integer weekId, Integer profileId, String name, Integer orderNumber) {
-        System.out.println("[ML][WeekDao][updateWeek] Invoked with parameters:"
+        System.out.println("[WeekDao][updateWeek] Invoked with parameters:"
                 + " weekId=" + weekId
                 + ", profileId=" + profileId
                 + ", name='" + name + "'"

@@ -4,7 +4,7 @@ import org.kdepo.solutions.mealplanner.model.Meal;
 
 import java.util.List;
 
-public interface MealPlannerMealsRepository {
+public interface MealsRepository {
 
     Meal addMeal(Integer mealId, Integer dayId, String name, Integer orderNumber);
 

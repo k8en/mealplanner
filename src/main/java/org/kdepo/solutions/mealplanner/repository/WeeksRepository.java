@@ -4,7 +4,7 @@ import org.kdepo.solutions.mealplanner.model.Week;
 
 import java.util.List;
 
-public interface MealPlannerWeeksRepository {
+public interface WeeksRepository {
 
     Week addWeek(Integer weekId, Integer profileId, String name, Integer orderNumber);
 

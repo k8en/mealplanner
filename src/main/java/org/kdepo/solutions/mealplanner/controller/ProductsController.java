@@ -2,8 +2,8 @@ package org.kdepo.solutions.mealplanner.controller;
 
 import org.kdepo.solutions.mealplanner.model.Product;
 import org.kdepo.solutions.mealplanner.model.Recipe;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerProductsRepository;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerRecipesRepository;
+import org.kdepo.solutions.mealplanner.repository.ProductsRepository;
+import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +19,10 @@ import java.util.List;
 public class ProductsController {
 
     @Autowired
-    private MealPlannerProductsRepository productsRepository;
+    private ProductsRepository productsRepository;
 
     @Autowired
-    private MealPlannerRecipesRepository recipesRepository;
+    private RecipesRepository recipesRepository;
 
     @GetMapping
     public String showProductsListPage(Model model) {

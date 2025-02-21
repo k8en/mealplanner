@@ -2,8 +2,8 @@ package org.kdepo.solutions.mealplanner.controller;
 
 import org.kdepo.solutions.mealplanner.model.Recipe;
 import org.kdepo.solutions.mealplanner.model.Tag;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerRecipesRepository;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerTagsRepository;
+import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
+import org.kdepo.solutions.mealplanner.repository.TagsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +19,10 @@ import java.util.List;
 public class TagsController {
 
     @Autowired
-    private MealPlannerRecipesRepository recipesRepository;
+    private RecipesRepository recipesRepository;
 
     @Autowired
-    private MealPlannerTagsRepository tagsRepository;
+    private TagsRepository tagsRepository;
 
     @GetMapping
     public String showTagsListPage(Model model) {

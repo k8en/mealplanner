@@ -1,7 +1,7 @@
 package org.kdepo.solutions.mealplanner.repository.impl;
 
 import org.kdepo.solutions.mealplanner.model.Profile;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerProfilesRepository;
+import org.kdepo.solutions.mealplanner.repository.ProfilesRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class MealPlannerProfilesRepositoryImpl implements MealPlannerProfilesRepository {
+public class ProfilesRepositoryImpl implements ProfilesRepository {
 
     private static final String SQL_ADD_PROFILE = "INSERT INTO profiles (profile_id, name, order_number) VALUES (?, ?, ?)";
     private static final String SQL_DELETE_PROFILE = "DELETE FROM profiles WHERE profile_id = ?";
@@ -21,13 +21,13 @@ public class MealPlannerProfilesRepositoryImpl implements MealPlannerProfilesRep
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MealPlannerProfilesRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public ProfilesRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Profile addProfile(Integer profileId, String name, Integer orderNumber) {
-        System.out.println("[ML][ProfileDao][addProfile] Invoked with parameters:"
+        System.out.println("[ProfileDao][addProfile] Invoked with parameters:"
                 + " profileId=" + profileId
                 + ", name='" + name + "'"
                 + ", orderNumber=" + orderNumber
@@ -39,14 +39,14 @@ public class MealPlannerProfilesRepositoryImpl implements MealPlannerProfilesRep
 
     @Override
     public void deleteProfile(Integer profileId) {
-        System.out.println("[ML][ProfileDao][deleteProfile] Invoked with parameters: profileId=" + profileId);
+        System.out.println("[ProfileDao][deleteProfile] Invoked with parameters: profileId=" + profileId);
 
         jdbcTemplate.update(SQL_DELETE_PROFILE, profileId);
     }
 
     @Override
     public List<Profile> getAllProfiles() {
-        System.out.println("[ML][ProfileDao][getAllProfiles] Invoked without parameters");
+        System.out.println("[ProfileDao][getAllProfiles] Invoked without parameters");
         return jdbcTemplate.query(
                 SQL_GET_ALL_PROFILES,
                 (resultSet, rowNum) -> {
@@ -66,7 +66,7 @@ public class MealPlannerProfilesRepositoryImpl implements MealPlannerProfilesRep
 
     @Override
     public Integer getOrderNumber() {
-        System.out.println("[ML][ProfileDao][getOrderNumber] Invoked without parameters");
+        System.out.println("[ProfileDao][getOrderNumber] Invoked without parameters");
         return jdbcTemplate.query(
                 SQL_GET_ORDER_NUMBER,
                 resultSet -> {
@@ -77,7 +77,7 @@ public class MealPlannerProfilesRepositoryImpl implements MealPlannerProfilesRep
 
     @Override
     public Profile getProfile(Integer profileId) {
-        System.out.println("[ML][ProfileDao][getProfile] Invoked with parameters: profileId=" + profileId);
+        System.out.println("[ProfileDao][getProfile] Invoked with parameters: profileId=" + profileId);
         return jdbcTemplate.query(
                 SQL_GET_PROFILE,
                 resultSet -> {
@@ -98,7 +98,7 @@ public class MealPlannerProfilesRepositoryImpl implements MealPlannerProfilesRep
 
     @Override
     public boolean isUsed(Integer profileId) {
-        System.out.println("[ML][ProfileDao][isUsed] Invoked with parameters: profileId=" + profileId);
+        System.out.println("[ProfileDao][isUsed] Invoked with parameters: profileId=" + profileId);
         Integer objectId = jdbcTemplate.query(
                 SQL_IS_USED,
                 resultSet -> {
@@ -111,7 +111,7 @@ public class MealPlannerProfilesRepositoryImpl implements MealPlannerProfilesRep
 
     @Override
     public void updateProfile(Integer profileId, String name, Integer orderNumber) {
-        System.out.println("[ML][ProfileDao][updateProfile] Invoked with parameters:"
+        System.out.println("[ProfileDao][updateProfile] Invoked with parameters:"
                 + " profileId=" + profileId
                 + ", name='" + name + "'"
                 + ", orderNumber=" + orderNumber

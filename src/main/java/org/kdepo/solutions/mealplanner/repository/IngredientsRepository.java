@@ -4,7 +4,7 @@ import org.kdepo.solutions.mealplanner.model.Ingredient;
 
 import java.util.List;
 
-public interface MealPlannerIngredientsRepository {
+public interface IngredientsRepository {
 
     Ingredient addIngredient(Integer ingredientId, String name, Integer recipeId, Integer productId, Integer amount, Integer unitId);
 

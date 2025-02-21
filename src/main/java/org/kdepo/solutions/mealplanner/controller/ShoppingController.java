@@ -3,9 +3,9 @@ package org.kdepo.solutions.mealplanner.controller;
 import org.kdepo.solutions.mealplanner.model.Day;
 import org.kdepo.solutions.mealplanner.model.Meal;
 import org.kdepo.solutions.mealplanner.model.Recipe;
-import org.kdepo.solutions.mealplanner.repository.impl.MealPlannerDaysRepositoryImpl;
-import org.kdepo.solutions.mealplanner.repository.impl.MealPlannerMealsRepositoryImpl;
-import org.kdepo.solutions.mealplanner.repository.impl.MealPlannerRecipesRepositoryImpl;
+import org.kdepo.solutions.mealplanner.repository.impl.DaysRepositoryImpl;
+import org.kdepo.solutions.mealplanner.repository.impl.MealsRepositoryImpl;
+import org.kdepo.solutions.mealplanner.repository.impl.RecipesRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,13 +21,13 @@ import java.util.Optional;
 public class ShoppingController {
 
     @Autowired
-    private MealPlannerDaysRepositoryImpl daysRepository;
+    private DaysRepositoryImpl daysRepository;
 
     @Autowired
-    private MealPlannerRecipesRepositoryImpl recipesRepository;
+    private RecipesRepositoryImpl recipesRepository;
 
     @Autowired
-    private MealPlannerMealsRepositoryImpl mealsRepository;
+    private MealsRepositoryImpl mealsRepository;
 
     @GetMapping()
     public String showDeviceDetailsPage(@RequestParam("weekId") Optional<String> weekId,

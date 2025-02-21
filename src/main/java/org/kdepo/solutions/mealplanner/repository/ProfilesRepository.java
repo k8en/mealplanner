@@ -4,7 +4,7 @@ import org.kdepo.solutions.mealplanner.model.Profile;
 
 import java.util.List;
 
-public interface MealPlannerProfilesRepository {
+public interface ProfilesRepository {
 
     Profile addProfile(Integer profileId, String name, Integer orderNumber);
 

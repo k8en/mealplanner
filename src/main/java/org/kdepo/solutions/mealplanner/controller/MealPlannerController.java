@@ -10,11 +10,11 @@ import org.kdepo.solutions.mealplanner.model.Meal;
 import org.kdepo.solutions.mealplanner.model.Profile;
 import org.kdepo.solutions.mealplanner.model.Recipe;
 import org.kdepo.solutions.mealplanner.model.Week;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerDaysRepository;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerMealsRepository;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerProfilesRepository;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerRecipesRepository;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerWeeksRepository;
+import org.kdepo.solutions.mealplanner.repository.DaysRepository;
+import org.kdepo.solutions.mealplanner.repository.MealsRepository;
+import org.kdepo.solutions.mealplanner.repository.ProfilesRepository;
+import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
+import org.kdepo.solutions.mealplanner.repository.WeeksRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,19 +31,19 @@ import java.util.Optional;
 public class MealPlannerController {
 
     @Autowired
-    private MealPlannerDaysRepository daysRepository;
+    private DaysRepository daysRepository;
 
     @Autowired
-    private MealPlannerMealsRepository mealsRepository;
+    private MealsRepository mealsRepository;
 
     @Autowired
-    private MealPlannerProfilesRepository profilesRepository;
+    private ProfilesRepository profilesRepository;
 
     @Autowired
-    private MealPlannerRecipesRepository recipesRepository;
+    private RecipesRepository recipesRepository;
 
     @Autowired
-    private MealPlannerWeeksRepository weeksRepository;
+    private WeeksRepository weeksRepository;
 
     @GetMapping
     public String showProfilesListPage(Model model,

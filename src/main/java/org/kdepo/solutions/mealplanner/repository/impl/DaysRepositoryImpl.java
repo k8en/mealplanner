@@ -1,7 +1,7 @@
 package org.kdepo.solutions.mealplanner.repository.impl;
 
 import org.kdepo.solutions.mealplanner.model.Day;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerDaysRepository;
+import org.kdepo.solutions.mealplanner.repository.DaysRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class MealPlannerDaysRepositoryImpl implements MealPlannerDaysRepository {
+public class DaysRepositoryImpl implements DaysRepository {
 
     private static final String SQL_ADD_DAY = "INSERT INTO days (day_id, week_id, name, order_number) VALUES (?, ?, ?, ?)";
     private static final String SQL_DELETE_DAY = "DELETE FROM days WHERE day_id = ?";
@@ -21,13 +21,13 @@ public class MealPlannerDaysRepositoryImpl implements MealPlannerDaysRepository 
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MealPlannerDaysRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public DaysRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Day addDay(Integer dayId, Integer weekId, String name, Integer orderNumber) {
-        System.out.println("[ML][DayDao][addDay] Invoked with parameters:"
+        System.out.println("[DayDao][addDay] Invoked with parameters:"
                 + " dayId=" + dayId
                 + ", weekId=" + weekId
                 + ", name='" + name + "'"
@@ -40,13 +40,13 @@ public class MealPlannerDaysRepositoryImpl implements MealPlannerDaysRepository 
 
     @Override
     public void deleteDay(Integer dayId) {
-        System.out.println("[ML][DayDao][deleteDay] Invoked with parameters: dayId=" + dayId);
+        System.out.println("[DayDao][deleteDay] Invoked with parameters: dayId=" + dayId);
         jdbcTemplate.update(SQL_DELETE_DAY, dayId);
     }
 
     @Override
     public List<Day> getAllDaysFromWeek(Integer weekId) {
-        System.out.println("[ML][DayDao][getAllDaysFromWeek] Invoked with parameters: weekId=" + weekId);
+        System.out.println("[DayDao][getAllDaysFromWeek] Invoked with parameters: weekId=" + weekId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_DAYS_FROM_WEEK,
                 (resultSet, rowNum) -> {
@@ -68,7 +68,7 @@ public class MealPlannerDaysRepositoryImpl implements MealPlannerDaysRepository 
 
     @Override
     public Day getDay(Integer dayId) {
-        System.out.println("[ML][DayDao][getDay] Invoked with parameters: dayId=" + dayId);
+        System.out.println("[DayDao][getDay] Invoked with parameters: dayId=" + dayId);
         return jdbcTemplate.query(
                 SQL_GET_DAY,
                 resultSet -> {
@@ -90,7 +90,7 @@ public class MealPlannerDaysRepositoryImpl implements MealPlannerDaysRepository 
 
     @Override
     public Integer getOrderNumber(Integer weekId) {
-        System.out.println("[ML][DayDao][getOrderNumber] Invoked with parameters: weekId=" + weekId);
+        System.out.println("[DayDao][getOrderNumber] Invoked with parameters: weekId=" + weekId);
         return jdbcTemplate.query(
                 SQL_GET_ORDER_NUMBER,
                 resultSet -> {
@@ -102,7 +102,7 @@ public class MealPlannerDaysRepositoryImpl implements MealPlannerDaysRepository 
 
     @Override
     public boolean isUsed(Integer dayId) {
-        System.out.println("[ML][DayDao][isUsed] Invoked with parameters: dayId=" + dayId);
+        System.out.println("[DayDao][isUsed] Invoked with parameters: dayId=" + dayId);
         Integer objectId = jdbcTemplate.query(
                 SQL_IS_USED,
                 resultSet -> {
@@ -115,7 +115,7 @@ public class MealPlannerDaysRepositoryImpl implements MealPlannerDaysRepository 
 
     @Override
     public void updateDay(Integer dayId, Integer weekId, String name, Integer orderNumber) {
-        System.out.println("[ML][DayDao][updateDay] Invoked with parameters:"
+        System.out.println("[DayDao][updateDay] Invoked with parameters:"
                 + " dayId=" + dayId
                 + ", weekId=" + weekId
                 + ", name='" + name + "'"

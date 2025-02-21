@@ -1,7 +1,7 @@
 package org.kdepo.solutions.mealplanner.repository.impl;
 
 import org.kdepo.solutions.mealplanner.model.Ingredient;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerIngredientsRepository;
+import org.kdepo.solutions.mealplanner.repository.IngredientsRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class MealPlannerIngredientsRepositoryImpl implements MealPlannerIngredientsRepository {
+public class IngredientsRepositoryImpl implements IngredientsRepository {
 
     private static final String SQL_ADD_INGREDIENT = "INSERT INTO ingredients (ingredient_id, name, recipe_id, product_id, amount, unit_id) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_DELETE_INGREDIENT = "DELETE FROM ingredients WHERE ingredient_id = ?";
@@ -19,13 +19,13 @@ public class MealPlannerIngredientsRepositoryImpl implements MealPlannerIngredie
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MealPlannerIngredientsRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    public IngredientsRepositoryImpl(@Qualifier("mealPlannerJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Ingredient addIngredient(Integer ingredientId, String name, Integer recipeId, Integer productId, Integer amount, Integer unitId) {
-        System.out.println("[ML][IngredientDao][addIngredient] Invoked with parameters:"
+        System.out.println("[IngredientDao][addIngredient] Invoked with parameters:"
                 + " ingredientId=" + ingredientId
                 + ", name='" + name + "'"
                 + ", recipeId=" + recipeId
@@ -40,13 +40,13 @@ public class MealPlannerIngredientsRepositoryImpl implements MealPlannerIngredie
 
     @Override
     public void deleteIngredient(Integer ingredientId) {
-        System.out.println("[ML][IngredientDao][deleteIngredient] Invoked with parameters: ingredientId=" + ingredientId);
+        System.out.println("[IngredientDao][deleteIngredient] Invoked with parameters: ingredientId=" + ingredientId);
         jdbcTemplate.update(SQL_DELETE_INGREDIENT, ingredientId);
     }
 
     @Override
     public List<Ingredient> getAllIngredientsFromRecipe(Integer recipeId) {
-        System.out.println("[ML][IngredientDao][getAllIngredientsFromRecipe] Invoked with parameters: recipeId=" + recipeId);
+        System.out.println("[IngredientDao][getAllIngredientsFromRecipe] Invoked with parameters: recipeId=" + recipeId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_INGREDIENTS_FROM_RECIPE,
                 (resultSet, rowNum) -> {
@@ -73,7 +73,7 @@ public class MealPlannerIngredientsRepositoryImpl implements MealPlannerIngredie
 
     @Override
     public Ingredient getIngredient(Integer ingredientId) {
-        System.out.println("[ML][IngredientDao][getIngredient] Invoked with parameters: ingredientId=" + ingredientId);
+        System.out.println("[IngredientDao][getIngredient] Invoked with parameters: ingredientId=" + ingredientId);
         return jdbcTemplate.query(
                 SQL_GET_INGREDIENT,
                 resultSet -> {
@@ -100,7 +100,7 @@ public class MealPlannerIngredientsRepositoryImpl implements MealPlannerIngredie
 
     @Override
     public void updateIngredient(Integer ingredientId, String name, Integer recipeId, Integer productId, Integer amount, Integer unitId) {
-        System.out.println("[ML][IngredientDao][updateIngredient] Invoked with parameters:"
+        System.out.println("[IngredientDao][updateIngredient] Invoked with parameters:"
                 + " ingredientId=" + ingredientId
                 + ", name='" + name + "'"
                 + ", recipeId=" + recipeId

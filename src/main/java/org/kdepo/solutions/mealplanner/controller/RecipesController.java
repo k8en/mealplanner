@@ -5,8 +5,8 @@ import org.kdepo.solutions.mealplanner.model.Ingredient;
 import org.kdepo.solutions.mealplanner.model.Recipe;
 import org.kdepo.solutions.mealplanner.model.Tag;
 import org.kdepo.solutions.mealplanner.model.Unit;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerRecipesRepository;
-import org.kdepo.solutions.mealplanner.repository.MealPlannerUnitsRepository;
+import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
+import org.kdepo.solutions.mealplanner.repository.UnitsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,10 +32,10 @@ public class RecipesController {
     private int defaultPortioning = 2;
 
     @Autowired
-    private MealPlannerRecipesRepository recipesRepository;
+    private RecipesRepository recipesRepository;
 
     @Autowired
-    private MealPlannerUnitsRepository unitsRepository;
+    private UnitsRepository unitsRepository;
 
     @GetMapping
     public String showRecipesListPage(Model model) {
