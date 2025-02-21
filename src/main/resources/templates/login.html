@@ -1,19 +1,41 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height:100%; align-items:center; justify-content:center; display:flex;">
 <head>
-    <title>Spring Security Example </title>
+    <title>Авторизация</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
 </head>
-<body>
-<div th:if="${param.error}">
-    Invalid username and password.
+<body style="background-color: #e4dccf;">
+<div style="padding:50px 0;">
+
+    <form th:action="@{/login}" method="post" style="max-width:800px; padding:50px 70px; border-radius:10px; box-shadow:4px 4px 15px rgba(0, 0, 0, 0.2); background-color:#f0ebe3;">
+        <div style="text-align: center;">
+            <h3 class="text-center" style="font-weight: bold; margin-bottom: 30px;">Авторизация</h3>
+        </div>
+
+        <div>
+            <input class="form-control item" style="border-radius: 10px; margin-bottom: 25px; padding: 10px 20px;"
+                   type="text" name="username" maxlength="15" minlength="4" pattern="^[a-zA-Z0-9_.-]*$" id="username" placeholder="Логин" required>
+        </div>
+
+        <div>
+            <input class="form-control item" style="border-radius: 10px; margin-bottom: 25px; padding: 10px 20px;"
+                   type="password" name="Пароль" minlength="6" id="password" placeholder="Пароль" required>
+        </div>
+
+        <div>
+            <button style="border-radius:30px; padding:10px 20px; font-weight:bold; border:none; color:white; margin-top:20px; background-color:#1b90bb; width:100%; display:block;" type="submit">ВОЙТИ</button>
+        </div>
+
+        <div style="text-align: center; color: red;" th:if="${param.error}">
+            Invalid username and password.
+        </div>
+        <div style="text-align: center; color: red;" th:if="${param.logout}">
+            You have been logged out.
+        </div>
+    </form>
 </div>
-<div th:if="${param.logout}">
-    You have been logged out.
-</div>
-<form th:action="@{/login}" method="post">
-    <div><label> User Name : <input type="text" name="username"/> </label></div>
-    <div><label> Password: <input type="password" name="password"/> </label></div>
-    <div><input type="submit" value="Sign In"/></div>
-</form>
 </body>
 </html>
