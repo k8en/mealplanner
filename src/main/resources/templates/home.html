@@ -1,20 +1,68 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="https://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
 <head>
     <title>Планировщик питания</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" th:href="@{/styles/common.css}">
 </head>
-<body>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
 
-<div class="ctrl_panel">
-    <span class="ctrl_button"><a href="/profiles">Профили питания</a></span>
-    <span class="ctrl_button"><a href="/recipes">Рецепты</a></span>
-    <span class="ctrl_button"><a href="/products">Продукты</a></span>
-    <span class="ctrl_button"><a href="/tags">Метки</a></span>
+        <div class="ctrl_panel">
+            <span class="ctrl_button"><a href="/profiles">Профили питания</a></span>
+            <span class="ctrl_button"><a href="/recipes">Рецепты</a></span>
+            <span class="ctrl_button"><a href="/products">Продукты</a></span>
+            <span class="ctrl_button"><a href="/tags">Метки</a></span>
+        </div>
+
+        <form action="#" th:action="@{'/'}" method="get">
+            <table style="border:none;">
+                <tr style="border:none;">
+                    <td style="text-align:right; width:200px; border:none;">Профиль питания</td>
+                    <td style="border:none;">
+                        <select name="profileId" id="profileId">
+                            <option th:each="profile : ${profiles}" th:value="${profile.profileId}" th:text="${profile.name}" th:selected="${profile.profileId==profileId}"></option>
+                        </select>
+                    </td>
+                    <td style="text-align:left; border:none;"><input type="submit" value="Показать"></td>
+                </tr>
+            </table>
+        </form>
+
+        <div class="content_block" th:if="${detailedProfile != null and !detailedProfile.weeks.empty}">
+            <div th:each="week : ${detailedProfile.weeks}">
+                <span style="font-weight: bold;" th:text="${week.name}"></span><a th:href="@{'/shopping?weekId=' + ${week.weekId} + '&portions=2'}" th:text="'(список покупок)'"></a>
+                <table th:if="${week != null and !week.days.empty}">
+                    <tr class="tr">
+                        <th class="th" style="width:180px" th:each="day : ${week.days}" th:text="${day.name}"></th>
+                    </tr>
+                    <tr class="tr">
+                        <td class="td" style="text-align:left; vertical-align:top;" th:each="day : ${week.days}">
+                            <span th:if="${day.meals.empty}">Нет информации для отображения</span>
+                            <div th:unless="${day.meals.empty}">
+                                <div th:each="meal : ${day.meals}">
+                                    <span th:text="${meal.name} + ':'"></span>
+                                    </br>
+                                    <span th:each="recipe : ${meal.recipes}">
+                                        <a th:href="@{'/recipes/' + ${recipe.recipeId}}" th:text="${recipe.name}"></a>
+                                    </span>
+                                    </br>
+                                    </br>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <span th:if="${week == null or week.days.empty}">Нет информации для отображения</span>
+                </br>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
 </div>
-
-<!--<p>Click <a th:href="@{/hello}">here</a> to see a greeting.</p>-->
 </body>
 </html>

@@ -18,19 +18,28 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(
-                                "/",
-                                "/home",
-                                "/recipes",
-                                "/styles/common.css"
-                        ).permitAll()
+                        // For not registered only
+                        .requestMatchers("/registration").not().fullyAuthenticated()
+
+                        // For users
+
+                        // For admins
+
+                        // For all
+                        .requestMatchers("/", "/login", "/home", "/recipes", "/styles/common.css").permitAll()
+
+                        //
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
                         .loginPage("/login")
+                        .defaultSuccessUrl("/")
                         .permitAll()
                 )
-                .logout((logout) -> logout.permitAll());
+                .logout((logout) -> logout
+                        .logoutSuccessUrl("/")
+                        .permitAll()
+                );
 
         return http.build();
     }

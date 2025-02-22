@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/mealplanner")
+@RequestMapping("/")
 public class MealPlannerController {
 
     @Autowired
@@ -48,8 +48,7 @@ public class MealPlannerController {
     @GetMapping
     public String showProfilesListPage(Model model,
                                        @RequestParam("profileId") Optional<String> profileId) {
-        System.out.println("[WEB]" + " GET " + "/mealplanner"
-                + (profileId.map(s -> "?profileId=" + s).orElse("")));
+        System.out.println("[WEB]" + " GET " + "/" + (profileId.map(s -> "?profileId=" + s).orElse("")));
 
         List<Profile> profiles = profilesRepository.getAllProfiles();
         model.addAttribute("profiles", profiles);
