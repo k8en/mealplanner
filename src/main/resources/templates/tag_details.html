@@ -13,10 +13,9 @@
     <div class="content">
 
         <div class="ctrl_panel">
-            <span class="ctrl_button"><a href="/profiles">Профили питания</a></span>
-            <span class="ctrl_button"><a href="/recipes">Рецепты</a></span>
-            <span class="ctrl_button"><a href="/products">Продукты</a></span>
-            <span class="ctrl_button"><a href="/tags">Метки</a></span>
+            <span class="ctrl_button"><a href="/tags/create">Добавить новую метку</a></span>
+            <span class="ctrl_button"><a th:href="@{'/tags/' + ${tag.tagId} + '/update'}">Редактировать</a></span>
+            <span class="ctrl_button"><a th:href="@{'/tags/' + ${tag.tagId} + '/delete'}">Удалить</a></span>
         </div>
 
         <table>

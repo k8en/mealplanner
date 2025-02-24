@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Редактирование информации о метке</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <h3>Редактирование информации о метке</h3>
+
+        <div class="form_block">
+            <form action="#" th:action="@{'/tags/' + ${tag.tagId} + '/update'}" method="post" th:object="${tag}">
+                <input type="hidden" th:field="*{tagId}"/>
+
+                <div class="form_element">
+                    <label for="f_name">Название</label>
+                    <input type="text" id="f_name" th:field="*{name}" placeholder="Введите название.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_description">Примечание</label>
+                    <input type="text" id="f_description" th:field="*{description}" placeholder="Введите примечание.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                </div>
+
+                <div style="display: flex;">
+                    <input type="submit" value="Подтвердить">
+                    <input type="button" value="Отмена" onclick="javascript:window.history.go(-1); return false;">
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

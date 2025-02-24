@@ -9,17 +9,14 @@
 </head>
 <body class="body">
 <div class="page">
-    <div th:replace="~{fragment_header :: header}"/>
+    <div th:replace="~{fragment_header :: header}"></div>
     <div class="content">
 
         <div class="ctrl_panel">
-            <span class="ctrl_button"><a href="/profiles">Профили питания</a></span>
-            <span class="ctrl_button"><a href="/recipes">Рецепты</a></span>
-            <span class="ctrl_button"><a href="/products">Продукты</a></span>
-            <span class="ctrl_button"><a href="/tags">Метки</a></span>
+            <span class="ctrl_button"><a href="/tags/create">Добавить новую метку</a></span>
         </div>
 
-        <h3>Метки</h3>
+        <h3>Список меток</h3>
 
         <div th:switch="${#lists.size(tags)}">
             <span th:case="'0'">Нет информации для отображения</span>
@@ -31,7 +28,7 @@
         </div>
 
     </div>
-    <div th:replace="~{fragment_footer :: footer}"/>
+    <div th:replace="~{fragment_footer :: footer}"></div>
 </div>
 </body>
 </html>
