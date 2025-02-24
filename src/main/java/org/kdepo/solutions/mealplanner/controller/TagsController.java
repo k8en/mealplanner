@@ -161,7 +161,8 @@ public class TagsController {
 
         List<Tag> allTags = tagsRepository.getAllTags();
         for (Tag tagToValidate : allTags) {
-            if (tagToValidate.getName().equalsIgnoreCase(tagName)) {
+            if (tagToValidate.getName().equalsIgnoreCase(tagName)
+                    && !tagToValidate.getTagId().equals(id)) {
                 FieldError nameFieldError = new FieldError("tag", "name", "Объект с таким именем уже существует!");
                 result.addError(nameFieldError);
                 return "tag_update";
