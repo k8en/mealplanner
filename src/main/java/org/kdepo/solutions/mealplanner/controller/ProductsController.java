@@ -1,22 +1,33 @@
 package org.kdepo.solutions.mealplanner.controller;
 
+import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.model.Product;
 import org.kdepo.solutions.mealplanner.model.Recipe;
+import org.kdepo.solutions.mealplanner.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.repository.ProductsRepository;
 import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
 @Controller
 @RequestMapping("/products")
 public class ProductsController {
+
+    private static final String PK = "product_id";
+
+    @Autowired
+    private PrimaryKeysRepository primaryKeysRepository;
 
     @Autowired
     private ProductsRepository productsRepository;
@@ -34,11 +45,11 @@ public class ProductsController {
         return "products_list";
     }
 
-    @GetMapping("/{pid}")
-    public String showDeviceDetailsPage(@PathVariable Integer pid, Model model) {
-        System.out.println("[WEB]" + " GET " + "/products/" + pid);
+    @GetMapping("/{id}")
+    public String showProductDetailsPage(@PathVariable Integer id, Model model) {
+        System.out.println("[WEB]" + " GET " + "/products/" + id);
 
-        Product product = productsRepository.getProduct(pid);
+        Product product = productsRepository.getProduct(id);
         if (product != null) {
             model.addAttribute("product", product);
 
@@ -49,6 +60,239 @@ public class ProductsController {
         } else {
             return "redirect:/products_list";
         }
+    }
+
+    @GetMapping("/create")
+    public String showProductCreationForm(Model model) {
+        System.out.println("[WEB]" + " GET " + "/products/create");
+
+        Product product = new Product();
+        product.setProductId(-1);
+        product.setCalories(BigDecimal.ZERO);
+        product.setProteins(BigDecimal.ZERO);
+        product.setFats(BigDecimal.ZERO);
+        product.setCarbs(BigDecimal.ZERO);
+
+        model.addAttribute("product", product);
+
+        return "product_create";
+    }
+
+    @PostMapping("/create")
+    public String acceptProductCreationForm(@Valid Product product, BindingResult result) {
+        System.out.println("[WEB]" + " POST " + "/products/create");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        // Validate that provided data is correct
+        String productName = product.getName();
+        if (productName == null || productName.isEmpty()) {
+            FieldError nameFieldError = new FieldError("product", "name", "Поле не может быть пустым!");
+            result.addError(nameFieldError);
+            return "product_create";
+        }
+
+        if (productName.length() > 50) {
+            FieldError nameFieldError = new FieldError("product", "name", "Название не может быть длиннее 50 символов!");
+            result.addError(nameFieldError);
+            return "product_create";
+        }
+
+        List<Product> allProducts = productsRepository.getAllProducts();
+        for (Product productToValidate : allProducts) {
+            if (productToValidate.getName().equalsIgnoreCase(productName)) {
+                FieldError nameFieldError = new FieldError("product", "name", "Объект с таким именем уже существует!");
+                result.addError(nameFieldError);
+                return "product_create";
+            }
+        }
+
+        if (BigDecimal.ZERO.compareTo(product.getCalories()) > 0) {
+            FieldError nameFieldError = new FieldError("product", "calories", "Значение не может быть отрицательным!");
+            result.addError(nameFieldError);
+            return "product_create";
+        }
+
+        if (BigDecimal.ZERO.compareTo(product.getProteins()) > 0) {
+            FieldError nameFieldError = new FieldError("product", "proteins", "Значение не может быть отрицательным!");
+            result.addError(nameFieldError);
+            return "product_create";
+        }
+
+        if (BigDecimal.ZERO.compareTo(product.getFats()) > 0) {
+            FieldError nameFieldError = new FieldError("product", "fats", "Значение не может быть отрицательным!");
+            result.addError(nameFieldError);
+            return "product_create";
+        }
+
+        if (BigDecimal.ZERO.compareTo(product.getCarbs()) > 0) {
+            FieldError nameFieldError = new FieldError("product", "carbs", "Значение не может быть отрицательным!");
+            result.addError(nameFieldError);
+            return "product_create";
+        }
+
+        if (product.getDescription() != null && product.getDescription().length() > 200) {
+            FieldError nameFieldError = new FieldError("product", "description", "Примечание не может быть длиннее 200 символов!");
+            result.addError(nameFieldError);
+            return "product_create";
+        }
+
+        // Generate primary key for new entity
+        Integer productId = primaryKeysRepository.getNextVal(PK);
+        primaryKeysRepository.moveNextVal(PK);
+        product.setProductId(productId);
+
+        // Create entity
+        productsRepository.addProduct(product.getProductId(), product.getName(), product.getDescription(), product.getCalories(), product.getProteins(), product.getFats(), product.getCarbs());
+
+        // Register operation in system events log
+        // TODO
+
+        return "redirect:/products/" + product.getProductId();
+    }
+
+    @GetMapping("/{id}/update")
+    public String showProductModificationForm(@PathVariable Integer id, Model model) {
+        System.out.println("[WEB]" + " GET " + "/products/" + id + "/update");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        Product product = productsRepository.getProduct(id);
+        if (product != null) {
+            model.addAttribute("product", product);
+            return "product_update";
+        } else {
+            return "redirect:/products";
+        }
+    }
+
+    @PostMapping("/{id}/update")
+    public String acceptProductModificationForm(@Valid Product product, @PathVariable Integer id, BindingResult result) {
+        System.out.println("[WEB]" + " POST " + "/products/" + id + "/update");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        // Validate that provided data is correct
+        String productName = product.getName();
+        if (productName == null || productName.isEmpty()) {
+            FieldError nameFieldError = new FieldError("product", "name", "Поле не может быть пустым!");
+            result.addError(nameFieldError);
+            return "product_update";
+        }
+
+        if (productName.length() > 50) {
+            FieldError nameFieldError = new FieldError("product", "name", "Название не может быть длиннее 50 символов!");
+            result.addError(nameFieldError);
+            return "product_update";
+        }
+
+        List<Product> allProducts = productsRepository.getAllProducts();
+        for (Product productToValidate : allProducts) {
+            if (productToValidate.getName().equalsIgnoreCase(productName)
+                    && !productToValidate.getProductId().equals(id)) {
+                FieldError nameFieldError = new FieldError("product", "name", "Объект с таким именем уже существует!");
+                result.addError(nameFieldError);
+                return "product_update";
+            }
+        }
+
+        if (BigDecimal.ZERO.compareTo(product.getCalories()) > 0) {
+            FieldError nameFieldError = new FieldError("product", "calories", "Значение не может быть отрицательным!");
+            result.addError(nameFieldError);
+            return "product_update";
+        }
+
+        if (BigDecimal.ZERO.compareTo(product.getProteins()) > 0) {
+            FieldError nameFieldError = new FieldError("product", "proteins", "Значение не может быть отрицательным!");
+            result.addError(nameFieldError);
+            return "product_update";
+        }
+
+        if (BigDecimal.ZERO.compareTo(product.getFats()) > 0) {
+            FieldError nameFieldError = new FieldError("product", "fats", "Значение не может быть отрицательным!");
+            result.addError(nameFieldError);
+            return "product_update";
+        }
+
+        if (BigDecimal.ZERO.compareTo(product.getCarbs()) > 0) {
+            FieldError nameFieldError = new FieldError("product", "carbs", "Значение не может быть отрицательным!");
+            result.addError(nameFieldError);
+            return "product_update";
+        }
+
+        if (product.getDescription() != null && product.getDescription().length() > 200) {
+            FieldError nameFieldError = new FieldError("product", "description", "Примечание не может быть длиннее 200 символов!");
+            result.addError(nameFieldError);
+            return "product_update";
+        }
+
+        // Validate that object is exist
+        boolean isExist = false;
+        for (Product productToValidate : allProducts) {
+            if (productToValidate.getProductId().equals(product.getProductId())) {
+                isExist = true;
+                break;
+            }
+        }
+        if (!isExist) {
+            return "redirect:/products";
+        }
+
+        // Update entity
+        productsRepository.updateProduct(product.getProductId(), product.getName(), product.getDescription(), product.getCalories(), product.getProteins(), product.getFats(), product.getCarbs());
+
+        // Register operation in system events log
+        // TODO
+
+        return "redirect:/products/" + product.getProductId();
+    }
+
+    @GetMapping("/{id}/delete")
+    public String showProductDeletionForm(@PathVariable Integer id, Model model) {
+        System.out.println("[WEB]" + " GET " + "/products/" + id + "/delete");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        Product product = productsRepository.getProduct(id);
+        if (product == null) {
+            return "redirect:/products";
+        }
+        model.addAttribute("product", product);
+
+        return "product_delete";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String acceptProductDeletionForm(@PathVariable Integer id) {
+        System.out.println("[WEB]" + " POST " + "/products/" + id + "/delete");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        if (id == null) {
+            System.out.println("[WEB] Error! Product id not provided!");
+            return "redirect:/products";
+        }
+
+        Product product = productsRepository.getProduct(id);
+        if (product == null) {
+            return "redirect:/products";
+        }
+
+        // Validate usages in ingredients
+        // TODO
+
+        // Delete entity
+        productsRepository.deleteProduct(product.getProductId());
+
+        // Register operation in system events log
+        // TODO
+
+        return "redirect:/products";
     }
 
 }

@@ -13,10 +13,9 @@
     <div class="content">
 
         <div class="ctrl_panel">
-            <span class="ctrl_button"><a href="/mealplanner/profiles">Профили питания</a></span>
-            <span class="ctrl_button"><a href="/mealplanner/recipes">Рецепты</a></span>
-            <span class="ctrl_button"><a href="/mealplanner/products">Продукты</a></span>
-            <span class="ctrl_button"><a href="/mealplanner/tags">Метки</a></span>
+            <span class="ctrl_button"><a href="/products/create">Добавить новый продукт</a></span>
+            <span class="ctrl_button"><a th:href="@{'/products/' + ${product.productId} + '/update'}">Редактировать</a></span>
+            <span class="ctrl_button"><a th:href="@{'/products/' + ${product.productId} + '/delete'}">Удалить</a></span>
         </div>
 
         <table>
