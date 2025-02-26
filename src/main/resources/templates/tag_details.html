@@ -16,6 +16,8 @@
             <span class="ctrl_button"><a href="/tags/create">Добавить новую метку</a></span>
             <span class="ctrl_button"><a th:href="@{'/tags/' + ${tag.tagId} + '/update'}">Редактировать</a></span>
             <span class="ctrl_button"><a th:href="@{'/tags/' + ${tag.tagId} + '/delete'}">Удалить</a></span>
+            <span class="ctrl_button"><a th:href="@{'/tags/' + ${tag.tagId} + '/set'}">Проставить метку на рецепты</a></span>
+            <span class="ctrl_button"><a th:href="@{'/tags/' + ${tag.tagId} + '/unset'}">Удалить метку с рецептов</a></span>
         </div>
 
         <table>

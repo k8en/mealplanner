@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Collections;
 import java.util.List;
@@ -242,6 +243,72 @@ public class TagsController {
         // TODO
 
         return "redirect:/tags";
+    }
+
+    @GetMapping("/{id}/set")
+    public String showTagSetForm(@PathVariable Integer id, Model model) {
+        System.out.println("[WEB]" + " GET " + "/tags/" + id + "/set");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        Tag tag = tagsRepository.getTag(id);
+        if (tag == null) {
+            return "redirect:/tags";
+        }
+        model.addAttribute("tag", tag);
+
+        List<Recipe> recipes = recipesRepository.getAllRecipes();
+        model.addAttribute("recipes", recipes);
+
+        return "tag_set";
+    }
+
+    @PostMapping("/{id}/set")
+    public String acceptTagSetForm(@PathVariable Integer id, @RequestParam("selectedRecipes") List<Integer> selectedRecipes) {
+        System.out.println("[WEB]" + " POST " + "/tags/" + id + "/set");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        for (Integer recipeId : selectedRecipes) {
+            tagsRepository.addTagToRecipe(id, recipeId);
+        }
+
+        return "redirect:/tags/" + id;
+    }
+
+    @GetMapping("/{id}/unset")
+    public String showTagUnsetForm(@PathVariable Integer id, Model model) {
+        System.out.println("[WEB]" + " GET " + "/tags/" + id + "/unset");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        Tag tag = tagsRepository.getTag(id);
+        if (tag == null) {
+            return "redirect:/tags";
+        }
+        model.addAttribute("tag", tag);
+
+        List<Recipe> recipes = recipesRepository.getAllRecipes(Collections.emptyList(), Collections.singletonList(tag.getTagId()));
+        model.addAttribute("recipes", recipes);
+
+        return "tag_unset";
+    }
+
+    @PostMapping("/{id}/unset")
+    public String acceptTagUnsetForm(@PathVariable Integer id, @RequestParam("selectedRecipes") List<Integer> selectedRecipes) {
+        System.out.println("[WEB]" + " POST " + "/tags/" + id + "/unset");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        for (Integer recipeId : selectedRecipes) {
+            tagsRepository.deleteTagFromRecipe(id, recipeId);
+        }
+
+        return "redirect:/tags/" + id;
     }
 
 }

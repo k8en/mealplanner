@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Проставление метки на рецепты</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <h3 th:text="'Проставить метку ' + ${tag.name} + ' на рецепты'"></h3>
+
+        <div th:switch="${#lists.size(recipes)}">
+
+            <div th:case="'0'">
+                <span>Нет информации для отображения</span>
+                <a href="javascript:window.history.back();">Вернуться</a>
+            </div>
+
+            <div th:case="*" class="form_block">
+                <form action="#" th:action="@{'/tags/' + ${tag.tagId} + '/set'}" method="post" th:object="${tag}">
+                    <input type="hidden" th:field="*{tagId}"/>
+
+                    <ul style="list-style-type: none; margin: 0; padding: 0;">
+                        <li th:each="recipe : ${recipes}">
+                            <input type="checkbox" name="selectedRecipes" th:value="${recipe.recipeId}"/>
+                            <label th:text="${recipe.name}"></label>
+                        </li>
+                    </ul>
+
+                    <div style="display: flex;">
+                        <input type="submit" value="Подтвердить">
+                        <input type="button" value="Отмена" onclick="javascript:window.history.go(-1); return false;">
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>
