@@ -1,17 +1,24 @@
 package org.kdepo.solutions.mealplanner.controller;
 
+import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.dto.RecipeDto;
 import org.kdepo.solutions.mealplanner.model.Ingredient;
 import org.kdepo.solutions.mealplanner.model.Recipe;
 import org.kdepo.solutions.mealplanner.model.Tag;
 import org.kdepo.solutions.mealplanner.model.Unit;
+import org.kdepo.solutions.mealplanner.repository.PrimaryKeysRepository;
+import org.kdepo.solutions.mealplanner.repository.ProductsRepository;
 import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
+import org.kdepo.solutions.mealplanner.repository.TagsRepository;
 import org.kdepo.solutions.mealplanner.repository.UnitsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,13 +33,24 @@ import java.util.Optional;
 @RequestMapping("/recipes")
 public class RecipesController {
 
+    private static final String PK = "recipe_id";
+
     private static final DecimalFormat PORTIONING_FORMAT = new DecimalFormat("#.#");
     private static final String RECIPE_NAME_TEMPLATE = "{0} (на {1} {2}), расчетная порционность - {3}";
 
     private int defaultPortioning = 2;
 
     @Autowired
+    private PrimaryKeysRepository primaryKeysRepository;
+
+    @Autowired
+    private ProductsRepository productsRepository;
+
+    @Autowired
     private RecipesRepository recipesRepository;
+
+    @Autowired
+    private TagsRepository tagsRepository;
 
     @Autowired
     private UnitsRepository unitsRepository;
@@ -47,13 +65,11 @@ public class RecipesController {
         return "recipes_list";
     }
 
-    @GetMapping("/{rid}")
-    public String showDeviceDetailsPage(@PathVariable Integer rid,
+    @GetMapping("/{id}")
+    public String showRecipeDetailsPage(@PathVariable Integer id,
                                         @RequestParam("portions") Optional<String> portions,
                                         Model model) {
-        System.out.println("[WEB]" + " GET " + "/recipes/" + rid
-                + (portions.map(s -> "?portions=" + s).orElse(""))
-        );
+        System.out.println("[WEB]" + " GET " + "/recipes/" + id + (portions.map(s -> "?portions=" + s).orElse("")));
 
         if (portions.isPresent()) {
             try {
@@ -64,7 +80,7 @@ public class RecipesController {
         }
         model.addAttribute("portions", defaultPortioning);
 
-        Recipe recipe = recipesRepository.getRecipe(rid);
+        Recipe recipe = recipesRepository.getRecipe(id);
         if (recipe != null) {
             float portionsMultiplier = (defaultPortioning * 1.0f) / recipe.getPortions();
 
@@ -123,6 +139,202 @@ public class RecipesController {
         } else {
             return "redirect:/recipes";
         }
+    }
+
+    @GetMapping("/create")
+    public String showRecipeCreationForm(Model model) {
+        System.out.println("[WEB]" + " GET " + "/recipes/create");
+
+//        List<Product> products = productsRepository.getAllProducts();
+//        model.addAttribute("products", products);
+
+//        List<Tag> tags = tagsRepository.getAllTags();
+//        model.addAttribute("tags", tags);
+
+//        List<Unit> units = unitsRepository.getAllUnits();
+//        model.addAttribute("units", units);
+
+        Recipe recipe = new Recipe();
+        recipe.setRecipeId(-1);
+        model.addAttribute("recipe", recipe);
+
+        return "recipe_create";
+    }
+
+    @PostMapping("/create")
+    public String acceptRecipeCreationForm(@Valid Recipe recipe, BindingResult result) {
+        System.out.println("[WEB]" + " POST " + "/recipes/create");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        // Validate that provided data is correct
+        String recipeName = recipe.getName();
+        if (recipeName == null || recipeName.isEmpty()) {
+            FieldError nameFieldError = new FieldError("recipe", "name", "Поле не может быть пустым!");
+            result.addError(nameFieldError);
+            return "recipe_create";
+        }
+
+        if (recipeName.length() > 200) {
+            FieldError nameFieldError = new FieldError("recipe", "name", "Название не может быть длиннее 200 символов!");
+            result.addError(nameFieldError);
+            return "recipe_create";
+        }
+
+        if (recipe.getDescription() != null && recipe.getDescription().length() > 2000) {
+            FieldError nameFieldError = new FieldError("recipe", "description", "Описание не может быть длиннее 2000 символов!");
+            result.addError(nameFieldError);
+            return "recipe_create";
+        }
+
+        // TODO add other validations
+
+        // Generate primary key for new entity
+        Integer recipeId = primaryKeysRepository.getNextVal(PK);
+        primaryKeysRepository.moveNextVal(PK);
+        recipe.setRecipeId(recipeId);
+
+        // Create entity
+        recipesRepository.addRecipe(
+                recipe.getRecipeId(),
+                recipe.getName(),
+                recipe.getDescription(),
+                recipe.getSource(),
+                recipe.getPortions(),
+                recipe.getWeight(),
+                recipe.getCalories(),
+                recipe.getProteins(),
+                recipe.getFats(),
+                recipe.getCarbs()
+        );
+
+        // Register operation in system events log
+        // TODO
+
+        return "redirect:/recipes/" + recipe.getRecipeId();
+    }
+
+    @GetMapping("/{id}/update")
+    public String showRecipeModificationForm(@PathVariable Integer id, Model model) {
+        System.out.println("[WEB]" + " GET " + "/tags/" + id + "/update");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        Recipe recipe = recipesRepository.getRecipe(id);
+        if (recipe != null) {
+            model.addAttribute("recipe", recipe);
+            return "recipe_update";
+        } else {
+            return "redirect:/recipes";
+        }
+    }
+
+    @PostMapping("/{id}/update")
+    public String acceptRecipeModificationForm(@Valid Recipe recipe, @PathVariable Integer id, BindingResult result) {
+        System.out.println("[WEB]" + " POST " + "/recipes/" + id + "/update");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        // Validate that provided data is correct
+        String recipeName = recipe.getName();
+        if (recipeName == null || recipeName.isEmpty()) {
+            FieldError nameFieldError = new FieldError("recipe", "name", "Поле не может быть пустым!");
+            result.addError(nameFieldError);
+            return "recipe_create";
+        }
+
+        if (recipeName.length() > 200) {
+            FieldError nameFieldError = new FieldError("recipe", "name", "Название не может быть длиннее 200 символов!");
+            result.addError(nameFieldError);
+            return "recipe_create";
+        }
+
+        if (recipe.getDescription() != null && recipe.getDescription().length() > 2000) {
+            FieldError nameFieldError = new FieldError("recipe", "description", "Описание не может быть длиннее 2000 символов!");
+            result.addError(nameFieldError);
+            return "recipe_create";
+        }
+
+        // TODO add other validations
+
+        // Validate that object is exist
+        boolean isExist = recipesRepository.getRecipe(id) != null;
+        if (!isExist) {
+            return "redirect:/recipes";
+        }
+
+        // Update entity
+        recipesRepository.updateRecipe(
+                recipe.getRecipeId(),
+                recipe.getName(),
+                recipe.getDescription(),
+                recipe.getSource(),
+                recipe.getPortions(),
+                recipe.getWeight(),
+                recipe.getCalories(),
+                recipe.getProteins(),
+                recipe.getFats(),
+                recipe.getCarbs()
+        );
+
+        // Register operation in system events log
+        // TODO
+
+        return "redirect:/recipes/" + recipe.getRecipeId();
+    }
+
+    @GetMapping("/{id}/delete")
+    public String showRecipeDeletionForm(@PathVariable Integer id, Model model) {
+        System.out.println("[WEB]" + " GET " + "/recipes/" + id + "/delete");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        Recipe recipe = recipesRepository.getRecipe(id);
+        if (recipe == null) {
+            return "redirect:/recipes";
+        }
+        model.addAttribute("recipe", recipe);
+
+        return "recipe_delete";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String acceptRecipeDeletionForm(@PathVariable Integer id) {
+        System.out.println("[WEB]" + " POST " + "/recipes/" + id + "/delete");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        if (id == null) {
+            System.out.println("[WEB] Error! Recipe id not provided!");
+            return "redirect:/recipes";
+        }
+
+        Recipe recipe = recipesRepository.getRecipe(id);
+        if (recipe == null) {
+            return "redirect:/recipes";
+        }
+
+        // Delete ingredients
+        // TODO
+
+        // Delete tag bindings
+        List<Tag> tagsByRecipe = tagsRepository.getAllTagsForRecipe(recipe.getRecipeId());
+        for (Tag tag : tagsByRecipe) {
+            tagsRepository.deleteTagFromRecipe(tag.getTagId(), recipe.getRecipeId());
+        }
+
+        // Delete entity
+        recipesRepository.deleteRecipe(recipe.getRecipeId());
+
+        // Register operation in system events log
+        // TODO
+
+        return "redirect:/recipes";
     }
 
     private String getPortioningWord(int portions) {

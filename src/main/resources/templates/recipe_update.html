@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Редактирование информации о рецепте</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <h3>Редактирование информации о рецепте</h3>
+
+        <div class="form_block">
+            <form action="#" th:action="@{'/recipes/' + ${recipe.recipeId} + '/update'}" method="post" th:object="${recipe}">
+                <input type="hidden" th:field="*{recipeId}"/>
+
+                <div class="form_element">
+                    <label for="f_name">Название</label>
+                    <input type="text" id="f_name" th:field="*{name}" placeholder="Введите название.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_description">Описание</label>
+                    <textarea id="f_description" th:name="description" th:field="*{description}" placeholder="Введите описание.."></textarea>
+                    <span class="validation_error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_source">Источник</label>
+                    <input type="text" id="f_source" th:field="*{source}" placeholder="Введите источник.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('source')}" th:errors="*{source}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_portions">Количество порций</label>
+                    <input type="text" id="f_portions" th:field="*{portions}" placeholder="Введите количество порций.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('portions')}" th:errors="*{portions}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_weight">Вес готово блюда</label>
+                    <input type="text" id="f_weight" th:field="*{weight}" placeholder="Введите вес готового блюда.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('weight')}" th:errors="*{weight}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_calories">Калорийность</label>
+                    <input type="text" id="f_calories" th:field="*{calories}" placeholder="Введите калорийность блюда.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('calories')}" th:errors="*{calories}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_proteins">Количество белков</label>
+                    <input type="text" id="f_proteins" th:field="*{proteins}" placeholder="Введите количество белков.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('proteins')}" th:errors="*{proteins}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_fats">Количество жиров</label>
+                    <input type="text" id="f_fats" th:field="*{fats}" placeholder="Введите количество жиров.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('fats')}" th:errors="*{fats}"></span>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_carbs">Количество углеводов</label>
+                    <input type="text" id="f_carbs" th:field="*{carbs}" placeholder="Введите количество углеводов.."/>
+                    <span class="validation_error" th:if="${#fields.hasErrors('carbs')}" th:errors="*{carbs}"></span>
+                </div>
+
+                <div style="display: flex;">
+                    <input type="submit" value="Подтвердить">
+                    <input type="button" value="Отмена" onclick="javascript:window.history.go(-1); return false;">
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

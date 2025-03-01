@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Удаление информации о рецепте</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <h3>Удаление информации о рецепте</h3>
+
+        <div class="form_block">
+            <form action="#" th:action="@{'/recipes/' + ${recipe.recipeId} + '/delete'}" method="post" th:object="${recipe}">
+                <input type="hidden" th:field="*{recipeId}"/>
+
+                <div class="form_element">
+                    <label for="f_name">Название</label>
+                    <input type="text" id="f_name" th:field="*{name}" disabled="disabled"/>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_description">Описание</label>
+                    <textarea id="f_description" th:name="description" th:field="*{description}" disabled="disabled"></textarea>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_source">Источник</label>
+                    <input type="text" id="f_source" th:field="*{source}" disabled="disabled"/>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_portions">Количество порций</label>
+                    <input type="text" id="f_portions" th:field="*{portions}" disabled="disabled"/>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_weight">Вес готово блюда</label>
+                    <input type="text" id="f_weight" th:field="*{weight}" disabled="disabled"/>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_calories">Калорийность</label>
+                    <input type="text" id="f_calories" th:field="*{calories}" disabled="disabled"/>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_proteins">Количество белков</label>
+                    <input type="text" id="f_proteins" th:field="*{proteins}" disabled="disabled"/>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_fats">Количество жиров</label>
+                    <input type="text" id="f_fats" th:field="*{fats}" disabled="disabled"/>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_carbs">Количество углеводов</label>
+                    <input type="text" id="f_carbs" th:field="*{carbs}" disabled="disabled"/>
+                </div>
+
+                <div style="display: flex;">
+                    <input type="submit" value="Подтвердить">
+                    <input type="button" value="Отмена" onclick="javascript:window.history.go(-1); return false;">
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

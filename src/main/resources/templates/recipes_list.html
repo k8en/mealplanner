@@ -13,13 +13,10 @@
     <div class="content">
 
         <div class="ctrl_panel">
-            <span class="ctrl_button"><a href="/profiles">Профили питания</a></span>
-            <span class="ctrl_button"><a href="/recipes">Рецепты</a></span>
-            <span class="ctrl_button"><a href="/products">Продукты</a></span>
-            <span class="ctrl_button"><a href="/tags">Метки</a></span>
+            <span class="ctrl_button"><a href="/recipes/create">Добавить новый рецепт</a></span>
         </div>
 
-        <h3>Рецепты</h3>
+        <h3>Список рецептов</h3>
 
         <div th:switch="${#lists.size(recipes)}">
             <span th:case="'0'">Нет информации для отображения</span>
