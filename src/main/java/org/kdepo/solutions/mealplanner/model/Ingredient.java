@@ -35,7 +35,7 @@ public class Ingredient {
         this.recipeId = recipeId;
     }
 
-    public int getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
@@ -43,7 +43,7 @@ public class Ingredient {
         this.productId = productId;
     }
 
-    public int getAmount() {
+    public Integer getAmount() {
         return amount;
     }
 
@@ -51,7 +51,7 @@ public class Ingredient {
         this.amount = amount;
     }
 
-    public int getUnitId() {
+    public Integer getUnitId() {
         return unitId;
     }
 

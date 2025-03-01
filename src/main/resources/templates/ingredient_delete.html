@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Удаление информации об ингредиенте</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+
+    <script>
+        function lockSelect() {
+            const productSelector = document.getElementById("f_product");
+            productSelector.disabled = true;
+
+            const unitSelector = document.getElementById("f_unit");
+            unitSelector.disabled = true;
+        }
+
+        window.onload = lockSelect;
+    </script>
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <h3>Удаление информации об ингредиенте</h3>
+
+        <div class="form_block">
+            <form action="#" th:action="@{'/ingredients/' + ${ingredient.ingredientId} + '/delete'}" method="post" th:object="${ingredient}">
+                <input type="hidden" th:field="*{ingredientId}"/>
+
+                <div class="form_element">
+                    <label for="f_name">Название</label>
+                    <input type="text" id="f_name" th:field="*{name}" disabled="disabled"/>
+                </div>
+
+                <input type="hidden" th:field="*{recipeId}"/>
+
+                <div class="form_element">
+                    <label for="f_product">Продукт</label>
+                    <select id="f_product" th:field="*{productId}">
+                        <option th:each="product : ${products}"
+                                th:value="${product.productId}"
+                                th:text="${product.name}"
+                                th:selected="${product.productId==ingredient.productId}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_amount">Количество</label>
+                    <input type="text" id="f_amount" th:field="*{amount}" disabled="disabled"/>
+                </div>
+
+                <div class="form_element">
+                    <label for="f_unit">Единица измерения</label>
+                    <select id="f_unit" th:field="*{unitId}">
+                        <option th:each="unit : ${units}"
+                                th:value="${unit.unitId}"
+                                th:text="${unit.name}"
+                                th:selected="${unit.unitId==ingredient.unitId}">
+                        </option>
+                    </select>
+                </div>
+
+                <div style="display: flex;">
+                    <input type="submit" value="Подтвердить">
+                    <input type="button" value="Отмена" onclick="javascript:window.history.go(-1); return false;">
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

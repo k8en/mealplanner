@@ -68,11 +68,11 @@
 
                         <div style="padding-top: 20px;">
                             <span>Ингредиенты:</span>
-                            <div th:switch="${#lists.size(recipe.ingredients)}">
+                            <div th:switch="${#lists.size(ingredients)}">
                                 <span th:case="'0'">Нет информации для отображения</span>
                                 <ul th:case="*">
-                                    <li th:each="ingredient : ${recipe.ingredients}">
-                                        <span th:text="${ingredient}"></span>
+                                    <li th:each="ingredient : ${ingredients}">
+                                        <a th:href="@{'/ingredients/' + ${ingredient.ingredientId}}"><span th:text="${ingredient.name}"></span></a>
                                     </li>
                                 </ul>
                             </div>

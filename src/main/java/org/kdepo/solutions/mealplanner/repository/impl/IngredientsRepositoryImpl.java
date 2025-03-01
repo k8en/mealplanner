@@ -14,7 +14,7 @@ public class IngredientsRepositoryImpl implements IngredientsRepository {
     private static final String SQL_ADD_INGREDIENT = "INSERT INTO ingredients (ingredient_id, name, recipe_id, product_id, amount, unit_id) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_DELETE_INGREDIENT = "DELETE FROM ingredients WHERE ingredient_id = ?";
     private static final String SQL_GET_ALL_INGREDIENTS_FROM_RECIPE = "SELECT * FROM ingredients WHERE recipe_id = ?";
-    private static final String SQL_GET_INGREDIENT = "SELECT * FROM ingredients WHERE week_id = ?";
+    private static final String SQL_GET_INGREDIENT = "SELECT * FROM ingredients WHERE ingredient_id = ?";
     private static final String SQL_UPDATE_INGREDIENT = "UPDATE ingredients SET name = ?, recipe_id = ?, product_id = ?, amount = ?, unit_id = ? WHERE ingredient_id = ?";
 
     private final JdbcTemplate jdbcTemplate;

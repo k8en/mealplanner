@@ -117,8 +117,8 @@ public class RecipesController {
             }
 
             // Prepare ingredients list with recalculation data
-            List<String> ingredients = new ArrayList<>();
-            for (Ingredient ingredient : recipe.getIngredientsList()) {
+            List<Ingredient> ingredients = recipe.getIngredientsList();
+            for (Ingredient ingredient : ingredients) {
                 Unit unit = unitsRepository.getUnit(ingredient.getUnitId());
                 String recalculatedIngredient = ingredient.getName()
                         + " - "
@@ -126,11 +126,12 @@ public class RecipesController {
                         + " "
                         + unit.getShortName();
 
-                ingredients.add(recalculatedIngredient);
+                ingredient.setName(recalculatedIngredient);
             }
-            recipeDto.setIngredients(ingredients);
 
             model.addAttribute("recipe", recipeDto);
+
+            model.addAttribute("ingredients", ingredients);
 
             List<Tag> tags = recipe.getTagsList();
             model.addAttribute("tags", tags);
