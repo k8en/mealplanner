@@ -5,6 +5,7 @@ import org.kdepo.solutions.mealplanner.dto.RecipeDto;
 import org.kdepo.solutions.mealplanner.model.Ingredient;
 import org.kdepo.solutions.mealplanner.model.Recipe;
 import org.kdepo.solutions.mealplanner.model.Tag;
+import org.kdepo.solutions.mealplanner.model.TagSelectable;
 import org.kdepo.solutions.mealplanner.model.Unit;
 import org.kdepo.solutions.mealplanner.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.repository.ProductsRepository;
@@ -145,15 +146,6 @@ public class RecipesController {
     @GetMapping("/create")
     public String showRecipeCreationForm(Model model) {
         System.out.println("[WEB]" + " GET " + "/recipes/create");
-
-//        List<Product> products = productsRepository.getAllProducts();
-//        model.addAttribute("products", products);
-
-//        List<Tag> tags = tagsRepository.getAllTags();
-//        model.addAttribute("tags", tags);
-
-//        List<Unit> units = unitsRepository.getAllUnits();
-//        model.addAttribute("units", units);
 
         Recipe recipe = new Recipe();
         recipe.setRecipeId(-1);
@@ -336,6 +328,63 @@ public class RecipesController {
         // TODO
 
         return "redirect:/recipes";
+    }
+
+    @GetMapping("/{id}/tags")
+    public String showRecipeTagsForm(@PathVariable Integer id, Model model) {
+        System.out.println("[WEB]" + " GET " + "/recipes/" + id + "/tags");
+
+        // Validate that this operation is allowed by the current user
+        // TODO
+
+        Recipe recipe = recipesRepository.getRecipe(id);
+        if (recipe == null) {
+            return "redirect:/recipes";
+        }
+        model.addAttribute("recipe", recipe);
+
+        // Calculate tags selectable
+        List<Tag> selectedTags = tagsRepository.getAllTagsForRecipe(recipe.getRecipeId());
+        List<Integer> selectedTagsIds = selectedTags.stream()
+                .map(Tag::getTagId)
+                .toList();
+        List<Tag> allTags = tagsRepository.getAllTags();
+        List<TagSelectable> tags = new ArrayList<>();
+        for (Tag tag : allTags) {
+            TagSelectable tagSelectable = new TagSelectable();
+            tagSelectable.setTagId(tag.getTagId());
+            tagSelectable.setName(tag.getName());
+            tagSelectable.setSelected(selectedTagsIds.contains(tag.getTagId()));
+            tags.add(tagSelectable);
+        }
+        model.addAttribute("tags", tags);
+
+        return "recipe_tags";
+    }
+
+    @PostMapping("/{id}/tags")
+    public String acceptRecipeTagsForm(@PathVariable Integer id, @RequestParam("selectedTags") ArrayList<Integer> selectedTags) {
+        System.out.println("[WEB]" + " POST " + "/recipes/" + id + "/tags");
+
+        List<Tag> selectedTagsFromDb = tagsRepository.getAllTagsForRecipe(id);
+        List<Integer> selectedTagsIdsFromDb = selectedTagsFromDb.stream()
+                .map(Tag::getTagId)
+                .toList();
+        List<Integer> tagsIdsToDelete = selectedTagsIdsFromDb.stream()
+                .filter(e -> !selectedTags.contains(e))
+                .toList();
+        List<Integer> tagsIdsToAdd = selectedTags.stream()
+                .filter(e -> !selectedTagsIdsFromDb.contains(e))
+                .toList();
+
+        for (Integer tagIdToDelete : tagsIdsToDelete) {
+            tagsRepository.deleteTagFromRecipe(tagIdToDelete, id);
+        }
+        for (Integer tagIdToAdd : tagsIdsToAdd) {
+            tagsRepository.addTagToRecipe(tagIdToAdd, id);
+        }
+
+        return "redirect:/recipes/" + id;
     }
 
     private String getPortioningWord(int portions) {

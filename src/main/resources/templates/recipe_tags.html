@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Редактирование информации о метках</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <h3>Редактирование информации о метках</h3>
+
+        <div class="form_block">
+            <form th:action="@{'/recipes/' + ${recipe.recipeId} + '/tags'}" method="post">
+
+                <div class="form_element" th:each="tag : ${tags}">
+                    <input type="checkbox"
+                           name="selectedTags"
+                           th:value="${tag.tagId}"
+                           th:checked="${tag.selected}" />
+
+                    <label th:text="${tag.name}"></label>
+                    <br/>
+                </div>
+
+                <div style="display: flex;">
+                    <input type="submit" value="Подтвердить">
+                    <input type="button" value="Отмена" onclick="javascript:window.history.go(-1); return false;">
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>
