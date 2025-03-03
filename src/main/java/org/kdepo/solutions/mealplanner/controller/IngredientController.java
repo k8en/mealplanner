@@ -9,6 +9,9 @@ import org.kdepo.solutions.mealplanner.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.repository.ProductsRepository;
 import org.kdepo.solutions.mealplanner.repository.UnitsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -42,6 +45,15 @@ public class IngredientController {
     public String showIngredientDetailsPage(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/ingredients/" + id);
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         Ingredient ingredient = ingredientsRepository.getIngredient(id);
         if (ingredient != null) {
             model.addAttribute("ingredient", ingredient);
@@ -54,6 +66,15 @@ public class IngredientController {
     @GetMapping("/create")
     public String showIngredientCreationForm(Model model, @RequestParam("recipe_id") Integer recipeId) {
         System.out.println("[WEB]" + " GET " + "/ingredients/create?recipe_id=" + recipeId);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         List<Product> products = productsRepository.getAllProducts();
         model.addAttribute("products", products);
@@ -105,6 +126,15 @@ public class IngredientController {
     public String showIngredientModificationForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/ingredients/" + id + "/update");
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         // Validate that this operation is allowed by the current user
         // TODO
 
@@ -152,6 +182,15 @@ public class IngredientController {
     @GetMapping("/{id}/delete")
     public String showIngredientDeletionForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/ingredients/" + id + "/delete");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         // Validate that this operation is allowed by the current user
         // TODO

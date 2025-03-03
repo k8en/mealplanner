@@ -7,6 +7,9 @@ import org.kdepo.solutions.mealplanner.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
 import org.kdepo.solutions.mealplanner.repository.TagsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,6 +42,15 @@ public class TagsController {
     public String showTagsListPage(Model model) {
         System.out.println("[WEB]" + " GET " + "/tags");
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         List<Tag> tags = tagsRepository.getAllTags();
         model.addAttribute("tags", tags);
 
@@ -48,6 +60,15 @@ public class TagsController {
     @GetMapping("/{id}")
     public String showTagDetailsPage(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/tags/" + id);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         Tag tag = tagsRepository.getTag(id);
         if (tag != null) {
@@ -65,6 +86,15 @@ public class TagsController {
     @GetMapping("/create")
     public String showTagCreationForm(Model model) {
         System.out.println("[WEB]" + " GET " + "/tags/create");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         Tag tag = new Tag();
         tag.setTagId(-1);
@@ -126,6 +156,15 @@ public class TagsController {
     @GetMapping("/{id}/update")
     public String showTagModificationForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/tags/" + id + "/update");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         // Validate that this operation is allowed by the current user
         // TODO
@@ -201,6 +240,15 @@ public class TagsController {
     public String showTagDeletionForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/tags/" + id + "/delete");
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         // Validate that this operation is allowed by the current user
         // TODO
 
@@ -249,6 +297,15 @@ public class TagsController {
     public String showTagSetForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/tags/" + id + "/set");
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         // Validate that this operation is allowed by the current user
         // TODO
 
@@ -281,6 +338,15 @@ public class TagsController {
     @GetMapping("/{id}/unset")
     public String showTagUnsetForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/tags/" + id + "/unset");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         // Validate that this operation is allowed by the current user
         // TODO

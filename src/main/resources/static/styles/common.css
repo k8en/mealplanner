@@ -48,12 +48,19 @@
 }
 
 .navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
 	background-color: #1b90bb;
+	padding: 0 10px;
 	color:#ffffff;
-	display: table-cell;
 	font-weight: bolder;
-	height: 60px;
-	vertical-align: middle;
+}
+
+.navigation-left {
+    display: flex; /* Группируем ссылки в одну строку */
+    gap: 10px; /* Расстояние между ссылками */
 }
 
 .footer {

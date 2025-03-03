@@ -11,17 +11,24 @@
 <div class="page">
     <div class="header" th:fragment="header">
         <div class="navigation">
-<!--            <span class="paddings-medium">-->
-<!--                <a class="white-link" href="/profiles">ПРОФИЛИ ПИТАНИЯ</a>-->
-<!--            </span>-->
-            <span class="paddings-medium">
-                <a class="white-link" href="/recipes">РЕЦЕПТЫ</a>
+            <div class="navigation-left">
+                <span class="paddings-medium">
+                    <a class="white-link" href="/recipes">РЕЦЕПТЫ</a>
+                </span>
+                <span class="paddings-medium">
+                    <a class="white-link" href="/products">ПРОДУКТЫ</a>
+                </span>
+                <span class="paddings-medium">
+                    <a class="white-link" href="/tags">МЕТКИ</a>
+                </span>
+            </div>
+
+            <span class="paddings-medium" style="float: right;" th:if="${isLoggedIn}">
+                <span>Вы вошли как </span><span th:text="${userName}"></span>
+                <a class="white-link" th:href="@{/logout}">ВЫЙТИ</a>
             </span>
-            <span class="paddings-medium">
-                <a class="white-link" href="/products">ПРОДУКТЫ</a>
-            </span>
-            <span class="paddings-medium">
-                <a class="white-link" href="/tags">МЕТКИ</a>
+            <span class="paddings-medium" style="float: right;" th:unless="${isLoggedIn}">
+                <a class="white-link" th:href="@{/login}">ВОЙТИ</a>
             </span>
         </div>
     </div>

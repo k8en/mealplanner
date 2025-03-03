@@ -12,7 +12,7 @@
     <div th:replace="~{fragment_header :: header}"/>
     <div class="content">
 
-        <div class="ctrl_panel">
+        <div class="ctrl_panel" th:if="${isLoggedIn}">
             <span class="ctrl_button"><a href="/products/create">Добавить новый продукт</a></span>
             <span class="ctrl_button"><a th:href="@{'/products/' + ${product.productId} + '/update'}">Редактировать</a></span>
             <span class="ctrl_button"><a th:href="@{'/products/' + ${product.productId} + '/delete'}">Удалить</a></span>

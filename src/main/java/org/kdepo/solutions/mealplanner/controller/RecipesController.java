@@ -13,6 +13,9 @@ import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
 import org.kdepo.solutions.mealplanner.repository.TagsRepository;
 import org.kdepo.solutions.mealplanner.repository.UnitsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -60,6 +63,15 @@ public class RecipesController {
     public String showRecipesListPage(Model model) {
         System.out.println("[WEB]" + " GET " + "/recipes");
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         List<Recipe> recipes = recipesRepository.getAllRecipes();
         model.addAttribute("recipes", recipes);
 
@@ -71,6 +83,15 @@ public class RecipesController {
                                         @RequestParam("portions") Optional<String> portions,
                                         Model model) {
         System.out.println("[WEB]" + " GET " + "/recipes/" + id + (portions.map(s -> "?portions=" + s).orElse("")));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         if (portions.isPresent()) {
             try {
@@ -147,6 +168,15 @@ public class RecipesController {
     public String showRecipeCreationForm(Model model) {
         System.out.println("[WEB]" + " GET " + "/recipes/create");
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         Recipe recipe = new Recipe();
         recipe.setRecipeId(-1);
         model.addAttribute("recipe", recipe);
@@ -211,6 +241,15 @@ public class RecipesController {
     @GetMapping("/{id}/update")
     public String showRecipeModificationForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/tags/" + id + "/update");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         // Validate that this operation is allowed by the current user
         // TODO
@@ -283,6 +322,15 @@ public class RecipesController {
     public String showRecipeDeletionForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/recipes/" + id + "/delete");
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         // Validate that this operation is allowed by the current user
         // TODO
 
@@ -333,6 +381,15 @@ public class RecipesController {
     @GetMapping("/{id}/tags")
     public String showRecipeTagsForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/recipes/" + id + "/tags");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         // Validate that this operation is allowed by the current user
         // TODO

@@ -7,6 +7,9 @@ import org.kdepo.solutions.mealplanner.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.repository.ProductsRepository;
 import org.kdepo.solutions.mealplanner.repository.RecipesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,6 +42,15 @@ public class ProductsController {
     public String showProductsListPage(Model model) {
         System.out.println("[WEB]" + " GET " + "/products");
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         List<Product> products = productsRepository.getAllProducts();
         model.addAttribute("products", products);
 
@@ -48,6 +60,15 @@ public class ProductsController {
     @GetMapping("/{id}")
     public String showProductDetailsPage(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/products/" + id);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         Product product = productsRepository.getProduct(id);
         if (product != null) {
@@ -65,6 +86,15 @@ public class ProductsController {
     @GetMapping("/create")
     public String showProductCreationForm(Model model) {
         System.out.println("[WEB]" + " GET " + "/products/create");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         Product product = new Product();
         product.setProductId(-1);
@@ -155,6 +185,15 @@ public class ProductsController {
     @GetMapping("/{id}/update")
     public String showProductModificationForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/products/" + id + "/update");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         // Validate that this operation is allowed by the current user
         // TODO
@@ -253,6 +292,15 @@ public class ProductsController {
     @GetMapping("/{id}/delete")
     public String showProductDeletionForm(@PathVariable Integer id, Model model) {
         System.out.println("[WEB]" + " GET " + "/products/" + id + "/delete");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            model.addAttribute("userName", userName);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
 
         // Validate that this operation is allowed by the current user
         // TODO

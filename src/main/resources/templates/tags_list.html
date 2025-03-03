@@ -12,7 +12,7 @@
     <div th:replace="~{fragment_header :: header}"></div>
     <div class="content">
 
-        <div class="ctrl_panel">
+        <div class="ctrl_panel" th:if="${isLoggedIn}">
             <span class="ctrl_button"><a href="/tags/create">Добавить новую метку</a></span>
         </div>
 
