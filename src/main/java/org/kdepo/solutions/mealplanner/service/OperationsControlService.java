@@ -20,4 +20,28 @@ public class OperationsControlService {
     public boolean canDeleteProduct(String userName, Integer productId) {
         return true;
     }
+
+    public boolean canCreateTag(String userName) {
+        return true;
+    }
+
+    public boolean canReadTag(String userName, Integer tagId) {
+        return true;
+    }
+
+    public boolean canModifyTag(String userName, Integer tagId) {
+        return true;
+    }
+
+    public boolean canDeleteTag(String userName, Integer tagId) {
+        return true;
+    }
+
+    public boolean canSetTag(String userName, Integer tagId) {
+        return true;
+    }
+
+    public boolean canUnsetTag(String userName, Integer tagId) {
+        return true;
+    }
 }

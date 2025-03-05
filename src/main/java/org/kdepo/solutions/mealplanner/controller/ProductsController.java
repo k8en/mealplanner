@@ -283,7 +283,7 @@ public class ProductsController {
             return "redirect:/products";
         }
 
-        if (!controlService.canModifyProduct(userName, product.getProductId())) {
+        if (!controlService.canModifyProduct(userName, productFromDb.getProductId())) {
             System.out.println("Redirect back to product: user '" + userName + "' cannot modify products");
             return "redirect:/products/" + productFromDb.getProductId();
         }
@@ -425,7 +425,7 @@ public class ProductsController {
         }
 
         // Delete entity
-        productsRepository.deleteProduct(product.getProductId());
+        productsRepository.deleteProduct(productFromDb.getProductId());
 
         // Register operation in system events log
         logService.registerProductDeleted(userName, productFromDb.getProductId());
