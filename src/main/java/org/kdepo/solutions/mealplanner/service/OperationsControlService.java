@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class OperationsControlService {
 
-    public boolean canCreateProduct(String userName) {
+    public boolean canReadProduct(String userName, Integer productId) {
         return true;
     }
 
-    public boolean canReadProduct(String userName, Integer productId) {
+    public boolean canCreateProduct(String userName) {
         return true;
     }
 
@@ -21,11 +21,11 @@ public class OperationsControlService {
         return true;
     }
 
-    public boolean canCreateTag(String userName) {
+    public boolean canReadTag(String userName, Integer tagId) {
         return true;
     }
 
-    public boolean canReadTag(String userName, Integer tagId) {
+    public boolean canCreateTag(String userName) {
         return true;
     }
 
@@ -44,4 +44,21 @@ public class OperationsControlService {
     public boolean canUnsetTag(String userName, Integer tagId) {
         return true;
     }
+
+    public boolean canReadRecipe(String userName, Integer recipeId) {
+        return true;
+    }
+
+    public boolean canCreateRecipe(String userName) {
+        return true;
+    }
+
+    public boolean canModifyRecipe(String userName, Integer recipeId) {
+        return true;
+    }
+
+    public boolean canDeleteRecipe(String userName, Integer recipeId) {
+        return true;
+    }
+
 }

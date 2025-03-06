@@ -2,6 +2,7 @@ package org.kdepo.solutions.mealplanner.service;
 
 import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.model.Product;
+import org.kdepo.solutions.mealplanner.model.Recipe;
 import org.kdepo.solutions.mealplanner.model.Tag;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,22 @@ public class OperationsLogService {
     }
 
     public void registerTagUnset(String userName, Integer tagId, Integer recipeId) {
+
+    }
+
+    public void registerRecipeCreated(String userName, Recipe createdRecipe) {
+
+    }
+
+    public void registerRecipeUpdated(String userName, Recipe oldRecipeData, @Valid Recipe newRecipeData) {
+
+    }
+
+    public void registerRecipeDeleted(String userName, Integer recipeId) {
+
+    }
+
+    public void registerIngredientDeleted(String userName, Integer ingredientId) {
 
     }
 }
