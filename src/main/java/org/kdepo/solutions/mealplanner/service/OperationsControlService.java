@@ -61,4 +61,23 @@ public class OperationsControlService {
         return true;
     }
 
+    public boolean canReadIngredient(String userName, Integer ingredientId) {
+        return true;
+    }
+
+    public boolean canCreateIngredient(String userName) {
+        return true;
+    }
+
+    public boolean canModifyIngredient(String userName, Integer ingredientId) {
+        return true;
+    }
+
+    public boolean canDeleteIngredient(String userName, Integer ingredientId) {
+        return true;
+    }
+
+    public boolean canReadUnit(String userName, Integer unitId) {
+        return true;
+    }
 }

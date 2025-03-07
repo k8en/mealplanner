@@ -1,6 +1,7 @@
 package org.kdepo.solutions.mealplanner.service;
 
 import jakarta.validation.Valid;
+import org.kdepo.solutions.mealplanner.model.Ingredient;
 import org.kdepo.solutions.mealplanner.model.Product;
 import org.kdepo.solutions.mealplanner.model.Recipe;
 import org.kdepo.solutions.mealplanner.model.Tag;
@@ -9,11 +10,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class OperationsLogService {
 
-    public void registerProductCreated(String userName, Product createdProduct) {
+    public void registerProductCreated(String userName, Product product) {
 
     }
 
-    public void registerProductUpdated(String userName, Product oldProductData, @Valid Product newProductData) {
+    public void registerProductUpdated(String userName, Product oldData, @Valid Product newData) {
 
     }
 
@@ -21,11 +22,11 @@ public class OperationsLogService {
 
     }
 
-    public void registerTagCreated(String userName, Tag createdTag) {
+    public void registerTagCreated(String userName, Tag tag) {
 
     }
 
-    public void registerTagUpdated(String userName, Tag tagFromDb, @Valid Tag tag) {
+    public void registerTagUpdated(String userName, Tag oldData, @Valid Tag newData) {
 
     }
 
@@ -41,15 +42,23 @@ public class OperationsLogService {
 
     }
 
-    public void registerRecipeCreated(String userName, Recipe createdRecipe) {
+    public void registerRecipeCreated(String userName, Recipe recipe) {
 
     }
 
-    public void registerRecipeUpdated(String userName, Recipe oldRecipeData, @Valid Recipe newRecipeData) {
+    public void registerRecipeUpdated(String userName, Recipe oldData, @Valid Recipe newData) {
 
     }
 
     public void registerRecipeDeleted(String userName, Integer recipeId) {
+
+    }
+
+    public void registerIngredientCreated(String userName, Ingredient ingredient) {
+
+    }
+
+    public void registerIngredientUpdated(String userName, Ingredient oldData, @Valid Ingredient newData) {
 
     }
 
