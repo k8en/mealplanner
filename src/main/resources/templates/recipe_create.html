@@ -37,37 +37,37 @@
                 </div>
 
                 <div class="form_element">
-                    <label for="f_portions">Количество порций</label>
+                    <label for="f_portions">Количество порций, шт</label>
                     <input type="text" id="f_portions" th:field="*{portions}" placeholder="Введите количество порций.."/>
                     <span class="validation_error" th:if="${#fields.hasErrors('portions')}" th:errors="*{portions}"></span>
                 </div>
 
                 <div class="form_element">
-                    <label for="f_weight">Вес готово блюда</label>
+                    <label for="f_weight">Вес готово блюда, г</label>
                     <input type="text" id="f_weight" th:field="*{weight}" placeholder="Введите вес готового блюда.."/>
                     <span class="validation_error" th:if="${#fields.hasErrors('weight')}" th:errors="*{weight}"></span>
                 </div>
 
                 <div class="form_element">
-                    <label for="f_calories">Калорийность</label>
+                    <label for="f_calories">Калорийность, ккал</label>
                     <input type="text" id="f_calories" th:field="*{calories}" placeholder="Введите калорийность блюда.."/>
                     <span class="validation_error" th:if="${#fields.hasErrors('calories')}" th:errors="*{calories}"></span>
                 </div>
 
                 <div class="form_element">
-                    <label for="f_proteins">Количество белков</label>
+                    <label for="f_proteins">Количество белков, г</label>
                     <input type="text" id="f_proteins" th:field="*{proteins}" placeholder="Введите количество белков.."/>
                     <span class="validation_error" th:if="${#fields.hasErrors('proteins')}" th:errors="*{proteins}"></span>
                 </div>
 
                 <div class="form_element">
-                    <label for="f_fats">Количество жиров</label>
+                    <label for="f_fats">Количество жиров, г</label>
                     <input type="text" id="f_fats" th:field="*{fats}" placeholder="Введите количество жиров.."/>
                     <span class="validation_error" th:if="${#fields.hasErrors('fats')}" th:errors="*{fats}"></span>
                 </div>
 
                 <div class="form_element">
-                    <label for="f_carbs">Количество углеводов</label>
+                    <label for="f_carbs">Количество углеводов, г</label>
                     <input type="text" id="f_carbs" th:field="*{carbs}" placeholder="Введите количество углеводов.."/>
                     <span class="validation_error" th:if="${#fields.hasErrors('carbs')}" th:errors="*{carbs}"></span>
                 </div>
