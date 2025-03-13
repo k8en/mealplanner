@@ -12,6 +12,7 @@
     <modules>
         <module>server</module>
         <module>shared</module>
+        <module>autotests</module>
     </modules>
 
 </project>
