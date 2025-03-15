@@ -23,11 +23,11 @@
                 </span>
             </div>
 
-            <span class="paddings-medium" style="float: right;" th:if="${isLoggedIn}">
+            <span id="logout" class="paddings-medium" style="float: right;" th:if="${isLoggedIn}">
                 <span>Вы вошли как </span><span th:text="${userName}"></span>
                 <a class="white-link" th:href="@{/logout}">ВЫЙТИ</a>
             </span>
-            <span class="paddings-medium" style="float: right;" th:unless="${isLoggedIn}">
+            <span id="login" class="paddings-medium" style="float: right;" th:unless="${isLoggedIn}">
                 <a class="white-link" th:href="@{/login}">ВОЙТИ</a>
             </span>
         </div>
