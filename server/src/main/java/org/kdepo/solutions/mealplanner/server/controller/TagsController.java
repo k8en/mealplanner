@@ -8,6 +8,8 @@ import org.kdepo.solutions.mealplanner.shared.model.Tag;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.TagsRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,6 +32,8 @@ import java.util.Optional;
 @RequestMapping("/tags")
 public class TagsController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagsController.class);
+
     private static final String PK = "tag_id";
 
     @Autowired
@@ -49,7 +53,7 @@ public class TagsController {
 
     @GetMapping
     public String showTagsListPage(Model model) {
-        System.out.println("[WEB]" + " GET " + "/tags");
+        LOGGER.trace("[WEB] GET /tags");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -69,7 +73,7 @@ public class TagsController {
 
     @GetMapping("/{id}")
     public String showTagDetailsPage(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/tags/" + id);
+        LOGGER.trace("[WEB] GET /tags/{}", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -83,12 +87,12 @@ public class TagsController {
         // Operation availability checks
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            System.out.println("Redirect to tags list: tag not found " + id);
+            LOGGER.warn("Cannot show tag details page: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canReadTag(userName, tag.getTagId())) {
-            System.out.println("Redirect to tags list: user '" + userName + "' cannot read tag info");
+            LOGGER.warn("Cannot show tag details page: user '{}' has no access to tag {}", userName, id);
             return "redirect:/tags";
         }
 
@@ -103,7 +107,7 @@ public class TagsController {
 
     @GetMapping("/create")
     public String showTagCreationForm(Model model) {
-        System.out.println("[WEB]" + " GET " + "/tags/create");
+        LOGGER.trace("[WEB] GET /tags/create");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -112,14 +116,14 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect to tags list: anonymous user cannot create tags");
+            LOGGER.warn("Cannot show tag creation form: anonymous user cannot create tags");
             return "redirect:/tags";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
         if (!controlService.canCreateTag(userName)) {
-            System.out.println("Redirect to tags list: user '" + userName + "' cannot create tags");
+            LOGGER.warn("Cannot show tag creation form: user '{}' cannot create tags", userName);
             return "redirect:/tags";
         }
 
@@ -133,7 +137,7 @@ public class TagsController {
 
     @PostMapping("/create")
     public String acceptTagCreationForm(@Valid Tag tag, BindingResult result) {
-        System.out.println("[WEB]" + " POST " + "/tags/create");
+        LOGGER.trace("[WEB] POST /tags/create");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -141,13 +145,13 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect to tags list: anonymous user cannot create tags");
+            LOGGER.warn("Cannot accept tag creation form: anonymous user cannot create tags");
             return "redirect:/tags";
         }
 
         // Operation availability checks
         if (!controlService.canCreateTag(userName)) {
-            System.out.println("Redirect to tags list: user '" + userName + "' cannot create tags");
+            LOGGER.warn("Cannot accept tag creation form: user '{}' cannot create tags", userName);
             return "redirect:/tags";
         }
 
@@ -196,7 +200,7 @@ public class TagsController {
 
     @GetMapping("/{id}/update")
     public String showTagModificationForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/tags/" + id + "/update");
+        LOGGER.trace("[WEB] GET /tags/{}/update", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -205,19 +209,19 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect back to tag: anonymous user cannot modify tags");
+            LOGGER.warn("Cannot show tag modification form: anonymous user cannot modify tags");
             return "redirect:/tags/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            System.out.println("Redirect to tags list: tag not found " + id);
+            LOGGER.warn("Cannot show tag modification form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canModifyTag(userName, tag.getTagId())) {
-            System.out.println("Redirect back to tag: user '" + userName + "' cannot modify tags");
+            LOGGER.warn("Cannot show tag modification form: user '{}' has no access to tag {} modification", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -228,7 +232,7 @@ public class TagsController {
 
     @PostMapping("/{id}/update")
     public String acceptTagModificationForm(@Valid Tag tag, @PathVariable Integer id, BindingResult result) {
-        System.out.println("[WEB]" + " POST " + "/tags/" + id + "/update");
+        LOGGER.trace("[WEB] POST /tags/{}/update", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -236,18 +240,18 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect back to tag: anonymous user cannot modify tags");
+            LOGGER.warn("Cannot accept tag modification form: anonymous user cannot modify tags");
             return "redirect:/tags/" + id;
         }
 
         Tag tagFromDb = tagsRepository.getTag(id);
         if (tagFromDb == null) {
-            System.out.println("Redirect to tags list: tag not found " + id);
+            LOGGER.warn("Cannot accept tag modification form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canModifyTag(userName, tagFromDb.getTagId())) {
-            System.out.println("Redirect back to tag: user '" + userName + "' cannot modify tags");
+            LOGGER.warn("Cannot accept tag modification form: user '{}' has no access to tag {} modification", userName, id);
             return "redirect:/tags/" + tagFromDb.getTagId();
         }
 
@@ -292,7 +296,7 @@ public class TagsController {
 
     @GetMapping("/{id}/delete")
     public String showTagDeletionForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/tags/" + id + "/delete");
+        LOGGER.trace("[WEB] GET /tags/{}/delete", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -301,18 +305,19 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect back to tag: anonymous user cannot delete tags");
+            LOGGER.warn("Cannot show tag deletion form: anonymous user cannot delete tags");
             return "redirect:/tags/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
+            LOGGER.warn("Cannot show tag deletion form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canDeleteTag(userName, tag.getTagId())) {
-            System.out.println("Redirect back to tag: user '" + userName + "' cannot delete tags");
+            LOGGER.warn("Cannot show tag deletion form: user '{}' has no access to tag {} deletion", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -323,7 +328,7 @@ public class TagsController {
 
     @PostMapping("/{id}/delete")
     public String acceptTagDeletionForm(@PathVariable Integer id) {
-        System.out.println("[WEB]" + " POST " + "/tags/" + id + "/delete");
+        LOGGER.trace("[WEB] POST /tags/{}/delete", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -331,18 +336,18 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect back to tag: anonymous user cannot delete tags");
+            LOGGER.warn("Cannot accept tag deletion form: anonymous user cannot delete tags");
             return "redirect:/tags/" + id;
         }
 
         Tag tagFromDb = tagsRepository.getTag(id);
         if (tagFromDb == null) {
-            System.out.println("Redirect to tags list: tag not found " + id);
+            LOGGER.warn("Cannot accept tag deletion form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canDeleteTag(userName, tagFromDb.getTagId())) {
-            System.out.println("Redirect back to tag: user '" + userName + "' cannot delete tags");
+            LOGGER.warn("Cannot accept tag deletion form: user '{}' has no access to tag {} deletion", userName, id);
             return "redirect:/tags/" + tagFromDb.getTagId();
         }
 
@@ -366,7 +371,7 @@ public class TagsController {
 
     @GetMapping("/{id}/set")
     public String showTagSetForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/tags/" + id + "/set");
+        LOGGER.trace("[WEB] GET /tags/{}/set", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -375,19 +380,19 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect back to tag: anonymous user cannot set tag on recipes");
+            LOGGER.warn("Cannot show tag set form: anonymous user cannot set tag on recipes");
             return "redirect:/tags/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            System.out.println("Redirect to tags list: tag not found " + id);
+            LOGGER.warn("Cannot show tag set form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canSetTag(userName, tag.getTagId())) {
-            System.out.println("Redirect back to tag: user '" + userName + "' cannot set tags");
+            LOGGER.warn("Cannot show tag set form: user '{}' has no access to tag {} set", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -409,7 +414,7 @@ public class TagsController {
     @PostMapping("/{id}/set")
     public String acceptTagSetForm(@PathVariable Integer id,
                                    @RequestParam(value = "selectedRecipes", required = false) Optional<List<Integer>> selectedRecipes) {
-        System.out.println("[WEB]" + " POST " + "/tags/" + id + "/set");
+        LOGGER.trace("[WEB] POST /tags/{}/set", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -417,18 +422,18 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect back to tag: anonymous user cannot set tags");
+            LOGGER.warn("Cannot accept tag set form: anonymous user cannot set tag on recipes");
             return "redirect:/tags/" + id;
         }
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            System.out.println("Redirect to tags list: tag not found " + id);
+            LOGGER.warn("Cannot accept tag set form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canSetTag(userName, tag.getTagId())) {
-            System.out.println("Redirect back to tag: user '" + userName + "' cannot set tags");
+            LOGGER.warn("Cannot accept tag set form: user '{}' has no access to tag {} set", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -453,7 +458,7 @@ public class TagsController {
 
     @GetMapping("/{id}/unset")
     public String showTagUnsetForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/tags/" + id + "/unset");
+        LOGGER.trace("[WEB] GET /tags/{}/unset", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -462,19 +467,19 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect back to tag: anonymous user cannot unset tag from recipes");
+            LOGGER.warn("Cannot show tag unset form: anonymous user cannot unset tag from recipes");
             return "redirect:/tags/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            System.out.println("Redirect to tags list: tag not found " + id);
+            LOGGER.warn("Cannot show tag unset form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canUnsetTag(userName, tag.getTagId())) {
-            System.out.println("Redirect back to tag: user '" + userName + "' cannot unset tags");
+            LOGGER.warn("Cannot show tag unset form: user '{}' has no access to tag {} unset", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -489,7 +494,7 @@ public class TagsController {
     @PostMapping("/{id}/unset")
     public String acceptTagUnsetForm(@PathVariable Integer id,
                                      @RequestParam(value = "selectedRecipes", required = false) Optional<List<Integer>> selectedRecipes) {
-        System.out.println("[WEB]" + " POST " + "/tags/" + id + "/unset");
+        LOGGER.trace("[WEB] POST /tags/{}/unset", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -497,14 +502,19 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect back to tag: anonymous user cannot unset tags");
+            LOGGER.warn("Cannot accept tag unset form: anonymous user cannot unset tags from recipes");
             return "redirect:/tags/" + id;
         }
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            System.out.println("Redirect to tags list: tag not found " + id);
+            LOGGER.warn("Cannot accept tag unset form: tag {} was not found", id);
             return "redirect:/tags";
+        }
+
+        if (!controlService.canUnsetTag(userName, tag.getTagId())) {
+            LOGGER.warn("Cannot accept tag unset form: user '{}' has no access to tag {} unset", userName, id);
+            return "redirect:/tags/" + tag.getTagId();
         }
 
         List<Integer> recipes = selectedRecipes.orElse(Collections.emptyList());
