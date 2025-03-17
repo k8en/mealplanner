@@ -8,6 +8,8 @@ import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.ProductsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,6 +32,8 @@ import java.util.List;
 @RequestMapping("/products")
 public class ProductsController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductsController.class);
+
     private static final String PK = "product_id";
 
     @Autowired
@@ -49,7 +53,7 @@ public class ProductsController {
 
     @GetMapping
     public String showProductsListPage(Model model) {
-        System.out.println("[WEB]" + " GET " + "/products");
+        LOGGER.trace("[WEB] GET /products");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -69,7 +73,7 @@ public class ProductsController {
 
     @GetMapping("/{id}")
     public String showProductDetailsPage(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/products/" + id);
+        LOGGER.trace("[WEB] GET /products/{}", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -83,12 +87,12 @@ public class ProductsController {
         // Operation availability checks
         Product product = productsRepository.getProduct(id);
         if (product == null) {
-            System.out.println("Redirect to products list: product not found " + id);
+            LOGGER.warn("[WEB] Cannot show product details page: product {} was not found", id);
             return "redirect:/products";
         }
 
         if (!controlService.canReadProduct(userName, product.getProductId())) {
-            System.out.println("Redirect to products list: user '" + userName + "' cannot read product info");
+            LOGGER.warn("[WEB] Cannot show product details page: user '{}' has no access to product {}", userName, id);
             return "redirect:/products";
         }
 
@@ -103,7 +107,7 @@ public class ProductsController {
 
     @GetMapping("/create")
     public String showProductCreationForm(Model model) {
-        System.out.println("[WEB]" + " GET " + "/products/create");
+        LOGGER.trace("[WEB] GET /products/create");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -112,14 +116,14 @@ public class ProductsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect to products list: anonymous user cannot create products");
+            LOGGER.warn("[WEB] Cannot show product creation form: anonymous user cannot create products");
             return "redirect:/products";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
         if (!controlService.canCreateProduct(userName)) {
-            System.out.println("Redirect to products list: user '" + userName + "' cannot create products");
+            LOGGER.warn("[WEB] Cannot show product creation form: user '{}' cannot create products", userName);
             return "redirect:/products";
         }
 
@@ -138,7 +142,7 @@ public class ProductsController {
 
     @PostMapping("/create")
     public String acceptProductCreationForm(@Valid Product product, BindingResult result) {
-        System.out.println("[WEB]" + " POST " + "/products/create");
+        LOGGER.trace("[WEB] POST /products/create");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -146,13 +150,13 @@ public class ProductsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect to products list: anonymous user cannot create products");
+            LOGGER.warn("[WEB] Cannot accept product creation form: anonymous user cannot create products");
             return "redirect:/products";
         }
 
         // Operation availability checks
         if (!controlService.canCreateProduct(userName)) {
-            System.out.println("Redirect to products list: user '" + userName + "' cannot create products");
+            LOGGER.warn("[WEB] Cannot accept product creation form: user '{}' cannot create products", userName);
             return "redirect:/products";
         }
 
@@ -233,7 +237,7 @@ public class ProductsController {
 
     @GetMapping("/{id}/update")
     public String showProductModificationForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/products/" + id + "/update");
+        LOGGER.trace("[WEB] GET /products/{}/update", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -242,19 +246,19 @@ public class ProductsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect back to product: anonymous user cannot modify products");
+            LOGGER.warn("[WEB] Cannot show product modification form: anonymous user cannot modify products");
             return "redirect:/products/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Product product = productsRepository.getProduct(id);
         if (product == null) {
-            System.out.println("Redirect to products list: product not found " + id);
+            LOGGER.warn("[WEB] Cannot show product modification form: product {} was not found", id);
             return "redirect:/products";
         }
 
         if (!controlService.canModifyProduct(userName, product.getProductId())) {
-            System.out.println("Redirect back to product: user '" + userName + "' cannot modify products");
+            LOGGER.warn("[WEB] Cannot show product modification form: user '{}' has no access to product {} modification", userName, id);
             return "redirect:/products/" + product.getProductId();
         }
 
@@ -265,7 +269,7 @@ public class ProductsController {
 
     @PostMapping("/{id}/update")
     public String acceptProductModificationForm(@Valid Product product, @PathVariable Integer id, BindingResult result) {
-        System.out.println("[WEB]" + " POST " + "/products/" + id + "/update");
+        LOGGER.trace("[WEB] POST /products/{}/update", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -273,18 +277,18 @@ public class ProductsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect back to product: anonymous user cannot modify products");
+            LOGGER.warn("[WEB] Cannot accept product modification form: anonymous user cannot modify products");
             return "redirect:/products/" + id;
         }
 
         Product productFromDb = productsRepository.getProduct(product.getProductId());
         if (productFromDb == null) {
-            System.out.println("Redirect to products list: product not found " + id);
+            LOGGER.warn("[WEB] Cannot accept product modification form: product {} was not found", id);
             return "redirect:/products";
         }
 
         if (!controlService.canModifyProduct(userName, productFromDb.getProductId())) {
-            System.out.println("Redirect back to product: user '" + userName + "' cannot modify products");
+            LOGGER.warn("[WEB] Cannot accept product modification form: user '{}' has no access to product {} modification", userName, id);
             return "redirect:/products/" + productFromDb.getProductId();
         }
 
@@ -361,7 +365,7 @@ public class ProductsController {
 
     @GetMapping("/{id}/delete")
     public String showProductDeletionForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/products/" + id + "/delete");
+        LOGGER.trace("[WEB] GET /products/{}/delete", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -370,19 +374,19 @@ public class ProductsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect back to product: anonymous user cannot delete products");
+            LOGGER.warn("[WEB] Cannot show product deletion form: anonymous user cannot delete products");
             return "redirect:/products/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Product product = productsRepository.getProduct(id);
         if (product == null) {
-            System.out.println("Redirect to products list: product not found " + id);
+            LOGGER.warn("[WEB] Cannot show product deletion form: product {} was not found", id);
             return "redirect:/products";
         }
 
         if (!controlService.canDeleteProduct(userName, product.getProductId())) {
-            System.out.println("Redirect back to product: user '" + userName + "' cannot delete products");
+            LOGGER.warn("[WEB] Cannot show product deletion form: user '{}' has no access to product {} deletion", userName, id);
             return "redirect:/products/" + product.getProductId();
         }
 
@@ -393,7 +397,7 @@ public class ProductsController {
 
     @PostMapping("/{id}/delete")
     public String acceptProductDeletionForm(@Valid Product product, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
-        System.out.println("[WEB]" + " POST " + "/products/" + id + "/delete");
+        LOGGER.trace("[WEB] POST /products/{}/delete", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -401,18 +405,18 @@ public class ProductsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect back to product: anonymous user cannot delete products");
+            LOGGER.warn("[WEB] Cannot accept product deletion form: anonymous user cannot delete products");
             return "redirect:/products/" + id;
         }
 
         Product productFromDb = productsRepository.getProduct(id);
         if (productFromDb == null) {
-            System.out.println("Redirect to products list: product not found " + id);
+            LOGGER.warn("[WEB] Cannot accept product deletion form: product {} was not found", id);
             return "redirect:/products";
         }
 
         if (!controlService.canDeleteProduct(userName, productFromDb.getProductId())) {
-            System.out.println("Redirect back to product: user '" + userName + "' cannot delete products");
+            LOGGER.warn("[WEB] Cannot accept product deletion form: user '{}' has no access to product {} deletion", userName, id);
             return "redirect:/products/" + productFromDb.getProductId();
         }
 
@@ -420,7 +424,7 @@ public class ProductsController {
         if (productsRepository.isUsed(productFromDb.getProductId())) {
             redirectAttributes.addFlashAttribute("title", "Операция не может быть выполнена!");
             redirectAttributes.addFlashAttribute("details", "Продукт используется в ингредиентах. Сначала удалите ингредиенты.");
-            System.out.println("Business error: product " + productFromDb.getProductId() + " cannot be deleted");
+            LOGGER.error("[WEB] Product {} cannot be deleted", id);
             return "redirect:/business_error";
         }
 

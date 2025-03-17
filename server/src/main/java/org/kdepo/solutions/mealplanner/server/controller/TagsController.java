@@ -87,12 +87,12 @@ public class TagsController {
         // Operation availability checks
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            LOGGER.warn("Cannot show tag details page: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot show tag details page: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canReadTag(userName, tag.getTagId())) {
-            LOGGER.warn("Cannot show tag details page: user '{}' has no access to tag {}", userName, id);
+            LOGGER.warn("[WEB] Cannot show tag details page: user '{}' has no access to tag {}", userName, id);
             return "redirect:/tags";
         }
 
@@ -116,14 +116,14 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("Cannot show tag creation form: anonymous user cannot create tags");
+            LOGGER.warn("[WEB] Cannot show tag creation form: anonymous users cannot create tags");
             return "redirect:/tags";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
         if (!controlService.canCreateTag(userName)) {
-            LOGGER.warn("Cannot show tag creation form: user '{}' cannot create tags", userName);
+            LOGGER.warn("[WEB] Cannot show tag creation form: user '{}' cannot create tags", userName);
             return "redirect:/tags";
         }
 
@@ -145,13 +145,13 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            LOGGER.warn("Cannot accept tag creation form: anonymous user cannot create tags");
+            LOGGER.warn("[WEB] Cannot accept tag creation form: anonymous users cannot create tags");
             return "redirect:/tags";
         }
 
         // Operation availability checks
         if (!controlService.canCreateTag(userName)) {
-            LOGGER.warn("Cannot accept tag creation form: user '{}' cannot create tags", userName);
+            LOGGER.warn("[WEB] Cannot accept tag creation form: user '{}' cannot create tags", userName);
             return "redirect:/tags";
         }
 
@@ -209,19 +209,19 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("Cannot show tag modification form: anonymous user cannot modify tags");
+            LOGGER.warn("[WEB] Cannot show tag modification form: anonymous users cannot modify tags");
             return "redirect:/tags/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            LOGGER.warn("Cannot show tag modification form: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot show tag modification form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canModifyTag(userName, tag.getTagId())) {
-            LOGGER.warn("Cannot show tag modification form: user '{}' has no access to tag {} modification", userName, id);
+            LOGGER.warn("[WEB] Cannot show tag modification form: user '{}' has no access to tag {} modification", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -240,18 +240,18 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            LOGGER.warn("Cannot accept tag modification form: anonymous user cannot modify tags");
+            LOGGER.warn("[WEB] Cannot accept tag modification form: anonymous users cannot modify tags");
             return "redirect:/tags/" + id;
         }
 
         Tag tagFromDb = tagsRepository.getTag(id);
         if (tagFromDb == null) {
-            LOGGER.warn("Cannot accept tag modification form: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot accept tag modification form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canModifyTag(userName, tagFromDb.getTagId())) {
-            LOGGER.warn("Cannot accept tag modification form: user '{}' has no access to tag {} modification", userName, id);
+            LOGGER.warn("[WEB] Cannot accept tag modification form: user '{}' has no access to tag {} modification", userName, id);
             return "redirect:/tags/" + tagFromDb.getTagId();
         }
 
@@ -305,19 +305,19 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("Cannot show tag deletion form: anonymous user cannot delete tags");
+            LOGGER.warn("[WEB] Cannot show tag deletion form: anonymous users cannot delete tags");
             return "redirect:/tags/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            LOGGER.warn("Cannot show tag deletion form: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot show tag deletion form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canDeleteTag(userName, tag.getTagId())) {
-            LOGGER.warn("Cannot show tag deletion form: user '{}' has no access to tag {} deletion", userName, id);
+            LOGGER.warn("[WEB] Cannot show tag deletion form: user '{}' has no access to tag {} deletion", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -336,18 +336,18 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            LOGGER.warn("Cannot accept tag deletion form: anonymous user cannot delete tags");
+            LOGGER.warn("[WEB] Cannot accept tag deletion form: anonymous users cannot delete tags");
             return "redirect:/tags/" + id;
         }
 
         Tag tagFromDb = tagsRepository.getTag(id);
         if (tagFromDb == null) {
-            LOGGER.warn("Cannot accept tag deletion form: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot accept tag deletion form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canDeleteTag(userName, tagFromDb.getTagId())) {
-            LOGGER.warn("Cannot accept tag deletion form: user '{}' has no access to tag {} deletion", userName, id);
+            LOGGER.warn("[WEB] Cannot accept tag deletion form: user '{}' has no access to tag {} deletion", userName, id);
             return "redirect:/tags/" + tagFromDb.getTagId();
         }
 
@@ -380,19 +380,19 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("Cannot show tag set form: anonymous user cannot set tag on recipes");
+            LOGGER.warn("[WEB] Cannot show tag set form: anonymous users cannot set tag on recipes");
             return "redirect:/tags/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            LOGGER.warn("Cannot show tag set form: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot show tag set form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canSetTag(userName, tag.getTagId())) {
-            LOGGER.warn("Cannot show tag set form: user '{}' has no access to tag {} set", userName, id);
+            LOGGER.warn("[WEB] Cannot show tag set form: user '{}' has no access to tag {} set", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -422,18 +422,18 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            LOGGER.warn("Cannot accept tag set form: anonymous user cannot set tag on recipes");
+            LOGGER.warn("[WEB] Cannot accept tag set form: anonymous users cannot set tag on recipes");
             return "redirect:/tags/" + id;
         }
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            LOGGER.warn("Cannot accept tag set form: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot accept tag set form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canSetTag(userName, tag.getTagId())) {
-            LOGGER.warn("Cannot accept tag set form: user '{}' has no access to tag {} set", userName, id);
+            LOGGER.warn("[WEB] Cannot accept tag set form: user '{}' has no access to tag {} set", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -467,19 +467,19 @@ public class TagsController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("Cannot show tag unset form: anonymous user cannot unset tag from recipes");
+            LOGGER.warn("[WEB] Cannot show tag unset form: anonymous users cannot unset tag from recipes");
             return "redirect:/tags/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            LOGGER.warn("Cannot show tag unset form: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot show tag unset form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canUnsetTag(userName, tag.getTagId())) {
-            LOGGER.warn("Cannot show tag unset form: user '{}' has no access to tag {} unset", userName, id);
+            LOGGER.warn("[WEB] Cannot show tag unset form: user '{}' has no access to tag {} unset", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 
@@ -502,18 +502,18 @@ public class TagsController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            LOGGER.warn("Cannot accept tag unset form: anonymous user cannot unset tags from recipes");
+            LOGGER.warn("[WEB] Cannot accept tag unset form: anonymous users cannot unset tags from recipes");
             return "redirect:/tags/" + id;
         }
 
         Tag tag = tagsRepository.getTag(id);
         if (tag == null) {
-            LOGGER.warn("Cannot accept tag unset form: tag {} was not found", id);
+            LOGGER.warn("[WEB] Cannot accept tag unset form: tag {} was not found", id);
             return "redirect:/tags";
         }
 
         if (!controlService.canUnsetTag(userName, tag.getTagId())) {
-            LOGGER.warn("Cannot accept tag unset form: user '{}' has no access to tag {} unset", userName, id);
+            LOGGER.warn("[WEB] Cannot accept tag unset form: user '{}' has no access to tag {} unset", userName, id);
             return "redirect:/tags/" + tag.getTagId();
         }
 

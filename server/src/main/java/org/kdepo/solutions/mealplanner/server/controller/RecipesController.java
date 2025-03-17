@@ -16,6 +16,8 @@ import org.kdepo.solutions.mealplanner.shared.repository.ProductsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.TagsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.UnitsRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,6 +44,8 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/recipes")
 public class RecipesController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecipesController.class);
 
     private static final String PK = "recipe_id";
 
@@ -79,7 +83,7 @@ public class RecipesController {
 
     @GetMapping
     public String showRecipesListPage(Model model) {
-        System.out.println("[WEB]" + " GET " + "/recipes");
+        LOGGER.trace("[WEB] GET /recipes");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -101,7 +105,12 @@ public class RecipesController {
     public String showRecipeDetailsPage(@PathVariable Integer id,
                                         @RequestParam("portions") Optional<String> portions,
                                         Model model) {
-        System.out.println("[WEB]" + " GET " + "/recipes/" + id + (portions.map(s -> "?portions=" + s).orElse("")));
+        String portionsStr = portions.flatMap(value -> portions).orElse(null);
+        if (portionsStr != null) {
+            LOGGER.trace("[WEB] GET /recipes/{}?portions={}", id, portionsStr);
+        } else {
+            LOGGER.trace("[WEB] GET /recipes/{}", id);
+        }
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -115,12 +124,12 @@ public class RecipesController {
         // Operation availability checks
         Recipe recipe = recipesRepository.getRecipe(id);
         if (recipe == null) {
-            System.out.println("Redirect to recipes list: recipe not found " + id);
+            LOGGER.warn("[WEB] Cannot show recipe details page: recipe {} was not found", id);
             return "redirect:/recipes";
         }
 
         if (!controlService.canReadRecipe(userName, recipe.getRecipeId())) {
-            System.out.println("Redirect to recipes list: user '" + userName + "' cannot read recipe info");
+            LOGGER.warn("[WEB] Cannot show recipe details page: user '{}' has no access to recipe {}", userName, id);
             return "redirect:/recipes";
         }
 
@@ -128,7 +137,7 @@ public class RecipesController {
             try {
                 defaultPortioning = Integer.parseInt(portions.get());
             } catch (Exception e) {
-                System.out.println("Cannot convert to portions value: " + portions.get());
+                LOGGER.error("[WEB] Cannot convert to portions value {}", portions.get());
             }
         }
         model.addAttribute("portions", defaultPortioning);
@@ -192,7 +201,7 @@ public class RecipesController {
 
     @GetMapping("/create")
     public String showRecipeCreationForm(Model model) {
-        System.out.println("[WEB]" + " GET " + "/recipes/create");
+        LOGGER.trace("[WEB] GET /recipes/create");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -201,14 +210,14 @@ public class RecipesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect to recipes list: anonymous user cannot create recipes");
+            LOGGER.warn("[WEB] Cannot show recipe creation form: anonymous users cannot create recipes");
             return "redirect:/recipes";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
         if (!controlService.canCreateRecipe(userName)) {
-            System.out.println("Redirect to recipes list: user '" + userName + "' cannot create recipes");
+            LOGGER.warn("[WEB] Cannot show recipe creation form: user '{}' cannot create recipes", userName);
             return "redirect:/recipes";
         }
 
@@ -228,7 +237,7 @@ public class RecipesController {
 
     @PostMapping("/create")
     public String acceptRecipeCreationForm(@Valid Recipe recipe, BindingResult result) {
-        System.out.println("[WEB]" + " POST " + "/recipes/create");
+        LOGGER.trace("[WEB] POST /recipes/create");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -236,13 +245,13 @@ public class RecipesController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect to recipes list: anonymous user cannot create recipes");
+            LOGGER.warn("[WEB] Cannot accept recipe creation form: anonymous users cannot create recipes");
             return "redirect:/recipes";
         }
 
         // Operation availability checks
         if (!controlService.canCreateRecipe(userName)) {
-            System.out.println("Redirect to recipes list: user '" + userName + "' cannot create recipes");
+            LOGGER.warn("[WEB] Cannot accept recipe creation form: user '{}' cannot create recipes", userName);
             return "redirect:/recipes";
         }
 
@@ -355,7 +364,7 @@ public class RecipesController {
 
     @GetMapping("/{id}/update")
     public String showRecipeModificationForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/tags/" + id + "/update");
+        LOGGER.trace("[WEB] GET /recipes/{}/update", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -364,19 +373,19 @@ public class RecipesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect back to recipe: anonymous user cannot modify recipes");
+            LOGGER.warn("[WEB] Cannot show recipe modification form: anonymous users cannot modify recipes");
             return "redirect:/recipes/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Recipe recipe = recipesRepository.getRecipe(id);
         if (recipe == null) {
-            System.out.println("Redirect to recipes list: recipe not found " + id);
+            LOGGER.warn("[WEB] Cannot show recipe modification form: recipe {} was not found", id);
             return "redirect:/recipes";
         }
 
         if (!controlService.canModifyRecipe(userName, recipe.getRecipeId())) {
-            System.out.println("Redirect back to recipe: user '" + userName + "' cannot modify recipes");
+            LOGGER.warn("[WEB] Cannot show recipe modification form: user '{}' has no access to recipe {} modification", userName, id);
             return "redirect:/recipes/" + recipe.getRecipeId();
         }
 
@@ -387,7 +396,7 @@ public class RecipesController {
 
     @PostMapping("/{id}/update")
     public String acceptRecipeModificationForm(@Valid Recipe recipe, @PathVariable Integer id, BindingResult result) {
-        System.out.println("[WEB]" + " POST " + "/recipes/" + id + "/update");
+        LOGGER.trace("[WEB] POST /recipes/{}/update", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -395,18 +404,18 @@ public class RecipesController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect back to recipe: anonymous user cannot modify recipes");
+            LOGGER.warn("[WEB] Cannot accept recipe modification form: anonymous users cannot modify recipes");
             return "redirect:/recipes/" + id;
         }
 
         Recipe recipeFromDb = recipesRepository.getRecipe(id);
         if (recipeFromDb == null) {
-            System.out.println("Redirect to recipes list: recipe not found " + id);
+            LOGGER.warn("[WEB] Cannot accept recipe modification form: recipe {} was not found", id);
             return "redirect:/recipes";
         }
 
         if (!controlService.canModifyRecipe(userName, recipeFromDb.getRecipeId())) {
-            System.out.println("Redirect back to recipe: user '" + userName + "' cannot modify recipes");
+            LOGGER.warn("[WEB] Cannot accept recipe modification form: user '{}' has no access to recipe {} modification", userName, id);
             return "redirect:/recipes/" + recipeFromDb.getRecipeId();
         }
 
@@ -514,7 +523,7 @@ public class RecipesController {
 
     @GetMapping("/{id}/delete")
     public String showRecipeDeletionForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/recipes/" + id + "/delete");
+        LOGGER.trace("[WEB] GET /recipes/{}/delete", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -523,19 +532,19 @@ public class RecipesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            System.out.println("Redirect back to recipe: anonymous user cannot delete recipes");
+            LOGGER.warn("[WEB] Cannot show recipe deletion form: anonymous users cannot delete recipes");
             return "redirect:/recipes/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         Recipe recipe = recipesRepository.getRecipe(id);
         if (recipe == null) {
-            System.out.println("Redirect to recipes list: recipe not found " + id);
+            LOGGER.warn("[WEB] Cannot show recipe deletion form: recipe {} was not found", id);
             return "redirect:/recipes";
         }
 
         if (!controlService.canDeleteRecipe(userName, recipe.getRecipeId())) {
-            System.out.println("Redirect back to recipe: user '" + userName + "' cannot delete recipes");
+            LOGGER.warn("[WEB] Cannot show recipe deletion form: user '{}' has no access to recipe {} deletion", userName, id);
             return "redirect:/recipes/" + recipe.getRecipeId();
         }
 
@@ -546,7 +555,7 @@ public class RecipesController {
 
     @PostMapping("/{id}/delete")
     public String acceptRecipeDeletionForm(@PathVariable Integer id) {
-        System.out.println("[WEB]" + " POST " + "/recipes/" + id + "/delete");
+        LOGGER.trace("[WEB] POST /recipes/{}/delete", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -554,18 +563,18 @@ public class RecipesController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect back to recipe: anonymous user cannot delete recipes");
+            LOGGER.warn("[WEB] Cannot accept recipe deletion form: anonymous users cannot delete recipes");
             return "redirect:/recipes/" + id;
         }
 
         Recipe recipeFromDb = recipesRepository.getRecipe(id);
         if (recipeFromDb == null) {
-            System.out.println("Redirect to recipes list: recipe not found " + id);
+            LOGGER.warn("[WEB] Cannot accept recipe deletion form: recipe {} was not found", id);
             return "redirect:/recipes";
         }
 
         if (!controlService.canDeleteRecipe(userName, recipeFromDb.getRecipeId())) {
-            System.out.println("Redirect back to recipe: user '" + userName + "' cannot delete recipes");
+            LOGGER.warn("[WEB] Cannot accept recipe deletion form: user '{}' has no access to recipe {} deletion", userName, id);
             return "redirect:/recipes/" + recipeFromDb.getRecipeId();
         }
 
@@ -601,7 +610,7 @@ public class RecipesController {
 
     @GetMapping("/{id}/tags")
     public String showRecipeTagsForm(@PathVariable Integer id, Model model) {
-        System.out.println("[WEB]" + " GET " + "/recipes/" + id + "/tags");
+        LOGGER.trace("[WEB] GET /recipes/{}/tags", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -609,18 +618,18 @@ public class RecipesController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect to recipes list: anonymous user cannot modify recipes");
+            LOGGER.warn("[WEB] Cannot show tags set form: anonymous users cannot set tags on recipes");
             return "redirect:/recipes";
         }
 
         Recipe recipe = recipesRepository.getRecipe(id);
         if (recipe == null) {
-            System.out.println("Redirect to recipes list: recipe not found " + id);
+            LOGGER.warn("[WEB] Cannot show tags set form: recipe {} was not found", id);
             return "redirect:/recipes";
         }
 
         if (!controlService.canModifyRecipe(userName, recipe.getRecipeId())) {
-            System.out.println("Redirect back to recipe: user '" + userName + "' cannot modify recipes");
+            LOGGER.warn("[WEB] Cannot show tags set form: user '{}' has no access to recipe {} modification", userName, id);
             return "redirect:/recipes/" + recipe.getRecipeId();
         }
 
@@ -648,7 +657,7 @@ public class RecipesController {
     @PostMapping("/{id}/tags")
     public String acceptRecipeTagsForm(@PathVariable Integer id,
                                        @RequestParam(value = "selectedTags", required = false) Optional<List<Integer>> selectedTags) {
-        System.out.println("[WEB]" + " POST " + "/recipes/" + id + "/tags");
+        LOGGER.trace("[WEB] POST /recipes/{}/tags", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -656,18 +665,18 @@ public class RecipesController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            System.out.println("Redirect to recipes list: anonymous user cannot modify recipes");
+            LOGGER.warn("[WEB] Cannot accept tags set form: anonymous users cannot set tags on recipes");
             return "redirect:/recipes";
         }
 
         Recipe recipe = recipesRepository.getRecipe(id);
         if (recipe == null) {
-            System.out.println("Redirect to recipes list: recipe not found " + id);
+            LOGGER.warn("[WEB] Cannot accept tags set form: recipe {} was not found", id);
             return "redirect:/recipes";
         }
 
         if (!controlService.canModifyRecipe(userName, recipe.getRecipeId())) {
-            System.out.println("Redirect back to recipe: user '" + userName + "' cannot modify recipes");
+            LOGGER.warn("[WEB] Cannot accept tags set form: user '{}' has no access to recipe {} modification", userName, id);
             return "redirect:/recipes/" + recipe.getRecipeId();
         }
 
@@ -711,5 +720,4 @@ public class RecipesController {
         }
         return portioningWord;
     }
-
 }
