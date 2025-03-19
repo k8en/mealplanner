@@ -20,7 +20,7 @@ public class Launcher {
             rootFolder = new File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
             rootFolder = rootFolder + File.separator;
         } catch (URISyntaxException e) {
-            System.out.println("Error in root folder calculation!");
+            System.out.println("[QA] Error in root folder calculation!");
             e.printStackTrace();
             return;
         }
@@ -28,19 +28,21 @@ public class Launcher {
         Properties properties = new Properties();
         properties.load(new FileInputStream(rootFolder + "autotests.properties"));
         String server = properties.getProperty("server");
-        System.out.println("server=" + server);
+        System.out.println("[QA] server=" + server);
 
+        // Prepare browser driver
         WebDriver driver = new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 
+        // Prepare QA robot
         Robot robot = Robot.getInstance();
         robot.setServerAddress(server);
         robot.setWebDriver(driver);
 
         if (!robot.login("user", "password")) {
-            System.out.println("Not able to login");
+            System.out.println("[QA] Not able to login");
         } else {
-            System.out.println("Login OK");
+            System.out.println("[QA] Login OK");
         }
     }
 }
