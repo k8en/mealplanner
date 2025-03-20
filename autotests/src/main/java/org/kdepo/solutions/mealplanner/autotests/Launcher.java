@@ -39,10 +39,6 @@ public class Launcher {
         robot.setServerAddress(server);
         robot.setWebDriver(driver);
 
-        if (!robot.login("user", "password")) {
-            System.out.println("[QA] Not able to login");
-        } else {
-            System.out.println("[QA] Login OK");
-        }
+        robot.login("user", "password");
     }
 }
