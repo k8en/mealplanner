@@ -6,6 +6,7 @@ import org.kdepo.solutions.mealplanner.autotests.exceptions.WebElementNotFoundEx
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 import java.math.BigDecimal;
 
@@ -45,7 +46,7 @@ public class Robot {
         }
     }
 
-    public void inputTextBox(String webElementId, String textToInput) {
+    public void sendTextToElement(String webElementId, String textToInput) {
         System.out.println("[QA] Send text to field with id '" + webElementId + "'. Text to send: '" + textToInput + "'");
         WebElement textBox = driver.findElement(By.id(webElementId));
         if (!textBox.isDisplayed()) {
@@ -54,7 +55,7 @@ public class Robot {
         textBox.sendKeys(textToInput);
     }
 
-    public void clickWebElement(String webElementId) {
+    public void clickOnElement(String webElementId) {
         System.out.println("[QA] Click on element with id '" + webElementId + "'");
         WebElement webElement = driver.findElement(By.id(webElementId));
         if (!webElement.isDisplayed()) {
@@ -63,7 +64,7 @@ public class Robot {
         webElement.click();
     }
 
-    public String readWebElement(String webElementId) {
+    public String readTextFromElement(String webElementId) {
         System.out.println("[QA] Read text from element with id '" + webElementId + "'");
         WebElement webElement = driver.findElement(By.id(webElementId));
         if (!webElement.isDisplayed()) {
@@ -72,16 +73,37 @@ public class Robot {
         return webElement.getText();
     }
 
+    public void selectSingleValueFromList(String webElementId, String value) {
+        System.out.println("[QA] Select single value on list element with id '" + webElementId + "', value " + value);
+        WebElement webElement = driver.findElement(By.id(webElementId));
+        if (!webElement.isDisplayed()) {
+            throw new WebElementNotFoundException("Error! List not found with id '" + webElementId + "'");
+        }
+        Select select = new Select(webElement);
+        select.selectByValue("value");
+    }
+
+    public String readSingleSelectedValueFromList(String webElementId) {
+        System.out.println("[QA] Read single value from list element with id '" + webElementId + "'");
+        WebElement webElement = driver.findElement(By.id(webElementId));
+        if (!webElement.isDisplayed()) {
+            throw new WebElementNotFoundException("Error! List not found with id '" + webElementId + "'");
+        }
+        Select select = new Select(webElement);
+        WebElement selectedWebElement = select.getFirstSelectedOption();
+        return selectedWebElement.getText();
+    }
+
     public void login(String username, String password) {
         System.out.println("[QA] Log in with credentials: username='" + username + "', password='" + password + "'");
 
         String url = serverAddress + "/login";
 
         navigate(url);
-        inputTextBox("username", username);
-        inputTextBox("password", password);
+        sendTextToElement("username", username);
+        sendTextToElement("password", password);
 
-        clickWebElement("submit");
+        clickOnElement("submit");
 
         WebElement logout = driver.findElement(By.id("logout"));
         if (!logout.isDisplayed()) {
@@ -101,10 +123,10 @@ public class Robot {
             throw new UrlNotLoadedException("Error! Tag create form not accessible. Actual page title is '" + pageTitle + "'");
         }
 
-        inputTextBox("f_name", name);
-        inputTextBox("f_description", description);
+        sendTextToElement("f_name", name);
+        sendTextToElement("f_description", description);
 
-        clickWebElement("submit");
+        clickOnElement("submit");
     }
 
     public boolean readTag(Integer tagId, String name, String description) {
@@ -114,7 +136,7 @@ public class Robot {
 
         navigate(url);
 
-        String tagName = readWebElement("f_name");
+        String tagName = readTextFromElement("f_name");
         if (tagName == null) {
             System.out.println("[QA] Not able to read tag name");
             return false;
@@ -123,7 +145,7 @@ public class Robot {
             return false;
         }
 
-        String tagDescription = readWebElement("f_description");
+        String tagDescription = readTextFromElement("f_description");
         if (tagDescription == null) {
             System.out.println("[QA] Not able to read tag description");
             return false;
@@ -147,10 +169,10 @@ public class Robot {
             throw new UrlNotLoadedException("Error! Tag update form not accessible. Actual page title is '" + pageTitle + "'");
         }
 
-        inputTextBox("f_name", name);
-        inputTextBox("f_description", description);
+        sendTextToElement("f_name", name);
+        sendTextToElement("f_description", description);
 
-        clickWebElement("submit");
+        clickOnElement("submit");
     }
 
     public void deleteTag(Integer tagId) {
@@ -160,7 +182,12 @@ public class Robot {
 
         navigate(url);
 
-        clickWebElement("submit");
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.TAG_DELETE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Tag delete form not accessible. Actual page title is '" + pageTitle + "'");
+        }
+
+        clickOnElement("submit");
     }
 
     public void createProduct(String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
@@ -182,14 +209,14 @@ public class Robot {
             throw new UrlNotLoadedException("Error! Product create form not accessible. Actual page title is '" + pageTitle + "'");
         }
 
-        inputTextBox("f_name", name);
-        inputTextBox("f_description", description);
-        inputTextBox("f_calories", String.valueOf(calories));
-        inputTextBox("f_proteins", String.valueOf(proteins));
-        inputTextBox("f_fats", String.valueOf(fats));
-        inputTextBox("f_carbs", String.valueOf(carbs));
+        sendTextToElement("f_name", name);
+        sendTextToElement("f_description", description);
+        sendTextToElement("f_calories", String.valueOf(calories));
+        sendTextToElement("f_proteins", String.valueOf(proteins));
+        sendTextToElement("f_fats", String.valueOf(fats));
+        sendTextToElement("f_carbs", String.valueOf(carbs));
 
-        clickWebElement("submit");
+        clickOnElement("submit");
     }
 
     public boolean readProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
@@ -207,7 +234,7 @@ public class Robot {
 
         navigate(url);
 
-        String productName = readWebElement("f_name");
+        String productName = readTextFromElement("f_name");
         if (productName == null) {
             System.out.println("[QA] Not able to read product name");
             return false;
@@ -216,7 +243,7 @@ public class Robot {
             return false;
         }
 
-        String productDescription = readWebElement("f_description");
+        String productDescription = readTextFromElement("f_description");
         if (productDescription == null) {
             System.out.println("[QA] Not able to read product description");
             return false;
@@ -225,7 +252,7 @@ public class Robot {
             return false;
         }
 
-        String productCalories = readWebElement("f_calories");
+        String productCalories = readTextFromElement("f_calories");
         if (productCalories == null) {
             System.out.println("[QA] Not able to read product calories");
             return false;
@@ -234,7 +261,7 @@ public class Robot {
             return false;
         }
 
-        String productProteins = readWebElement("f_proteins");
+        String productProteins = readTextFromElement("f_proteins");
         if (productProteins == null) {
             System.out.println("[QA] Not able to read product proteins");
             return false;
@@ -243,7 +270,7 @@ public class Robot {
             return false;
         }
 
-        String productFats = readWebElement("f_fats");
+        String productFats = readTextFromElement("f_fats");
         if (productFats == null) {
             System.out.println("[QA] Not able to read product fats");
             return false;
@@ -252,7 +279,7 @@ public class Robot {
             return false;
         }
 
-        String productCarbs = readWebElement("f_carbs");
+        String productCarbs = readTextFromElement("f_carbs");
         if (productCarbs == null) {
             System.out.println("[QA] Not able to read product carbs");
             return false;
@@ -284,14 +311,14 @@ public class Robot {
             throw new UrlNotLoadedException("Error! Product update form not accessible. Actual page title is '" + pageTitle + "'");
         }
 
-        inputTextBox("f_name", name);
-        inputTextBox("f_description", description);
-        inputTextBox("f_calories", String.valueOf(calories));
-        inputTextBox("f_proteins", String.valueOf(proteins));
-        inputTextBox("f_fats", String.valueOf(fats));
-        inputTextBox("f_carbs", String.valueOf(carbs));
+        sendTextToElement("f_name", name);
+        sendTextToElement("f_description", description);
+        sendTextToElement("f_calories", String.valueOf(calories));
+        sendTextToElement("f_proteins", String.valueOf(proteins));
+        sendTextToElement("f_fats", String.valueOf(fats));
+        sendTextToElement("f_carbs", String.valueOf(carbs));
 
-        clickWebElement("submit");
+        clickOnElement("submit");
     }
 
     public void deleteProduct(Integer productId) {
@@ -301,6 +328,320 @@ public class Robot {
 
         navigate(url);
 
-        clickWebElement("submit");
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.PRODUCT_DELETE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Product delete form not accessible. Actual page title is '" + pageTitle + "'");
+        }
+
+        clickOnElement("submit");
+    }
+
+    public void createRecipe(String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
+        System.out.println("[QA] Create new product with the next parameters: "
+                + "name='" + name + "'"
+                + ", description='" + description + "'"
+                + ", source='" + source + "'"
+                + ", portions=" + portions
+                + ", weight=" + weight
+                + ", calories=" + calories
+                + ", proteins=" + proteins
+                + ", fats=" + fats
+                + ", carbs=" + carbs
+        );
+
+        String url = serverAddress + "/recipes/create";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPE_CREATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Recipe create form not accessible. Actual page title is '" + pageTitle + "'");
+        }
+
+        sendTextToElement("f_name", name);
+        sendTextToElement("f_description", description);
+        sendTextToElement("f_source", source);
+        sendTextToElement("f_portions", String.valueOf(portions));
+        sendTextToElement("f_weight", String.valueOf(weight));
+        sendTextToElement("f_calories", String.valueOf(calories));
+        sendTextToElement("f_proteins", String.valueOf(proteins));
+        sendTextToElement("f_fats", String.valueOf(fats));
+        sendTextToElement("f_carbs", String.valueOf(carbs));
+
+        clickOnElement("submit");
+    }
+
+    public boolean readRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
+        System.out.println("[QA] Read and compare product data: "
+                + "recipeId=" + recipeId
+                + ", name='" + name + "'"
+                + ", description='" + description + "'"
+                + ", source='" + source + "'"
+                + ", portions=" + portions
+                + ", weight=" + weight
+                + ", calories=" + calories
+                + ", proteins=" + proteins
+                + ", fats=" + fats
+                + ", carbs=" + carbs
+        );
+
+        String url = serverAddress + "/recipes/" + recipeId;
+
+        navigate(url);
+
+        String recipeName = readTextFromElement("f_name");
+        if (recipeName == null) {
+            System.out.println("[QA] Not able to read recipe name");
+            return false;
+        } else if (!name.equals(recipeName)) {
+            System.out.println("[QA] Recipe name mismatch. Expected: '" + name + "' Actual: '" + recipeName + "'");
+            return false;
+        }
+
+        String recipeDescription = readTextFromElement("f_description");
+        if (recipeDescription == null) {
+            System.out.println("[QA] Not able to read recipe description");
+            return false;
+        } else if (!description.equals(recipeDescription)) {
+            System.out.println("[QA] Recipe description mismatch. Expected: '" + description + "' Actual: '" + recipeDescription + "'");
+            return false;
+        }
+
+        String recipeSource = readTextFromElement("f_source");
+        if (recipeSource == null) {
+            System.out.println("[QA] Not able to read recipe source");
+            return false;
+        } else if (!source.equals(recipeSource)) {
+            System.out.println("[QA] Recipe source mismatch. Expected: '" + name + "' Actual: '" + recipeSource + "'");
+            return false;
+        }
+
+        String recipePortions = readTextFromElement("f_portions");
+        if (recipePortions == null) {
+            System.out.println("[QA] Not able to read recipe portions");
+            return false;
+        } else if (!portions.equals(Integer.parseInt(recipePortions))) {
+            System.out.println("[QA] Recipe portions mismatch. Expected: '" + portions + "' Actual: '" + recipePortions + "'");
+            return false;
+        }
+
+        String recipeWeight = readTextFromElement("f_weight");
+        if (recipeWeight == null) {
+            System.out.println("[QA] Not able to read recipe weight");
+            return false;
+        } else if (!weight.equals(new BigDecimal(recipeWeight))) {
+            System.out.println("[QA] Recipe weight mismatch. Expected: '" + weight + "' Actual: '" + recipeWeight + "'");
+            return false;
+        }
+
+        String recipeCalories = readTextFromElement("f_calories");
+        if (recipeCalories == null) {
+            System.out.println("[QA] Not able to read recipe calories");
+            return false;
+        } else if (!calories.equals(new BigDecimal(recipeCalories))) {
+            System.out.println("[QA] Recipe calories mismatch. Expected: '" + calories + "' Actual: '" + recipeCalories + "'");
+            return false;
+        }
+
+        String recipeProteins = readTextFromElement("f_proteins");
+        if (recipeProteins == null) {
+            System.out.println("[QA] Not able to read recipe proteins");
+            return false;
+        } else if (!proteins.equals(new BigDecimal(recipeProteins))) {
+            System.out.println("[QA] Recipe proteins mismatch. Expected: '" + proteins + "' Actual: '" + recipeProteins + "'");
+            return false;
+        }
+
+        String recipeFats = readTextFromElement("f_fats");
+        if (recipeFats == null) {
+            System.out.println("[QA] Not able to read recipe fats");
+            return false;
+        } else if (!fats.equals(new BigDecimal(recipeFats))) {
+            System.out.println("[QA] Recipe fats mismatch. Expected: '" + fats + "' Actual: '" + recipeFats + "'");
+            return false;
+        }
+
+        String recipeCarbs = readTextFromElement("f_carbs");
+        if (recipeCarbs == null) {
+            System.out.println("[QA] Not able to read recipe carbs");
+            return false;
+        } else if (!carbs.equals(new BigDecimal(recipeCarbs))) {
+            System.out.println("[QA] Recipe carbs mismatch. Expected: '" + carbs + "' Actual: '" + recipeCarbs + "'");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void updateRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
+        System.out.println("[QA] Update recipe parameters with the next data: "
+                + "recipeId=" + recipeId
+                + ", name='" + name + "'"
+                + ", description='" + description + "'"
+                + ", source='" + source + "'"
+                + ", portions=" + portions
+                + ", weight=" + weight
+                + ", calories=" + calories
+                + ", proteins=" + proteins
+                + ", fats=" + fats
+                + ", carbs=" + carbs
+        );
+
+        String url = serverAddress + "/recipes/" + recipeId + "/update";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPE_UPDATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Recipe update form not accessible. Actual page title is '" + pageTitle + "'");
+        }
+
+        sendTextToElement("f_name", name);
+        sendTextToElement("f_description", description);
+        sendTextToElement("f_source", source);
+        sendTextToElement("f_portions", String.valueOf(portions));
+        sendTextToElement("f_weight", String.valueOf(weight));
+        sendTextToElement("f_calories", String.valueOf(calories));
+        sendTextToElement("f_proteins", String.valueOf(proteins));
+        sendTextToElement("f_fats", String.valueOf(fats));
+        sendTextToElement("f_carbs", String.valueOf(carbs));
+
+        clickOnElement("submit");
+    }
+
+    public void deleteRecipe(Integer recipeId) {
+        System.out.println("[QA] Delete recipe with the next recipeId=" + recipeId);
+
+        String url = serverAddress + "/recipes/" + recipeId + "/delete";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPE_DELETE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Recipe delete form not accessible. Actual page title is '" + pageTitle + "'");
+        }
+
+        clickOnElement("submit");
+    }
+
+    public void createIngredient(Integer recipeId, String name, Integer productId, Integer amount, Integer unitId) {
+        System.out.println("[QA] Create new ingredient with the next parameters: "
+                + "recipeId='" + recipeId
+                + ", name='" + name + "'"
+                + ", productId='" + productId
+                + ", amount='" + amount
+                + ", unitId='" + unitId
+        );
+
+        String url = serverAddress + "/ingredients/create?recipe_id=" + recipeId;
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.INGREDIENT_CREATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Ingredient create form not accessible. Actual page title is '" + pageTitle + "'");
+        }
+
+        sendTextToElement("f_name", name);
+        selectSingleValueFromList("f_product", String.valueOf(productId));
+        sendTextToElement("f_amount", String.valueOf(amount));
+        selectSingleValueFromList("f_unit", String.valueOf(unitId));
+
+        clickOnElement("submit");
+    }
+
+    public boolean readIngredient(Integer ingredientId, String name, Integer recipeId, Integer productId, Integer amount, Integer unitId) {
+        System.out.println("[QA] Read and compare ingredient data: "
+                + "ingredientId=" + ingredientId
+                + ", name='" + name + "'"
+                + ", recipeId=" + recipeId
+                + ", productId=" + productId
+                + ", amount=" + amount
+                + ", unitId=" + unitId
+        );
+
+        String url = serverAddress + "/ingredients/" + ingredientId;
+
+        navigate(url);
+
+        String ingredientName = readTextFromElement("f_name");
+        if (ingredientName == null) {
+            System.out.println("[QA] Not able to read ingredient name");
+            return false;
+        } else if (!name.equals(ingredientName)) {
+            System.out.println("[QA] Ingredient name mismatch. Expected: '" + name + "' Actual: '" + ingredientName + "'");
+            return false;
+        }
+
+        String ingredientProductId = readTextFromElement("f_product");
+        if (ingredientProductId == null) {
+            System.out.println("[QA] Not able to read ingredient productId");
+            return false;
+        } else if (!productId.toString().equals(ingredientProductId)) {
+            System.out.println("[QA] Ingredient productId mismatch. Expected: '" + productId + "' Actual: '" + ingredientProductId + "'");
+            return false;
+        }
+
+        String ingredientAmount = readTextFromElement("f_amount");
+        if (ingredientAmount == null) {
+            System.out.println("[QA] Not able to read ingredient amount");
+            return false;
+        } else if (!amount.toString().equals(ingredientAmount)) {
+            System.out.println("[QA] Ingredient amount mismatch. Expected: '" + amount + "' Actual: '" + ingredientAmount + "'");
+            return false;
+        }
+
+        String ingredientUnitId = readTextFromElement("f_unit");
+        if (ingredientUnitId == null) {
+            System.out.println("[QA] Not able to read ingredient unitId");
+            return false;
+        } else if (!unitId.toString().equals(ingredientUnitId)) {
+            System.out.println("[QA] Ingredient unitId mismatch. Expected: '" + unitId + "' Actual: '" + ingredientUnitId + "'");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void updateIngredient(Integer ingredientId, String name, Integer recipeId, Integer productId, Integer amount, Integer unitId) {
+        System.out.println("[QA] Update ingredient parameters with the next data: "
+                + "ingredientId=" + ingredientId
+                + ", name='" + name + "'"
+                + ", recipeId=" + recipeId
+                + ", productId=" + productId
+                + ", amount=" + amount
+                + ", unitId=" + unitId
+        );
+
+        String url = serverAddress + "/ingredients/" + ingredientId + "/update";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.INGREDIENT_UPDATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Ingredient update form not accessible. Actual page title is '" + pageTitle + "'");
+        }
+
+        sendTextToElement("f_name", name);
+        selectSingleValueFromList("f_product", String.valueOf(productId));
+        sendTextToElement("f_amount", String.valueOf(amount));
+        selectSingleValueFromList("f_unit", String.valueOf(unitId));
+
+        clickOnElement("submit");
+    }
+
+    public void deleteIngredient(Integer ingredientId) {
+        System.out.println("[QA] Delete ingredient with the next ingredientId=" + ingredientId);
+
+        String url = serverAddress + "/ingredients/" + ingredientId + "/delete";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.INGREDIENT_DELETE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Ingredient delete form not accessible. Actual page title is '" + pageTitle + "'");
+        }
+
+        clickOnElement("submit");
     }
 }
