@@ -1,10 +1,12 @@
 package org.kdepo.solutions.mealplanner.server.repository.impl;
 
+import org.kdepo.solutions.mealplanner.server.tools.DbUtils;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Tag;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
-import org.kdepo.solutions.mealplanner.server.tools.DbUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,10 +14,15 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class RecipesRepositoryImpl implements RecipesRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecipesRepositoryImpl.class);
 
     private static final BigDecimal DECIMAL_MULTIPLIER = BigDecimal.valueOf(10000L);
     private static final Integer DECIMAL_SCALE = 5;
@@ -51,17 +58,8 @@ public class RecipesRepositoryImpl implements RecipesRepository {
 
     @Override
     public Recipe addRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        System.out.println("[RecipeDao][addRecipe] Invoked with parameters:"
-                + " recipeId=" + recipeId
-                + ", name='" + name + "'"
-                + ", description='" + description + "'"
-                + ", source='" + source + "'"
-                + ", portions=" + portions
-                + ", weight=" + weight
-                + ", calories=" + calories
-                + ", proteins=" + proteins
-                + ", fats=" + fats
-                + ", carbs=" + carbs
+        LOGGER.trace("[DBR][addRecipe] Invoked with parameters: recipeId={}, name={}, description={}, source={}, portions={}, weight={}, calories={}, proteins={}, fats={}, carbs={}",
+                recipeId, name, description, source, portions, weight, calories, proteins, fats, carbs
         );
 
         BigDecimal weightConvertedToDb = weight.stripTrailingZeros().multiply(DECIMAL_MULTIPLIER);
@@ -70,92 +68,82 @@ public class RecipesRepositoryImpl implements RecipesRepository {
         BigDecimal fatsConvertedToDb = fats.stripTrailingZeros().multiply(DECIMAL_MULTIPLIER);
         BigDecimal carbsConvertedToDb = carbs.stripTrailingZeros().multiply(DECIMAL_MULTIPLIER);
 
-        jdbcTemplate.update(SQL_ADD_RECIPE, recipeId, name, description, source, portions, weightConvertedToDb, caloriesConvertedToDb, proteinsConvertedToDb, fatsConvertedToDb, carbsConvertedToDb);
+        jdbcTemplate.update(
+                SQL_ADD_RECIPE,
+                ps -> {
+                    ps.setInt(1, recipeId);
+                    ps.setString(2, name);
+                    ps.setString(3, description);
+                    ps.setString(4, source);
+                    ps.setInt(5, portions);
+                    ps.setBigDecimal(6, weightConvertedToDb);
+                    ps.setBigDecimal(7, caloriesConvertedToDb);
+                    ps.setBigDecimal(8, proteinsConvertedToDb);
+                    ps.setBigDecimal(9, fatsConvertedToDb);
+                    ps.setBigDecimal(10, carbsConvertedToDb);
+                }
+        );
 
         return getRecipe(recipeId);
     }
 
     @Override
     public void addRecipeToMeal(Integer recipeId, Integer mealId, Integer orderNumber) {
-        System.out.println("[RecipeDao][addRecipeToMeal] Invoked with parameters:"
-                + " recipeId=" + recipeId
-                + ", mealId=" + mealId
-                + ", orderNumber=" + orderNumber
+        LOGGER.trace("[DBR][addRecipeToMeal] Invoked with parameters: recipeId={}, mealId={}, orderNumber={}",
+                recipeId, mealId, orderNumber
         );
-        jdbcTemplate.update(SQL_ADD_RECIPE_TO_MEAL, mealId, recipeId, orderNumber);
+        jdbcTemplate.update(
+                SQL_ADD_RECIPE_TO_MEAL,
+                ps -> {
+                    ps.setInt(1, mealId);
+                    ps.setInt(2, recipeId);
+                    ps.setInt(3, orderNumber);
+                }
+        );
     }
 
     @Override
     public void deleteRecipe(Integer recipeId) {
-        System.out.println("[RecipeDao][deleteRecipe] Invoked with parameters: recipeId=" + recipeId);
-        jdbcTemplate.update(SQL_DELETE_RECIPE, recipeId);
+        LOGGER.trace("[DBR][deleteRecipe] Invoked with parameters: recipeId={}", recipeId);
+        jdbcTemplate.update(
+                SQL_DELETE_RECIPE,
+                ps -> ps.setInt(1, recipeId)
+        );
     }
 
     @Override
     public void deleteRecipeFromMeal(Integer recipeId, Integer mealId) {
-        System.out.println("[RecipeDao][deleteRecipeFromMeal] Invoked with parameters:"
-                + " recipeId=" + recipeId
-                + ", mealId=" + mealId
+        LOGGER.trace("[DBR][deleteRecipeFromMeal] Invoked with parameters: recipeId={}, mealId={}",
+                recipeId, mealId
         );
-        jdbcTemplate.update(SQL_DELETE_RECIPE_FROM_MEAL, recipeId, mealId);
+        jdbcTemplate.update(
+                SQL_DELETE_RECIPE_FROM_MEAL,
+                ps -> {
+                    ps.setInt(1, recipeId);
+                    ps.setInt(2, mealId);
+                }
+        );
     }
 
     @Override
     public List<Recipe> getAllRecipes() {
-        System.out.println("[RecipeDao][getAllRecipes] Invoked without parameters");
+        LOGGER.trace("[DBR][getAllRecipes] Invoked without parameters");
         return jdbcTemplate.query(
                 SQL_GET_ALL_RECIPES,
-                (resultSet, rowNum) -> {
-                    Integer recipeId = resultSet.getInt("recipe_id");
-                    String name = resultSet.getString("name");
-                    String description = resultSet.getString("description");
-                    String source = resultSet.getString("source");
-                    Integer portions = resultSet.getInt("portions");
-
-                    BigDecimal weight = resultSet.getBigDecimal("weight");
-                    BigDecimal calories = resultSet.getBigDecimal("calories");
-                    BigDecimal proteins = resultSet.getBigDecimal("proteins");
-                    BigDecimal fats = resultSet.getBigDecimal("fats");
-                    BigDecimal carbs = resultSet.getBigDecimal("carbs");
-
-                    BigDecimal weightConvertedFromDb = weight
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal caloriesConvertedFromDb = calories
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal proteinsConvertedFromDb = proteins
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal fatsConvertedFromDb = fats
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal carbsConvertedFromDb = carbs
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-
-                    Recipe recipe = new Recipe();
-                    recipe.setRecipeId(recipeId);
-                    recipe.setName(name);
-                    recipe.setDescription(description);
-                    recipe.setSource(source);
-                    recipe.setPortions(portions);
-                    recipe.setWeight(weightConvertedFromDb);
-                    recipe.setCalories(caloriesConvertedFromDb);
-                    recipe.setProteins(proteinsConvertedFromDb);
-                    recipe.setFats(fatsConvertedFromDb);
-                    recipe.setCarbs(carbsConvertedFromDb);
-
-                    return recipe;
+                rs -> {
+                    List<Recipe> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(convert(rs));
+                    }
+                    return result;
                 }
         );
     }
 
     @Override
     public List<Recipe> getAllRecipes(List<Integer> products, List<Integer> tags) {
-        System.out.println("[RecipeDao][getAllRecipes] Invoked with parameters:"
-                + " products=" + products
-                + ", tags=" + tags
+        LOGGER.trace("[DBR][getAllRecipes] Invoked with parameters: products={}, tags={}",
+                products, tags
         );
 
         String filter = "";
@@ -170,165 +158,58 @@ public class RecipesRepositoryImpl implements RecipesRepository {
 
         return jdbcTemplate.query(
                 query,
-                (resultSet, rowNum) -> {
-                    Integer recipeId = resultSet.getInt("recipe_id");
-                    String name = resultSet.getString("name");
-                    String description = resultSet.getString("description");
-                    String source = resultSet.getString("source");
-                    Integer portions = resultSet.getInt("portions");
-
-                    BigDecimal weight = resultSet.getBigDecimal("weight");
-                    BigDecimal calories = resultSet.getBigDecimal("calories");
-                    BigDecimal proteins = resultSet.getBigDecimal("proteins");
-                    BigDecimal fats = resultSet.getBigDecimal("fats");
-                    BigDecimal carbs = resultSet.getBigDecimal("carbs");
-
-                    BigDecimal weightConvertedFromDb = weight
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal caloriesConvertedFromDb = calories
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal proteinsConvertedFromDb = proteins
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal fatsConvertedFromDb = fats
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal carbsConvertedFromDb = carbs
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-
-                    Recipe recipe = new Recipe();
-                    recipe.setRecipeId(recipeId);
-                    recipe.setName(name);
-                    recipe.setDescription(description);
-                    recipe.setSource(source);
-                    recipe.setPortions(portions);
-                    recipe.setWeight(weightConvertedFromDb);
-                    recipe.setCalories(caloriesConvertedFromDb);
-                    recipe.setProteins(proteinsConvertedFromDb);
-                    recipe.setFats(fatsConvertedFromDb);
-                    recipe.setCarbs(carbsConvertedFromDb);
-
-                    return recipe;
+                rs -> {
+                    List<Recipe> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(convert(rs));
+                    }
+                    return result;
                 }
         );
     }
 
     @Override
     public List<Recipe> getAllRecipesFromMeal(Integer mealId) {
-        System.out.println("[RecipeDao][getAllRecipesFromMeal] Invoked with parameters: mealId=" + mealId);
+        LOGGER.trace("[DBR][getAllRecipesFromMeal] Invoked with parameters: mealId={}", mealId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_RECIPES_FROM_MEAL,
-                (resultSet, rowNum) -> {
-                    Integer recipeId = resultSet.getInt("recipe_id");
-                    String name = resultSet.getString("name");
-                    String description = resultSet.getString("description");
-                    String source = resultSet.getString("source");
-                    Integer portions = resultSet.getInt("portions");
-
-                    BigDecimal weight = resultSet.getBigDecimal("weight");
-                    BigDecimal calories = resultSet.getBigDecimal("calories");
-                    BigDecimal proteins = resultSet.getBigDecimal("proteins");
-                    BigDecimal fats = resultSet.getBigDecimal("fats");
-                    BigDecimal carbs = resultSet.getBigDecimal("carbs");
-
-                    BigDecimal weightConvertedFromDb = weight
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal caloriesConvertedFromDb = calories
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal proteinsConvertedFromDb = proteins
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal fatsConvertedFromDb = fats
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal carbsConvertedFromDb = carbs
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-
-                    Recipe recipe = new Recipe();
-                    recipe.setRecipeId(recipeId);
-                    recipe.setName(name);
-                    recipe.setDescription(description);
-                    recipe.setSource(source);
-                    recipe.setPortions(portions);
-                    recipe.setWeight(weightConvertedFromDb);
-                    recipe.setCalories(caloriesConvertedFromDb);
-                    recipe.setProteins(proteinsConvertedFromDb);
-                    recipe.setFats(fatsConvertedFromDb);
-                    recipe.setCarbs(carbsConvertedFromDb);
-
-                    return recipe;
-                },
-                mealId
+                rs -> {
+                    List<Recipe> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(convert(rs));
+                    }
+                    return result;
+                }
         );
     }
 
     @Override
     public Integer getOrderNumber(Integer mealId) {
-        System.out.println("[RecipeDao][getOrderNumber] Invoked with parameters: mealId=" + mealId);
+        LOGGER.trace("[DBR][getOrderNumber] Invoked with parameters: mealId={}", mealId);
         return jdbcTemplate.query(
                 SQL_GET_ORDER_NUMBER,
-                resultSet -> {
-                    return resultSet.getInt("order_number");
-                },
-                mealId
+                rs -> {
+                    Integer orderNumber = null;
+                    if (rs.next()) {
+                        orderNumber = Integer.parseInt(rs.getString("order_number"));
+                    }
+                    return orderNumber;
+                }
         );
     }
 
     @Override
     public Recipe getRecipe(Integer recipeId) {
-        System.out.println("[RecipeDao][getRecipe] Invoked with parameters: recipeId=" + recipeId);
+        LOGGER.trace("[DBR][getRecipe] Invoked with parameters: recipeId={}", recipeId);
         Recipe recipe = jdbcTemplate.query(
                 SQL_GET_RECIPE,
-                resultSet -> {
-                    //Integer recipeId = resultSet.getInt("recipe_id");
-                    String name = resultSet.getString("name");
-                    String description = resultSet.getString("description");
-                    String source = resultSet.getString("source");
-                    Integer portions = resultSet.getInt("portions");
-
-                    BigDecimal weight = resultSet.getBigDecimal("weight");
-                    BigDecimal calories = resultSet.getBigDecimal("calories");
-                    BigDecimal proteins = resultSet.getBigDecimal("proteins");
-                    BigDecimal fats = resultSet.getBigDecimal("fats");
-                    BigDecimal carbs = resultSet.getBigDecimal("carbs");
-
-                    BigDecimal weightConvertedFromDb = weight
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal caloriesConvertedFromDb = calories
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal proteinsConvertedFromDb = proteins
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal fatsConvertedFromDb = fats
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-                    BigDecimal carbsConvertedFromDb = carbs
-                            .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
-                            .stripTrailingZeros();
-
-                    Recipe recipeFromDb = new Recipe();
-                    recipeFromDb.setRecipeId(recipeId);
-                    recipeFromDb.setName(name);
-                    recipeFromDb.setDescription(description);
-                    recipeFromDb.setSource(source);
-                    recipeFromDb.setPortions(portions);
-                    recipeFromDb.setWeight(weightConvertedFromDb);
-                    recipeFromDb.setCalories(caloriesConvertedFromDb);
-                    recipeFromDb.setProteins(proteinsConvertedFromDb);
-                    recipeFromDb.setFats(fatsConvertedFromDb);
-                    recipeFromDb.setCarbs(carbsConvertedFromDb);
-
-                    return recipeFromDb;
-                },
-                recipeId
+                rs -> {
+                    Recipe result = null;
+                    if (rs.next()) {
+                        result = convert(rs);
+                    }
+                    return result;
+                }
         );
 
         if (recipe != null) {
@@ -344,40 +225,33 @@ public class RecipesRepositoryImpl implements RecipesRepository {
 
     @Override
     public boolean isUsed(Integer recipeId) {
-        System.out.println("[RecipeDao][isUsed] Invoked with parameters: recipeId=" + recipeId);
-        Integer objectId = jdbcTemplate.query(
+        LOGGER.trace("[DBR][isUsed] Invoked with parameters: recipeId={}", recipeId);
+        return Boolean.TRUE.equals(jdbcTemplate.query(
                 SQL_IS_USED,
-                resultSet -> {
-                    return resultSet.getInt("recipe_id");
-                },
-                recipeId
-        );
-        return objectId != null;
+                ps -> ps.setInt(1, recipeId),
+                ResultSet::next
+        ));
     }
 
     @Override
     public void updateMealsContents(Integer mealId, Integer recipeId, Integer orderNumber) {
-        System.out.println("[RecipeDao][updateMealsContents] Invoked with parameters:"
-                + " mealId=" + mealId
-                + ", recipeId=" + recipeId
-                + ", orderNumber=" + orderNumber
+        LOGGER.trace("[DBR][updateMealsContents] Invoked with parameters: mealId={}, recipeId={}, orderNumber={}",
+                mealId, recipeId, orderNumber
         );
-        jdbcTemplate.update(SQL_UPDATE_MEALS_CONTENTS, orderNumber, mealId, recipeId);
+        jdbcTemplate.update(
+                SQL_UPDATE_MEALS_CONTENTS,
+                ps -> {
+                    ps.setInt(1, orderNumber);
+                    ps.setInt(2, mealId);
+                    ps.setInt(3, recipeId);
+                }
+        );
     }
 
     @Override
     public void updateRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        System.out.println("[RecipeDao][updateRecipe] Invoked with parameters:"
-                + " recipeId=" + recipeId
-                + ", name='" + name + "'"
-                + ", description='" + description + "'"
-                + ", source='" + source + "'"
-                + ", portions=" + portions
-                + ", weight=" + weight
-                + ", calories=" + calories
-                + ", proteins=" + proteins
-                + ", fats=" + fats
-                + ", carbs=" + carbs
+        LOGGER.trace("[DBR][updateRecipe] Invoked with parameters: recipeId={}, name={}, description={}, source={}, portions={}, weight={}, calories={}, proteins={}, fats={}, carbs={}",
+                recipeId, name, description, source, portions, weight, calories, proteins, fats, carbs
         );
 
         BigDecimal weightConvertedToDb = weight.stripTrailingZeros().multiply(DECIMAL_MULTIPLIER);
@@ -386,6 +260,64 @@ public class RecipesRepositoryImpl implements RecipesRepository {
         BigDecimal fatsConvertedToDb = fats.stripTrailingZeros().multiply(DECIMAL_MULTIPLIER);
         BigDecimal carbsConvertedToDb = carbs.stripTrailingZeros().multiply(DECIMAL_MULTIPLIER);
 
-        jdbcTemplate.update(SQL_UPDATE_RECIPE, name, description, source, portions, weightConvertedToDb, caloriesConvertedToDb, proteinsConvertedToDb, fatsConvertedToDb, carbsConvertedToDb, recipeId);
+        jdbcTemplate.update(
+                SQL_UPDATE_RECIPE,
+                ps -> {
+                    ps.setString(1, name);
+                    ps.setString(2, description);
+                    ps.setString(3, source);
+                    ps.setInt(4, portions);
+                    ps.setBigDecimal(5, weightConvertedToDb);
+                    ps.setBigDecimal(6, caloriesConvertedToDb);
+                    ps.setBigDecimal(7, proteinsConvertedToDb);
+                    ps.setBigDecimal(8, fatsConvertedToDb);
+                    ps.setBigDecimal(9, carbsConvertedToDb);
+                    ps.setInt(10, recipeId);
+                }
+        );
+    }
+
+    private Recipe convert(ResultSet rs) throws SQLException {
+        Integer recipeId = rs.getInt("recipe_id");
+        String name = rs.getString("name");
+        String description = rs.getString("description");
+        String source = rs.getString("source");
+        Integer portions = rs.getInt("portions");
+
+        BigDecimal weight = rs.getBigDecimal("weight");
+        BigDecimal calories = rs.getBigDecimal("calories");
+        BigDecimal proteins = rs.getBigDecimal("proteins");
+        BigDecimal fats = rs.getBigDecimal("fats");
+        BigDecimal carbs = rs.getBigDecimal("carbs");
+
+        BigDecimal weightConvertedFromDb = weight
+                .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
+                .stripTrailingZeros();
+        BigDecimal caloriesConvertedFromDb = calories
+                .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
+                .stripTrailingZeros();
+        BigDecimal proteinsConvertedFromDb = proteins
+                .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
+                .stripTrailingZeros();
+        BigDecimal fatsConvertedFromDb = fats
+                .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
+                .stripTrailingZeros();
+        BigDecimal carbsConvertedFromDb = carbs
+                .divide(DECIMAL_MULTIPLIER, DECIMAL_SCALE, RoundingMode.DOWN)
+                .stripTrailingZeros();
+
+        Recipe recipe = new Recipe();
+        recipe.setRecipeId(recipeId);
+        recipe.setName(name);
+        recipe.setDescription(description);
+        recipe.setSource(source);
+        recipe.setPortions(portions);
+        recipe.setWeight(weightConvertedFromDb);
+        recipe.setCalories(caloriesConvertedFromDb);
+        recipe.setProteins(proteinsConvertedFromDb);
+        recipe.setFats(fatsConvertedFromDb);
+        recipe.setCarbs(carbsConvertedFromDb);
+
+        return recipe;
     }
 }
