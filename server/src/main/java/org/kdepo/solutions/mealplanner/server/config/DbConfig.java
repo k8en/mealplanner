@@ -1,5 +1,7 @@
 package org.kdepo.solutions.mealplanner.server.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -13,18 +15,30 @@ import javax.sql.DataSource;
 @Configuration
 public class DbConfig {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DbConfig.class);
+
     @Autowired
     Environment env;
 
     @Bean(name = "mealPlannerDataSource")
     public DataSource mealPlannerDataSource() {
-        System.out.println("[DBC] Datasource configuration:");
+        LOGGER.info("[DBC] Datasource configuration:");
 
         String driverClassName = env.getProperty("meal-planner.database.driver-class-name");
-        System.out.println("[DBC] driverClassName = " + driverClassName);
+        if (driverClassName == null || driverClassName.isEmpty()) {
+            LOGGER.error("[DBC] Error! Driver class name not found or empty!");
+            throw new RuntimeException("[DBC] Error! Driver class name not found or empty!");
+        } else {
+            LOGGER.info("[DBC] driverClassName = {}", driverClassName);
+        }
 
         String url = env.getProperty("meal-planner.database.url");
-        System.out.println("[DBC] url = " + url);
+        if (url == null || url.isEmpty()) {
+            LOGGER.error("[DBC] Error! Url to database not found or empty!");
+            throw new RuntimeException("[DBC] Error! Url to database not found or empty!");
+        } else {
+            LOGGER.info("[DBC] url = {}", url);
+        }
 
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(driverClassName);
