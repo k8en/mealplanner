@@ -92,6 +92,7 @@ public class ProductsRepositoryImpl implements ProductsRepository {
         LOGGER.trace("[DBR][getProduct] Invoked with parameters: productId={}", productId);
         return jdbcTemplate.query(
                 SQL_GET_PRODUCT,
+                ps -> ps.setInt(1, productId),
                 rs -> {
                     Product product = null;
                     if (rs.next()) {

@@ -173,6 +173,7 @@ public class RecipesRepositoryImpl implements RecipesRepository {
         LOGGER.trace("[DBR][getAllRecipesFromMeal] Invoked with parameters: mealId={}", mealId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_RECIPES_FROM_MEAL,
+                ps -> ps.setInt(1, mealId),
                 rs -> {
                     List<Recipe> result = new ArrayList<>();
                     while (rs.next()) {
@@ -188,6 +189,7 @@ public class RecipesRepositoryImpl implements RecipesRepository {
         LOGGER.trace("[DBR][getOrderNumber] Invoked with parameters: mealId={}", mealId);
         return jdbcTemplate.query(
                 SQL_GET_ORDER_NUMBER,
+                ps -> ps.setInt(1, mealId),
                 rs -> {
                     Integer orderNumber = null;
                     if (rs.next()) {
@@ -203,6 +205,7 @@ public class RecipesRepositoryImpl implements RecipesRepository {
         LOGGER.trace("[DBR][getRecipe] Invoked with parameters: recipeId={}", recipeId);
         Recipe recipe = jdbcTemplate.query(
                 SQL_GET_RECIPE,
+                ps -> ps.setInt(1, recipeId),
                 rs -> {
                     Recipe result = null;
                     if (rs.next()) {
