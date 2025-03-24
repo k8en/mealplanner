@@ -26,6 +26,7 @@ public class PrimaryKeysRepositoryImpl implements PrimaryKeysRepository {
         LOGGER.trace("[DBR][getNextVal] Invoked with parameters: entityPk={}", entityPk);
         return jdbcTemplate.query(
                 SQL_GET_NEXT_VAL,
+                ps -> ps.setString(1, entityPk),
                 rs -> {
                     Integer nextVal = null;
                     if (rs.next()) {
