@@ -1,6 +1,8 @@
 package org.kdepo.solutions.mealplanner.autotests.robot;
 
+import org.jspecify.annotations.Nullable;
 import org.kdepo.solutions.mealplanner.autotests.RobotConstants;
+import org.kdepo.solutions.mealplanner.autotests.exceptions.DataMismatchException;
 import org.kdepo.solutions.mealplanner.autotests.exceptions.UrlNotLoadedException;
 import org.kdepo.solutions.mealplanner.autotests.exceptions.WebElementNotFoundException;
 import org.openqa.selenium.By;
@@ -37,6 +39,13 @@ public class Robot {
         this.serverAddress = serverAddress;
     }
 
+    public void pause(long pause) {
+        try {
+            Thread.sleep(pause);
+        } catch (InterruptedException ignored) {
+        }
+    }
+
     public void navigate(String url) {
         System.out.println("[QA] Navigate to url '" + url + "'");
         try {
@@ -46,12 +55,38 @@ public class Robot {
         }
     }
 
+    public Integer getIdFromUrl(String url, String text) {
+        if (url == null || url.isEmpty()) {
+            throw new RuntimeException("Error! Url is not provided!");
+        }
+
+        if (text == null || text.isEmpty()) {
+            throw new RuntimeException("Error! Url text is not provided!");
+        }
+
+        int pos = url.indexOf(text);
+        if (pos == -1) {
+            throw new RuntimeException("Error! Url text is not found!");
+        }
+
+        String valueStr = url.substring(pos + text.length());
+        int value;
+        try {
+            value = Integer.parseInt(valueStr);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Error! Url id cannot be converted: " + valueStr + "!");
+        }
+
+        return value;
+    }
+
     public void sendTextToElement(String webElementId, String textToInput) {
         System.out.println("[QA] Send text to field with id '" + webElementId + "'. Text to send: '" + textToInput + "'");
         WebElement textBox = driver.findElement(By.id(webElementId));
         if (!textBox.isDisplayed()) {
             throw new WebElementNotFoundException("Error! Field not found with id '" + webElementId + "'");
         }
+        textBox.clear();
         textBox.sendKeys(textToInput);
     }
 
@@ -71,6 +106,35 @@ public class Robot {
             throw new WebElementNotFoundException("Error! Readable field not found with id '" + webElementId + "'");
         }
         return webElement.getText();
+    }
+
+    public void compareTextWithElement(String webElementId, String expectedText) {
+        String actualText = readTextFromElement(webElementId);
+
+        if (expectedText == null) {
+            if (actualText != null) {
+                throw new DataMismatchException("Error! Web element '" + webElementId + "' text mismatch. Expected: is null. Actual: '" + actualText + "'");
+            }
+
+        } else if (expectedText.isEmpty()) {
+            if (actualText == null) {
+                throw new DataMismatchException("Error! Web element '" + webElementId + "' text mismatch. Expected: is empty. Actual: is null");
+
+            } else if (!actualText.isEmpty()) {
+                throw new DataMismatchException("Error! Web element '" + webElementId + "' text mismatch. Expected: is empty. Actual: '" + actualText + "'");
+            }
+
+        } else {
+            if (actualText == null) {
+                throw new DataMismatchException("Error! Web element '" + webElementId + "' text mismatch. Expected: '" + expectedText + "'. Actual is null");
+
+            } else if (actualText.isEmpty()) {
+                throw new DataMismatchException("Error! Web element '" + webElementId + "' text mismatch. Expected: '" + expectedText + "'. Actual is empty");
+
+            } else if (!actualText.equals(expectedText)) {
+                throw new DataMismatchException("Error! Web element '" + webElementId + "' text mismatch. Expected: '" + expectedText + "'. Actual: '" + actualText + "'");
+            }
+        }
     }
 
     public void selectSingleValueFromList(String webElementId, String value) {
@@ -129,32 +193,32 @@ public class Robot {
         clickOnElement("submit");
     }
 
-    public boolean readTag(Integer tagId, String name, String description) {
-        System.out.println("[QA] Read and compare tag data: tagId=" + tagId + ", name='" + name + "', description='" + description + "'");
+    public Integer getTagIdFromUrl(@Nullable String currentUrl) {
+        return getIdFromUrl(currentUrl, "/tags/");
+    }
+
+    public void compareTag(Integer tagId, String name, String description) {
+        System.out.println("[QA] Compare tag data: tagId=" + tagId + ", name='" + name + "', description='" + description + "'");
 
         String url = serverAddress + "/tags/" + tagId;
 
         navigate(url);
 
-        String tagName = readTextFromElement("f_name");
-        if (tagName == null) {
-            System.out.println("[QA] Not able to read tag name");
-            return false;
-        } else if (!name.equals(tagName)) {
-            System.out.println("[QA] Tag name mismatch. Expected: '" + name + "' Actual: '" + tagName + "'");
-            return false;
-        }
+        compareTextWithElement("f_name", name);
+        compareTextWithElement("f_description", description);
+    }
 
-        String tagDescription = readTextFromElement("f_description");
-        if (tagDescription == null) {
-            System.out.println("[QA] Not able to read tag description");
-            return false;
-        } else if (!description.equals(tagDescription)) {
-            System.out.println("[QA] Tag description mismatch. Expected: '" + description + "' Actual: '" + tagDescription + "'");
-            return false;
-        }
+    public void openTagsList() {
+        System.out.println("[QA] Open tags list page");
 
-        return true;
+        String url = serverAddress + "/tags";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.TAGS_LIST.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Tags list page not accessible. Actual page title is '" + pageTitle + "'");
+        }
     }
 
     public void updateTag(Integer tagId, String name, String description) {
@@ -219,8 +283,8 @@ public class Robot {
         clickOnElement("submit");
     }
 
-    public boolean readProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        System.out.println("[QA] Read and compare product data: "
+    public void compareProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
+        System.out.println("[QA] Compare product data: "
                 + "productId=" + productId
                 + ", name='" + name + "'"
                 + ", description='" + description + "'"
@@ -234,61 +298,25 @@ public class Robot {
 
         navigate(url);
 
-        String productName = readTextFromElement("f_name");
-        if (productName == null) {
-            System.out.println("[QA] Not able to read product name");
-            return false;
-        } else if (!name.equals(productName)) {
-            System.out.println("[QA] Product name mismatch. Expected: '" + name + "' Actual: '" + productName + "'");
-            return false;
-        }
+        compareTextWithElement("f_name", name);
+        compareTextWithElement("f_description", description);
+        compareTextWithElement("f_calories", String.valueOf(calories));
+        compareTextWithElement("f_proteins", String.valueOf(proteins));
+        compareTextWithElement("f_fats", String.valueOf(fats));
+        compareTextWithElement("f_carbs", String.valueOf(carbs));
+    }
 
-        String productDescription = readTextFromElement("f_description");
-        if (productDescription == null) {
-            System.out.println("[QA] Not able to read product description");
-            return false;
-        } else if (!description.equals(productDescription)) {
-            System.out.println("[QA] Product description mismatch. Expected: '" + description + "' Actual: '" + productDescription + "'");
-            return false;
-        }
+    public void openProductsList() {
+        System.out.println("[QA] Open products list page");
 
-        String productCalories = readTextFromElement("f_calories");
-        if (productCalories == null) {
-            System.out.println("[QA] Not able to read product calories");
-            return false;
-        } else if (!calories.equals(new BigDecimal(productCalories))) {
-            System.out.println("[QA] Product calories mismatch. Expected: '" + calories + "' Actual: '" + productCalories + "'");
-            return false;
-        }
+        String url = serverAddress + "/products";
 
-        String productProteins = readTextFromElement("f_proteins");
-        if (productProteins == null) {
-            System.out.println("[QA] Not able to read product proteins");
-            return false;
-        } else if (!proteins.equals(new BigDecimal(productProteins))) {
-            System.out.println("[QA] Product proteins mismatch. Expected: '" + proteins + "' Actual: '" + productProteins + "'");
-            return false;
-        }
+        navigate(url);
 
-        String productFats = readTextFromElement("f_fats");
-        if (productFats == null) {
-            System.out.println("[QA] Not able to read product fats");
-            return false;
-        } else if (!fats.equals(new BigDecimal(productFats))) {
-            System.out.println("[QA] Product fats mismatch. Expected: '" + fats + "' Actual: '" + productFats + "'");
-            return false;
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.PRODUCTS_LIST.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Products list page not accessible. Actual page title is '" + pageTitle + "'");
         }
-
-        String productCarbs = readTextFromElement("f_carbs");
-        if (productCarbs == null) {
-            System.out.println("[QA] Not able to read product carbs");
-            return false;
-        } else if (!carbs.equals(new BigDecimal(productCarbs))) {
-            System.out.println("[QA] Product carbs mismatch. Expected: '" + carbs + "' Actual: '" + productCarbs + "'");
-            return false;
-        }
-
-        return true;
     }
 
     public void updateProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
@@ -371,8 +399,8 @@ public class Robot {
         clickOnElement("submit");
     }
 
-    public boolean readRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        System.out.println("[QA] Read and compare product data: "
+    public void compareRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
+        System.out.println("[QA] Compare product data: "
                 + "recipeId=" + recipeId
                 + ", name='" + name + "'"
                 + ", description='" + description + "'"
@@ -389,88 +417,28 @@ public class Robot {
 
         navigate(url);
 
-        String recipeName = readTextFromElement("f_name");
-        if (recipeName == null) {
-            System.out.println("[QA] Not able to read recipe name");
-            return false;
-        } else if (!name.equals(recipeName)) {
-            System.out.println("[QA] Recipe name mismatch. Expected: '" + name + "' Actual: '" + recipeName + "'");
-            return false;
-        }
+        compareTextWithElement("f_name", name);
+        compareTextWithElement("f_description", description);
+        compareTextWithElement("f_source", source);
+        compareTextWithElement("f_portions", String.valueOf(portions));
+        compareTextWithElement("f_weight", String.valueOf(weight));
+        compareTextWithElement("f_calories", String.valueOf(calories));
+        compareTextWithElement("f_proteins", String.valueOf(proteins));
+        compareTextWithElement("f_fats", String.valueOf(fats));
+        compareTextWithElement("f_carbs", String.valueOf(carbs));
+    }
 
-        String recipeDescription = readTextFromElement("f_description");
-        if (recipeDescription == null) {
-            System.out.println("[QA] Not able to read recipe description");
-            return false;
-        } else if (!description.equals(recipeDescription)) {
-            System.out.println("[QA] Recipe description mismatch. Expected: '" + description + "' Actual: '" + recipeDescription + "'");
-            return false;
-        }
+    public void openRecipesList() {
+        System.out.println("[QA] Open recipes list page");
 
-        String recipeSource = readTextFromElement("f_source");
-        if (recipeSource == null) {
-            System.out.println("[QA] Not able to read recipe source");
-            return false;
-        } else if (!source.equals(recipeSource)) {
-            System.out.println("[QA] Recipe source mismatch. Expected: '" + name + "' Actual: '" + recipeSource + "'");
-            return false;
-        }
+        String url = serverAddress + "/recipes";
 
-        String recipePortions = readTextFromElement("f_portions");
-        if (recipePortions == null) {
-            System.out.println("[QA] Not able to read recipe portions");
-            return false;
-        } else if (!portions.equals(Integer.parseInt(recipePortions))) {
-            System.out.println("[QA] Recipe portions mismatch. Expected: '" + portions + "' Actual: '" + recipePortions + "'");
-            return false;
-        }
+        navigate(url);
 
-        String recipeWeight = readTextFromElement("f_weight");
-        if (recipeWeight == null) {
-            System.out.println("[QA] Not able to read recipe weight");
-            return false;
-        } else if (!weight.equals(new BigDecimal(recipeWeight))) {
-            System.out.println("[QA] Recipe weight mismatch. Expected: '" + weight + "' Actual: '" + recipeWeight + "'");
-            return false;
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPES_LIST.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Recipes list page not accessible. Actual page title is '" + pageTitle + "'");
         }
-
-        String recipeCalories = readTextFromElement("f_calories");
-        if (recipeCalories == null) {
-            System.out.println("[QA] Not able to read recipe calories");
-            return false;
-        } else if (!calories.equals(new BigDecimal(recipeCalories))) {
-            System.out.println("[QA] Recipe calories mismatch. Expected: '" + calories + "' Actual: '" + recipeCalories + "'");
-            return false;
-        }
-
-        String recipeProteins = readTextFromElement("f_proteins");
-        if (recipeProteins == null) {
-            System.out.println("[QA] Not able to read recipe proteins");
-            return false;
-        } else if (!proteins.equals(new BigDecimal(recipeProteins))) {
-            System.out.println("[QA] Recipe proteins mismatch. Expected: '" + proteins + "' Actual: '" + recipeProteins + "'");
-            return false;
-        }
-
-        String recipeFats = readTextFromElement("f_fats");
-        if (recipeFats == null) {
-            System.out.println("[QA] Not able to read recipe fats");
-            return false;
-        } else if (!fats.equals(new BigDecimal(recipeFats))) {
-            System.out.println("[QA] Recipe fats mismatch. Expected: '" + fats + "' Actual: '" + recipeFats + "'");
-            return false;
-        }
-
-        String recipeCarbs = readTextFromElement("f_carbs");
-        if (recipeCarbs == null) {
-            System.out.println("[QA] Not able to read recipe carbs");
-            return false;
-        } else if (!carbs.equals(new BigDecimal(recipeCarbs))) {
-            System.out.println("[QA] Recipe carbs mismatch. Expected: '" + carbs + "' Actual: '" + recipeCarbs + "'");
-            return false;
-        }
-
-        return true;
     }
 
     public void updateRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
@@ -550,8 +518,8 @@ public class Robot {
         clickOnElement("submit");
     }
 
-    public boolean readIngredient(Integer ingredientId, String name, Integer recipeId, Integer productId, Integer amount, Integer unitId) {
-        System.out.println("[QA] Read and compare ingredient data: "
+    public boolean compareIngredient(Integer ingredientId, String name, Integer recipeId, Integer productId, Integer amount, Integer unitId) {
+        System.out.println("[QA] Compare ingredient data: "
                 + "ingredientId=" + ingredientId
                 + ", name='" + name + "'"
                 + ", recipeId=" + recipeId

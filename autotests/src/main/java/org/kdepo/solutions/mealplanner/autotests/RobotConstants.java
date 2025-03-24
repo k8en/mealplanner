@@ -9,12 +9,15 @@ public class RobotConstants {
         String PRODUCT_CREATE = "Добавление нового продукта";
         String PRODUCT_DELETE = "Удаление информации о продукте";
         String PRODUCT_UPDATE = "Редактирование информации о продукте";
+        String PRODUCTS_LIST = "Список продуктов";
         String RECIPE_CREATE = "Добавление нового рецепта";
         String RECIPE_DELETE = "Удаление информации о рецепте";
         String RECIPE_UPDATE = "Редактирование информации о рецепте";
+        String RECIPES_LIST = "Список рецептов";
         String TAG_CREATE = "Добавление новой метки";
         String TAG_DELETE = "Удаление информации о метке";
         String TAG_UPDATE = "Редактирование информации о метке";
+        String TAGS_LIST = "Список меток";
     }
 
     private RobotConstants() {
