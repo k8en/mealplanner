@@ -1,6 +1,5 @@
 package org.kdepo.solutions.mealplanner.autotests.robot;
 
-import org.jspecify.annotations.Nullable;
 import org.kdepo.solutions.mealplanner.autotests.RobotConstants;
 import org.kdepo.solutions.mealplanner.autotests.exceptions.DataMismatchException;
 import org.kdepo.solutions.mealplanner.autotests.exceptions.UrlNotLoadedException;
@@ -193,8 +192,8 @@ public class Robot {
         clickOnElement("submit");
     }
 
-    public Integer getTagIdFromUrl(@Nullable String currentUrl) {
-        return getIdFromUrl(currentUrl, "/tags/");
+    public Integer getTagIdFromUrl() {
+        return getIdFromUrl(driver.getCurrentUrl(), "/tags/");
     }
 
     public void compareTag(Integer tagId, String name, String description) {
@@ -283,8 +282,8 @@ public class Robot {
         clickOnElement("submit");
     }
 
-    public Integer getProductIdFromUrl(@Nullable String currentUrl) {
-        return getIdFromUrl(currentUrl, "/products/");
+    public Integer getProductIdFromUrl() {
+        return getIdFromUrl(driver.getCurrentUrl(), "/products/");
     }
 
     public void compareProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
