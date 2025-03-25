@@ -174,6 +174,16 @@ public class Robot {
         }
     }
 
+    public void logout() {
+        System.out.println("[QA] Log out from the current account");
+
+        String url = serverAddress + "/logout";
+
+        navigate(url);
+
+        clickOnElement("submit");
+    }
+
     public void createTag(String name, String description) {
         System.out.println("[QA] Create new tag with the next parameters: name='" + name + "', description='" + description + "'");
 

@@ -92,6 +92,9 @@ public class Scenario02 {
         // 5. Delete product
         robot.deleteProduct(product.getProductId());
 
+        // Logout
+        robot.logout();
+
         System.out.println("[QA] Completed scenario 02");
     }
 }
