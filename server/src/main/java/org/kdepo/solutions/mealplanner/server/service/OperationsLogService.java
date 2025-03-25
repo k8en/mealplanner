@@ -5,16 +5,14 @@ import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Product;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 @Service
 public class OperationsLogService {
 
-    private final static DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationsLogService.class);
 
     private final StringBuilder builder;
 
@@ -23,15 +21,10 @@ public class OperationsLogService {
     }
 
     public void register(String user, String operation, String objectType, String oldData, String newData) {
-        System.out.println(
-                DATE_FORMAT.format(new Date())
-                        + " user=" + user
-                        + " operation=" + operation
-                        + " object=" + objectType
-                        + " old={" + oldData + "}"
-                        + " new={" + newData + "}"
+        LOGGER.trace("[OLS] operation={}, objectType={}, user={}, oldData=[{}], newData=[{}]",
+                operation, objectType, user, oldData, newData
         );
-
+        //TODO save into database
     }
 
     public void registerProductCreated(String userName, Product product) {
