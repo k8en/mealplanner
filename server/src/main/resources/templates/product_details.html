@@ -25,19 +25,19 @@
             </tr>
             <tr>
                 <td>Калорийность, г</td>
-                <td id="f_calories" th:text="${product.calories}"></td>
+                <td id="f_calories" th:text="${product.calories.toPlainString()}"></td>
             </tr>
             <tr>
                 <td>Белков, г</td>
-                <td id="f_proteins" th:text="${product.proteins}"></td>
+                <td id="f_proteins" th:text="${product.proteins.toPlainString()}"></td>
             </tr>
             <tr>
                 <td>Жиров, г</td>
-                <td id="f_fats" th:text="${product.fats}"></td>
+                <td id="f_fats" th:text="${product.fats.toPlainString()}"></td>
             </tr>
             <tr>
                 <td>Углеводов, г</td>
-                <td id="f_carbs" th:text="${product.carbs}"></td>
+                <td id="f_carbs" th:text="${product.carbs.toPlainString()}"></td>
             </tr>
             <tr>
                 <td>Примечание</td>

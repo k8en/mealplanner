@@ -1,5 +1,7 @@
 package org.kdepo.solutions.mealplanner.shared.model;
 
+import org.springframework.format.annotation.NumberFormat;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -8,9 +10,17 @@ public class Product {
     private Integer productId;
     private String name;
     private String description;
+
+    @NumberFormat(pattern = "#0.########")
     private BigDecimal calories;
+
+    @NumberFormat(pattern = "#0.########")
     private BigDecimal proteins;
+
+    @NumberFormat(pattern = "#0.########")
     private BigDecimal fats;
+
+    @NumberFormat(pattern = "#0.########")
     private BigDecimal carbs;
 
     public Integer getProductId() {

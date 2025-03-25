@@ -283,6 +283,10 @@ public class Robot {
         clickOnElement("submit");
     }
 
+    public Integer getProductIdFromUrl(@Nullable String currentUrl) {
+        return getIdFromUrl(currentUrl, "/products/");
+    }
+
     public void compareProduct(Integer productId, String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
         System.out.println("[QA] Compare product data: "
                 + "productId=" + productId

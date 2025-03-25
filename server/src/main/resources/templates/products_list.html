@@ -32,10 +32,10 @@
                     </tr>
                     <tr class="tr" th:each="product : ${products}">
                         <td class="td"><a th:href="@{'/products/' + ${product.productId}}"><span th:text="${product.name}"></span></a></td>
-                        <td class="td" style="text-align: right;" th:text="${product.calories}"></td>
-                        <td class="td" style="text-align: right;" th:text="${product.proteins}"></td>
-                        <td class="td" style="text-align: right;" th:text="${product.fats}"></td>
-                        <td class="td" style="text-align: right;" th:text="${product.carbs}"></td>
+                        <td class="td" style="text-align: right;" th:text="${product.calories.toPlainString()}"></td>
+                        <td class="td" style="text-align: right;" th:text="${product.proteins.toPlainString()}"></td>
+                        <td class="td" style="text-align: right;" th:text="${product.fats.toPlainString()}"></td>
+                        <td class="td" style="text-align: right;" th:text="${product.carbs.toPlainString()}"></td>
                         <td class="td" th:text="${product.description}"></td>
                     </tr>
                 </table>
