@@ -25,7 +25,7 @@
                 </div>
 
                 <div class="form_element">
-                    <label for="f_calories">Калорийность, г</label>
+                    <label for="f_calories">Калорийность, ккал</label>
                     <input type="text" id="f_calories" th:field="*{calories}" placeholder="0.0"/>
                     <span class="validation_error" th:if="${#fields.hasErrors('calories')}" th:errors="*{calories}"></span>
                 </div>
