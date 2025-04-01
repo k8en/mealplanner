@@ -63,6 +63,7 @@ public class IngredientsRepositoryImpl implements IngredientsRepository {
         LOGGER.trace("[DBR][getAllIngredientsFromRecipe] Invoked with parameters: recipeId={}", recipeId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_INGREDIENTS_FROM_RECIPE,
+                ps -> ps.setInt(1, recipeId),
                 rs -> {
                     List<Ingredient> result = new ArrayList<>();
                     while (rs.next()) {
@@ -78,6 +79,7 @@ public class IngredientsRepositoryImpl implements IngredientsRepository {
         LOGGER.trace("[DBR][getIngredient] Invoked with parameters: ingredientId={}", ingredientId);
         return jdbcTemplate.query(
                 SQL_GET_INGREDIENT,
+                ps -> ps.setInt(1, ingredientId),
                 rs -> {
                     Ingredient ingredient = null;
                     if (rs.next()) {

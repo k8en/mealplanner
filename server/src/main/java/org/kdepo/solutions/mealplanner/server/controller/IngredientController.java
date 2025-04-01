@@ -85,6 +85,12 @@ public class IngredientController {
 
         model.addAttribute("ingredient", ingredient);
 
+        Product product = productsRepository.getProduct(ingredient.getProductId());
+        model.addAttribute("product", product);
+
+        Unit unit = unitsRepository.getUnit(ingredient.getUnitId());
+        model.addAttribute("unit", unit);
+
         return "ingredient_details";
     }
 

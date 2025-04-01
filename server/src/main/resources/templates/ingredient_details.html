@@ -22,6 +22,14 @@
                 <td>Название</td>
                 <td th:text="${ingredient.name}"></td>
             </tr>
+            <tr>
+                <td>Продукт</td>
+                <td><a th:href="@{'/products/' + ${product.productId}}"><span th:text="${product.name}"></span></a></td>
+            </tr>
+            <tr>
+                <td>Количество</td>
+                <td><span th:text="${ingredient.amount} + ' ' + ${unit.shortName}"></span></td>
+            </tr>
         </table>
 
     </div>
