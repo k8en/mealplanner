@@ -21,9 +21,16 @@
         <div th:switch="${#lists.size(tags)}">
             <span th:case="'0'">Нет информации для отображения</span>
             <div th:case="*">
-                <div th:each="tag : ${tags}">
-                    <a th:href="@{'/tags/' + ${tag.tagId}}"><span th:text="${tag.name}"></span></a>
-                </div>
+                <table class="table">
+                    <tr class="tr">
+                        <th class="th">Название</th>
+                        <th class="th">Примечание</th>
+                    </tr>
+                    <tr class="tr" th:each="tag : ${tags}">
+                        <td class="td"><a th:href="@{'/tags/' + ${tag.tagId}}"><span th:text="${tag.name}"></span></a></td>
+                        <td class="td" th:text="${tag.description}"></td>
+                    </tr>
+                </table>
             </div>
         </div>
 
