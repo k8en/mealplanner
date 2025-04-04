@@ -396,7 +396,7 @@ public class ProductsController {
     }
 
     @PostMapping("/{id}/delete")
-    public String acceptProductDeletionForm(@Valid Product product, @PathVariable Integer id, RedirectAttributes redirectAttributes) {
+    public String acceptProductDeletionForm(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         LOGGER.trace("[WEB] POST /products/{}/delete", id);
 
         // Authentication checks
