@@ -6,18 +6,16 @@ import java.util.List;
 
 public interface ProfilesRepository {
 
-    Profile addProfile(Integer profileId, String name, Integer orderNumber);
+    Profile addProfile(Integer profileId, String name, Boolean isDefault);
 
     void deleteProfile(Integer profileId);
 
     List<Profile> getAllProfiles();
 
-    Integer getOrderNumber();
-
     Profile getProfile(Integer profileId);
 
     boolean isUsed(Integer profileId);
 
-    void updateProfile(Integer profileId, String name, Integer orderNumber);
+    void updateProfile(Integer profileId, String name, Boolean isDefault);
 
 }

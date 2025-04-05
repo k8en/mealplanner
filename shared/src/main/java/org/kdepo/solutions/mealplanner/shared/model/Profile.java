@@ -6,7 +6,7 @@ public class Profile {
 
     private Integer profileId;
     private String name;
-    private Integer orderNumber;
+    private Boolean isDefault;
 
     public Integer getProfileId() {
         return profileId;
@@ -24,12 +24,26 @@ public class Profile {
         this.name = name;
     }
 
-    public Integer getOrderNumber() {
-        return orderNumber;
+    public Boolean getDefault() {
+        return isDefault;
     }
 
-    public void setOrderNumber(Integer orderNumber) {
-        this.orderNumber = orderNumber;
+    public void setDefault(Boolean aDefault) {
+        isDefault = aDefault;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Profile profile = (Profile) o;
+        return Objects.equals(profileId, profile.profileId)
+                && Objects.equals(name, profile.name)
+                && Objects.equals(isDefault, profile.isDefault);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(profileId, name, isDefault);
     }
 
     @Override
@@ -37,22 +51,7 @@ public class Profile {
         return "Profile{" +
                 "profileId=" + profileId +
                 ", name='" + name + '\'' +
-                ", orderNumber=" + orderNumber +
+                ", isDefault=" + isDefault +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Profile profile = (Profile) o;
-        return Objects.equals(profileId, profile.profileId)
-                && Objects.equals(name, profile.name)
-                && Objects.equals(orderNumber, profile.orderNumber);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(profileId, name, orderNumber);
     }
 }

@@ -12,21 +12,26 @@
     <div th:replace="~{fragment_header :: header}"/>
     <div class="content">
 
-        <div class="ctrl_panel">
-            <span class="ctrl_button"><a href="/profiles">Профили питания</a></span>
-            <span class="ctrl_button"><a href="/recipes">Рецепты</a></span>
-            <span class="ctrl_button"><a href="/products">Продукты</a></span>
-            <span class="ctrl_button"><a href="/tags">Метки</a></span>
+        <div class="ctrl_panel" th:if="${isLoggedIn}">
+            <span class="ctrl_button"><a href="/profiles/create">Добавить новый профиль питания</a></span>
         </div>
 
-        <h3>Профили питания</h3>
+        <h3>Список профилей питания</h3>
 
         <div th:switch="${#lists.size(profiles)}">
             <span th:case="'0'">Нет информации для отображения</span>
             <div th:case="*">
-                <div th:each="profile : ${profiles}">
-                    <a th:href="@{'/profiles/' + ${profile.profileId}}"><span th:text="${profile.name}"></span></a>
-                </div>
+                <table class="table">
+                    <tr class="tr">
+                        <th class="th">Название</th>
+                        <th class="th" colspan="2">Порядок отображения</th>
+                    </tr>
+                    <tr class="tr" th:each="profile : ${profiles}">
+                        <td class="td"><a th:href="@{'/profiles/' + ${profile.profileId}}"><span th:text="${profile.name}"></span></a></td>
+                        <td class="td"><a th:href="@{'/profiles/' + ${profile.profileId} + '/up'}"><span>Выше</span></a></td>
+                        <td class="td"><a th:href="@{'/profiles/' + ${profile.profileId} + '/down'}"><span>Ниже</span></a></td>
+                    </tr>
+                </table>
             </div>
         </div>
 

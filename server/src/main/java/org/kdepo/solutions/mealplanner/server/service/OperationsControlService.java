@@ -80,4 +80,20 @@ public class OperationsControlService {
     public boolean canReadUnit(String userName, Integer unitId) {
         return true;
     }
+
+    public boolean canReadProfile(String userName, Integer profileId) {
+        return true;
+    }
+
+    public boolean canCreateProfile(String userName) {
+        return true;
+    }
+
+    public boolean canModifyProfile(String userName, Integer profileId) {
+        return true;
+    }
+
+    public boolean canDeleteProfile(String userName, Integer profileId) {
+        return true;
+    }
 }

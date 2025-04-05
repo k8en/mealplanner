@@ -3,6 +3,7 @@ package org.kdepo.solutions.mealplanner.server.service;
 import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Product;
+import org.kdepo.solutions.mealplanner.shared.model.Profile;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Tag;
 import org.slf4j.Logger;
@@ -191,5 +192,34 @@ public class OperationsLogService {
 
     public void registerIngredientDeleted(String userName, Integer ingredientId) {
         register(userName, "D", "INGREDIENT", String.valueOf(ingredientId), null);
+    }
+
+    public void registerProfileCreated(String userName, Profile profile) {
+        builder.setLength(0);
+        builder.append("profile_id=").append(profile.getProfileId());
+        builder.append(", name=").append(profile.getName());
+        builder.append(", isDefault=").append(profile.getDefault());
+
+        register(userName, "C", "PROFILE", null, builder.toString());
+    }
+
+    public void registerProfileUpdated(String userName, Profile oldData, @Valid Profile newData) {
+        builder.setLength(0);
+        builder.append("profile_id=").append(oldData.getProfileId());
+        builder.append(", name=").append(oldData.getName());
+        builder.append(", isDefault=").append(oldData.getDefault());
+        String oldDataValue = builder.toString();
+
+        builder.setLength(0);
+        builder.append("profile_id=").append(newData.getProfileId());
+        builder.append(", name=").append(newData.getName());
+        builder.append(", isDefault=").append(newData.getDefault());
+        String newDataValue = builder.toString();
+
+        register(userName, "U", "PROFILE", oldDataValue, newDataValue);
+    }
+
+    public void registerProfileDeleted(String userName, Integer profileId) {
+        register(userName, "D", "PROFILE", String.valueOf(profileId), null);
     }
 }
