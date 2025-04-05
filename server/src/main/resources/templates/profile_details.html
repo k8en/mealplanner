@@ -12,6 +12,13 @@
     <div th:replace="~{fragment_header :: header}"/>
     <div class="content">
 
+        <div class="ctrl_panel" th:if="${isLoggedIn}">
+            <span class="ctrl_button"><a href="/profiles/create">Добавить новый профиль питания</a></span>
+            <span class="ctrl_button"><a th:href="@{'/profiles/' + ${profile.profileId} + '/update'}">Редактировать профиль питания</a></span>
+            <span class="ctrl_button"><a th:href="@{'/profiles/' + ${profile.profileId} + '/delete'}">Удалить профиль питания</a></span>
+            <span class="ctrl_button" th:if="${#bools.isFalse(profile.active)}"><a th:href="@{'/profiles/' + ${profile.profileId} + '/active'}">Сделать активным</a></span>
+        </div>
+
     </div>
     <div th:replace="~{fragment_footer :: footer}"/>
 </div>

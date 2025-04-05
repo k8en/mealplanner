@@ -198,7 +198,7 @@ public class OperationsLogService {
         builder.setLength(0);
         builder.append("profile_id=").append(profile.getProfileId());
         builder.append(", name=").append(profile.getName());
-        builder.append(", isDefault=").append(profile.getDefault());
+        builder.append(", active=").append(profile.getActive());
 
         register(userName, "C", "PROFILE", null, builder.toString());
     }
@@ -207,13 +207,13 @@ public class OperationsLogService {
         builder.setLength(0);
         builder.append("profile_id=").append(oldData.getProfileId());
         builder.append(", name=").append(oldData.getName());
-        builder.append(", isDefault=").append(oldData.getDefault());
+        builder.append(", active=").append(oldData.getActive());
         String oldDataValue = builder.toString();
 
         builder.setLength(0);
         builder.append("profile_id=").append(newData.getProfileId());
         builder.append(", name=").append(newData.getName());
-        builder.append(", isDefault=").append(newData.getDefault());
+        builder.append(", active=").append(newData.getActive());
         String newDataValue = builder.toString();
 
         register(userName, "U", "PROFILE", oldDataValue, newDataValue);

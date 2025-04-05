@@ -24,12 +24,11 @@
                 <table class="table">
                     <tr class="tr">
                         <th class="th">Название</th>
-                        <th class="th" colspan="2">Порядок отображения</th>
+                        <th class="th">Примечание</th>
                     </tr>
                     <tr class="tr" th:each="profile : ${profiles}">
                         <td class="td"><a th:href="@{'/profiles/' + ${profile.profileId}}"><span th:text="${profile.name}"></span></a></td>
-                        <td class="td"><a th:href="@{'/profiles/' + ${profile.profileId} + '/up'}"><span>Выше</span></a></td>
-                        <td class="td"><a th:href="@{'/profiles/' + ${profile.profileId} + '/down'}"><span>Ниже</span></a></td>
+                        <td class="td"><span th:if="${profile.active}">Активный профиль питания</span></td>
                     </tr>
                 </table>
             </div>

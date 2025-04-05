@@ -104,7 +104,7 @@ public class DbConstructor {
             + "                              UNIQUE\n"
             + "                              NOT NULL,\n"
             + "    name         VARCHAR (50) NOT NULL,\n"
-            + "    is_default   NUMERIC (1)  NOT NULL\n"
+            + "    active       NUMERIC (1)  NOT NULL\n"
             + ")";
 
     private static final String SQL_CREATE_TABLE_WEEKS = ""
@@ -154,6 +154,7 @@ public class DbConstructor {
             "INSERT INTO primary_keys (name, next_val) VALUES ('ingredient_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('meal_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('product_id', 1)",
+            "INSERT INTO primary_keys (name, next_val) VALUES ('profile_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('recipe_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('tag_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('unit_id', 1)",

@@ -55,8 +55,9 @@ public class ProfilesController {
             model.addAttribute("userName", userName);
         } else {
             LOGGER.warn("[WEB] Cannot show profiles list page: anonymous user cannot read profiles list");
-            return "redirect:/";
+            return "redirect:/recipes";
         }
+        model.addAttribute("isLoggedIn", userName != null);
 
         // Prepare entities
         List<Profile> profiles = profilesRepository.getAllProfiles();
@@ -79,6 +80,7 @@ public class ProfilesController {
             LOGGER.warn("[WEB] Cannot show profile details page: anonymous user cannot read profile details");
             return "redirect:/profiles";
         }
+        model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
         Profile profile = profilesRepository.getProfile(id);
@@ -91,6 +93,9 @@ public class ProfilesController {
             LOGGER.warn("[WEB] Cannot show profile details page: user '{}' has no access to profile {}", userName, id);
             return "redirect:/profiles";
         }
+
+        // Prepare entities
+        model.addAttribute("profile", profile);
 
         //TODO add profile info to display
 
@@ -122,7 +127,7 @@ public class ProfilesController {
         // Prepare entity with default values
         Profile profile = new Profile();
         profile.setProfileId(-1);
-        profile.setDefault(false);
+        profile.setActive(false);
 
         model.addAttribute("profile", profile);
 
@@ -169,16 +174,13 @@ public class ProfilesController {
         profile.setProfileId(profileId);
 
         List<Profile> profiles = profilesRepository.getAllProfiles();
-        boolean isDefault = false;
-        if (profiles.isEmpty()) {
-            isDefault = true;
-        }
+        boolean active = profiles.isEmpty();
 
         // Create entity
         Profile createdProfile = profilesRepository.addProfile(
                 profile.getProfileId(),
                 profile.getName(),
-                isDefault
+                active
         );
 
         // Register operation in system events log
@@ -258,11 +260,13 @@ public class ProfilesController {
             return "profile_update";
         }
 
+        profile.setActive(profileFromDb.getActive()); // Because this field is not present on the UI
+
         // Update entity
         profilesRepository.updateProfile(
                 profile.getProfileId(),
                 profile.getName(),
-                profile.getDefault()
+                profile.getActive()
         );
 
         // Register operation in system events log
@@ -331,10 +335,79 @@ public class ProfilesController {
         // Delete entity
         profilesRepository.deleteProfile(profileFromDb.getProfileId());
 
+        if (profileFromDb.getActive()) {
+            List<Profile> allProfiles = profilesRepository.getAllProfiles();
+            if (!allProfiles.isEmpty()) {
+                Profile nextActiveProfile = allProfiles.get(0);
+                nextActiveProfile.setActive(true);
+                profilesRepository.updateProfile(
+                        nextActiveProfile.getProfileId(),
+                        nextActiveProfile.getName(),
+                        nextActiveProfile.getActive()
+                );
+            }
+        }
+
         // Register operation in system events log
         logService.registerProfileDeleted(userName, profileFromDb.getProfileId());
 
         return "redirect:/profiles";
     }
 
+    @GetMapping("/{id}/active")
+    public String setProfileActive(@PathVariable Integer id, Model model) {
+        LOGGER.trace("[WEB] GET /profiles/{}/active", id);
+
+        // Authentication checks
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName;
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            userName = authentication.getName();
+            model.addAttribute("userName", userName);
+        } else {
+            LOGGER.warn("[WEB] Cannot set profile active: anonymous user cannot modify profiles");
+            return "redirect:/profiles/" + id;
+        }
+        model.addAttribute("isLoggedIn", userName != null);
+
+        Profile profile = profilesRepository.getProfile(id);
+        if (profile == null) {
+            LOGGER.warn("[WEB] Cannot set profile active: profile {} was not found", id);
+            return "redirect:/profiles";
+        }
+
+        if (!controlService.canModifyProfile(userName, profile.getProfileId())) {
+            LOGGER.warn("[WEB] Cannot set profile active: user '{}' has no access to profile {} modification", userName, id);
+            return "redirect:/profiles/" + profile.getProfileId();
+        }
+
+        List<Profile> allProfiles = profilesRepository.getAllProfiles();
+        List<Profile> activeProfiles = allProfiles.stream()
+                .filter(Profile::getActive)
+                .toList();
+
+        for (Profile activeProfile : activeProfiles) {
+            if (!profile.getProfileId().equals(activeProfile.getProfileId())) {
+                activeProfile.setActive(false);
+                profilesRepository.updateProfile(
+                        activeProfile.getProfileId(),
+                        activeProfile.getName(),
+                        activeProfile.getActive()
+                );
+            }
+        }
+
+        if (!profile.getActive()) {
+            profile.setActive(true);
+            profilesRepository.updateProfile(
+                    profile.getProfileId(),
+                    profile.getName(),
+                    profile.getActive()
+            );
+        }
+
+        model.addAttribute("profile", profile);
+
+        return "redirect:/profiles/" + id;
+    }
 }

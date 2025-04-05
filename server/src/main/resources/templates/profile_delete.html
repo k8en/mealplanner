@@ -16,7 +16,7 @@
 
         <div class="form_block">
             <form action="#" th:action="@{'/profiles/' + ${profile.profileId} + '/delete'}" method="post" th:object="${profile}">
-                <input type="hidden" th:field="*{tagId}"/>
+                <input type="hidden" th:field="*{profileId}"/>
 
                 <div class="form_element">
                     <label for="f_name">Название</label>

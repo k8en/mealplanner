@@ -6,7 +6,7 @@ public class Profile {
 
     private Integer profileId;
     private String name;
-    private Boolean isDefault;
+    private Boolean active;
 
     public Integer getProfileId() {
         return profileId;
@@ -24,12 +24,12 @@ public class Profile {
         this.name = name;
     }
 
-    public Boolean getDefault() {
-        return isDefault;
+    public Boolean getActive() {
+        return active;
     }
 
-    public void setDefault(Boolean aDefault) {
-        isDefault = aDefault;
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     @Override
@@ -38,12 +38,12 @@ public class Profile {
         Profile profile = (Profile) o;
         return Objects.equals(profileId, profile.profileId)
                 && Objects.equals(name, profile.name)
-                && Objects.equals(isDefault, profile.isDefault);
+                && Objects.equals(active, profile.active);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(profileId, name, isDefault);
+        return Objects.hash(profileId, name, active);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class Profile {
         return "Profile{" +
                 "profileId=" + profileId +
                 ", name='" + name + '\'' +
-                ", isDefault=" + isDefault +
+                ", active=" + active +
                 '}';
     }
 }
