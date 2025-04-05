@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -82,20 +83,20 @@ public class DbConstructor {
             + "                          REFERENCES tags (tag_id) \n"
             + ")";
 
-    private static final String SQL_CREATE_TABLE_INGREDIENTS = "" +
-            "CREATE TABLE ingredients (\n" +
-            "    ingredient_id NUMERIC (5)  PRIMARY KEY\n" +
-            "                               NOT NULL\n" +
-            "                               UNIQUE,\n" +
-            "    name          VARCHAR (50) NOT NULL,\n" +
-            "    recipe_id     NUMERIC (5)  NOT NULL\n" +
-            "                               REFERENCES recipes (recipe_id),\n" +
-            "    product_id    NUMERIC (5)  NOT NULL\n" +
-            "                               REFERENCES products (product_id),\n" +
-            "    amount        NUMERIC (6)  NOT NULL,\n" +
-            "    unit_id       NUMERIC (5)  NOT NULL\n" +
-            "                               REFERENCES units (unit_id) \n" +
-            ")";
+    private static final String SQL_CREATE_TABLE_INGREDIENTS = ""
+            + "CREATE TABLE ingredients (\n"
+            + "    ingredient_id NUMERIC (5)  PRIMARY KEY\n"
+            + "                               NOT NULL\n"
+            + "                               UNIQUE,\n"
+            + "    name          VARCHAR (50) NOT NULL,\n"
+            + "    recipe_id     NUMERIC (5)  NOT NULL\n"
+            + "                               REFERENCES recipes (recipe_id),\n"
+            + "    product_id    NUMERIC (5)  NOT NULL\n"
+            + "                               REFERENCES products (product_id),\n"
+            + "    amount        NUMERIC (6)  NOT NULL,\n"
+            + "    unit_id       NUMERIC (5)  NOT NULL\n"
+            + "                               REFERENCES units (unit_id) \n"
+            + ")";
 
     private static final String SQL_CREATE_TABLE_PROFILES = ""
             + "CREATE TABLE profiles (\n"
@@ -103,7 +104,7 @@ public class DbConstructor {
             + "                              UNIQUE\n"
             + "                              NOT NULL,\n"
             + "    name         VARCHAR (50) NOT NULL,\n"
-            + "    order_number NUMERIC (5)  NOT NULL\n"
+            + "    is_default   NUMERIC (1)  NOT NULL\n"
             + ")";
 
     private static final String SQL_CREATE_TABLE_WEEKS = ""
@@ -168,6 +169,22 @@ public class DbConstructor {
             , "UPDATE primary_keys  SET next_val = '8' WHERE name = 'unit_id'"
     );
 
+    private static final List<String> SQL_INSERT_TEST_LINES = Arrays.asList(
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (1, 'Вода', null, 0, 0, 0, 0)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (2, 'Гречка', null, 3130000, 126000, 33000, 621000)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (3, 'Картофель', null, 800000, 20000, 4000, 181000)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (4, 'Крабовые палочки', null, 730000, 60000, 10000, 100000)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (5, 'Кукуруза консервированная', null, 790000, 24100, 5000, 174400)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (6, 'Масло сливочное', null, 7340000, 5000, 825000, 8000)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (7, 'Морковь', null, 330000, 13000, 1000, 69000)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (8, 'Огурец', null, 150000, 8000, 1000, 26000)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (9, 'Яйцо куриное', null, 1570000, 127000, 109000, 7000)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (10, 'Масло растительное', null, 8730000, 0, 999000, 0)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (11, 'Майонез', null, 6240000, 31000, 670000, 26000)",
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (12, 'Рис', null, 3440000, 67000, 7000, 789000)",
+            "UPDATE primary_keys  SET next_val = '13' WHERE name = 'product_id'"
+    );
+
     private static DbConstructor instance;
 
     public static DbConstructor getInstance() {
@@ -202,28 +219,44 @@ public class DbConstructor {
         return true;
     }
 
-    public boolean construct() {
-        if (execute(SQL_CREATE_TABLE_PRIMARY_KEYS)
-                && execute(SQL_CREATE_TABLE_SETTINGS)
-                && execute(SQL_CREATE_TABLE_UNITS)
-                && execute(SQL_CREATE_TABLE_PRODUCTS)
-                && execute(SQL_CREATE_TABLE_TAGS)
-                && execute(SQL_CREATE_TABLE_RECIPES)
-                && execute(SQL_CREATE_TABLE_RECIPES_TAGS)
-                && execute(SQL_CREATE_TABLE_INGREDIENTS)
-                && execute(SQL_CREATE_TABLE_PROFILES)
-                && execute(SQL_CREATE_TABLE_WEEKS)
-                && execute(SQL_CREATE_TABLE_DAYS)
-                && execute(SQL_CREATE_TABLE_MEALS)
-                && execute(SQL_CREATE_TABLE_MEALS_CONTENTS)) {
+    public boolean construct(boolean isDataLinesRequired, boolean isTestLinesRequired) {
+        List<String> createTableQueryList = new ArrayList<>();
+        createTableQueryList.add(SQL_CREATE_TABLE_PRIMARY_KEYS);
+        createTableQueryList.add(SQL_CREATE_TABLE_SETTINGS);
+        createTableQueryList.add(SQL_CREATE_TABLE_UNITS);
+        createTableQueryList.add(SQL_CREATE_TABLE_PRODUCTS);
+        createTableQueryList.add(SQL_CREATE_TABLE_TAGS);
+        createTableQueryList.add(SQL_CREATE_TABLE_RECIPES);
+        createTableQueryList.add(SQL_CREATE_TABLE_RECIPES_TAGS);
+        createTableQueryList.add(SQL_CREATE_TABLE_INGREDIENTS);
+        createTableQueryList.add(SQL_CREATE_TABLE_PROFILES);
+        createTableQueryList.add(SQL_CREATE_TABLE_WEEKS);
+        createTableQueryList.add(SQL_CREATE_TABLE_DAYS);
+        createTableQueryList.add(SQL_CREATE_TABLE_MEALS);
+        createTableQueryList.add(SQL_CREATE_TABLE_MEALS_CONTENTS);
+
+        for (String query : createTableQueryList) {
+            if (!execute(query)) {
+                return false;
+            }
+        }
+
+        if (isDataLinesRequired) {
             for (String query : SQL_INSERT_DATA_LINES) {
                 if (!execute(query)) {
                     return false;
                 }
             }
-        } else {
-            return false;
         }
+
+        if (isTestLinesRequired) {
+            for (String query : SQL_INSERT_TEST_LINES) {
+                if (!execute(query)) {
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 

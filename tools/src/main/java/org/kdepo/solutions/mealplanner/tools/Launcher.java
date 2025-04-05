@@ -17,7 +17,7 @@ public class Launcher {
             return;
         }
 
-        boolean isCreated = dbConstructor.construct();
+        boolean isCreated = dbConstructor.construct(true, true);
         if (!isCreated) {
             System.out.println("[DB] Database creation failed. Process stopped");
             return;
