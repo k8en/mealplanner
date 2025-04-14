@@ -18,12 +18,12 @@ public class ProfilesRepositoryImpl implements ProfilesRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfilesRepositoryImpl.class);
 
-    private static final String SQL_ADD_PROFILE = "INSERT INTO profiles (profile_id, name, active) VALUES (?, ?, ?)";
+    private static final String SQL_ADD_PROFILE = "INSERT INTO profiles (profile_id, profile_type_id, name, active) VALUES (?, ?, ?, ?)";
     private static final String SQL_DELETE_PROFILE = "DELETE FROM profiles WHERE profile_id = ?";
     private static final String SQL_GET_ALL_PROFILES = "SELECT * FROM profiles ORDER BY active DESC, name ASC";
     private static final String SQL_GET_PROFILE = "SELECT * FROM profiles WHERE profile_id = ?";
     private static final String SQL_IS_USED = "SELECT profile_id FROM weeks WHERE profile_id = ? LIMIT 1";
-    private static final String SQL_UPDATE_PROFILE = "UPDATE profiles SET name = ?, active = ? WHERE profile_id = ?";
+    private static final String SQL_UPDATE_PROFILE = "UPDATE profiles SET profile_type_id = ?, name = ?, active = ? WHERE profile_id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -32,9 +32,9 @@ public class ProfilesRepositoryImpl implements ProfilesRepository {
     }
 
     @Override
-    public Profile addProfile(Integer profileId, String name, Boolean active) {
-        LOGGER.trace("[DBR][addProfile] Invoked with parameters: profileId={}, name={}, active={}",
-                profileId, name, active
+    public Profile addProfile(Integer profileId, Integer profileTypeId, String name, Boolean active) {
+        LOGGER.trace("[DBR][addProfile] Invoked with parameters: profileId={}, profileTypeId={}, name={}, active={}",
+                profileId, profileTypeId, name, active
         );
 
         int activeAsInt = active ? 1 : 0;
@@ -43,8 +43,9 @@ public class ProfilesRepositoryImpl implements ProfilesRepository {
                 SQL_ADD_PROFILE,
                 ps -> {
                     ps.setInt(1, profileId);
-                    ps.setString(2, name);
-                    ps.setInt(3, activeAsInt);
+                    ps.setInt(2, profileTypeId);
+                    ps.setString(3, name);
+                    ps.setInt(4, activeAsInt);
                 }
         );
 
@@ -103,9 +104,9 @@ public class ProfilesRepositoryImpl implements ProfilesRepository {
     }
 
     @Override
-    public void updateProfile(Integer profileId, String name, Boolean active) {
-        LOGGER.trace("[DBR][updateProfile] Invoked with parameters: profileId={}, name={}, active={}",
-                profileId, name, active
+    public void updateProfile(Integer profileId, Integer profileTypeId, String name, Boolean active) {
+        LOGGER.trace("[DBR][updateProfile] Invoked with parameters: profileId={}, profileTypeId={}, name={}, active={}",
+                profileId, profileTypeId, name, active
         );
 
         int activeAsInt = active ? 1 : 0;
@@ -113,20 +114,23 @@ public class ProfilesRepositoryImpl implements ProfilesRepository {
         jdbcTemplate.update(
                 SQL_UPDATE_PROFILE,
                 ps -> {
-                    ps.setString(1, name);
-                    ps.setInt(2, activeAsInt);
-                    ps.setInt(3, profileId);
+                    ps.setInt(1, profileTypeId);
+                    ps.setString(2, name);
+                    ps.setInt(3, activeAsInt);
+                    ps.setInt(4, profileId);
                 }
         );
     }
 
     private Profile convert(ResultSet rs) throws SQLException {
         Integer profileId = rs.getInt("profile_id");
+        Integer profileTypeId = rs.getInt("profile_type_id");
         String name = rs.getString("name");
         Integer activeAsInt = rs.getInt("active");
 
         Profile profile = new Profile();
         profile.setProfileId(profileId);
+        profile.setProfileTypeId(profileTypeId);
         profile.setName(name);
         profile.setActive(activeAsInt != 0);
 

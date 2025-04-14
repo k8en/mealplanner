@@ -32,9 +32,9 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/ingredients")
-public class IngredientController {
+public class IngredientsController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IngredientController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IngredientsController.class);
 
     private static final String PK = "ingredient_id";
 

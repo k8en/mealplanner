@@ -1,11 +1,13 @@
 package org.kdepo.solutions.mealplanner.server.service;
 
 import jakarta.validation.Valid;
+import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Product;
 import org.kdepo.solutions.mealplanner.shared.model.Profile;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Tag;
+import org.kdepo.solutions.mealplanner.shared.model.Week;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -197,6 +199,7 @@ public class OperationsLogService {
     public void registerProfileCreated(String userName, Profile profile) {
         builder.setLength(0);
         builder.append("profile_id=").append(profile.getProfileId());
+        builder.append(", profile_type_id=").append(profile.getProfileTypeId());
         builder.append(", name=").append(profile.getName());
         builder.append(", active=").append(profile.getActive());
 
@@ -206,12 +209,14 @@ public class OperationsLogService {
     public void registerProfileUpdated(String userName, Profile oldData, @Valid Profile newData) {
         builder.setLength(0);
         builder.append("profile_id=").append(oldData.getProfileId());
+        builder.append(", profile_type_id=").append(oldData.getProfileTypeId());
         builder.append(", name=").append(oldData.getName());
         builder.append(", active=").append(oldData.getActive());
         String oldDataValue = builder.toString();
 
         builder.setLength(0);
         builder.append("profile_id=").append(newData.getProfileId());
+        builder.append(", profile_type_id=").append(newData.getProfileTypeId());
         builder.append(", name=").append(newData.getName());
         builder.append(", active=").append(newData.getActive());
         String newDataValue = builder.toString();
@@ -221,5 +226,26 @@ public class OperationsLogService {
 
     public void registerProfileDeleted(String userName, Integer profileId) {
         register(userName, "D", "PROFILE", String.valueOf(profileId), null);
+    }
+
+    public void registerDayCreated(String userName, Day day) {
+        builder.setLength(0);
+        builder.append("day_id=").append(day.getDayId());
+        builder.append(", profile_id=").append(day.getProfileId());
+        builder.append(", week_id=").append(day.getWeekId());
+        builder.append(", name=").append(day.getName());
+        builder.append(", order_number=").append(day.getOrderNumber());
+
+        register(userName, "C", "DAY", null, builder.toString());
+    }
+
+    public void registerWeekCreated(String userName, Week week) {
+        builder.setLength(0);
+        builder.append("week_id=").append(week.getWeekId());
+        builder.append(", profile_id=").append(week.getProfileId());
+        builder.append(", name=").append(week.getName());
+        builder.append(", order_number=").append(week.getOrderNumber());
+
+        register(userName, "C", "WEEK", null, builder.toString());
     }
 }

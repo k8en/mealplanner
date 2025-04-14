@@ -4,8 +4,17 @@ import java.util.List;
 
 public class MealDto {
 
+    private Integer mealId;
     private String name;
     private List<RecipeDto> recipes;
+
+    public Integer getMealId() {
+        return mealId;
+    }
+
+    public void setMealId(Integer mealId) {
+        this.mealId = mealId;
+    }
 
     public String getName() {
         return name;

@@ -100,11 +100,12 @@ public class DbConstructor {
 
     private static final String SQL_CREATE_TABLE_PROFILES = ""
             + "CREATE TABLE profiles (\n"
-            + "    profile_id   NUMERIC (5)  PRIMARY KEY\n"
-            + "                              UNIQUE\n"
-            + "                              NOT NULL,\n"
-            + "    name         VARCHAR (50) NOT NULL,\n"
-            + "    active       NUMERIC (1)  NOT NULL\n"
+            + "    profile_id      NUMERIC (5)  PRIMARY KEY\n"
+            + "                                 UNIQUE\n"
+            + "                                 NOT NULL,\n"
+            + "    profile_type_id NUMERIC (1)  NOT NULL,\n"
+            + "    name            VARCHAR (50) NOT NULL,\n"
+            + "    active          NUMERIC (1)  NOT NULL\n"
             + ")";
 
     private static final String SQL_CREATE_TABLE_WEEKS = ""
@@ -123,8 +124,9 @@ public class DbConstructor {
             + "    day_id       NUMERIC (5)  PRIMARY KEY\n"
             + "                              UNIQUE\n"
             + "                              NOT NULL,\n"
-            + "    week_id      NUMERIC (5)  NOT NULL\n"
-            + "                              REFERENCES weeks (week_id),\n"
+            + "    profile_id   NUMERIC (5)  NOT NULL\n"
+            + "                              REFERENCES profiles (profile_id),\n"
+            + "    week_id      NUMERIC (5)  REFERENCES weeks (week_id),\n"
             + "    name         VARCHAR (20) NOT NULL,\n"
             + "    order_number NUMERIC (5)  NOT NULL\n"
             + ")";

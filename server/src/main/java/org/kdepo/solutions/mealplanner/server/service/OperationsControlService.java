@@ -96,4 +96,12 @@ public class OperationsControlService {
     public boolean canDeleteProfile(String userName, Integer profileId) {
         return true;
     }
+
+    public boolean canCreateDay(String userName) {
+        return true;
+    }
+
+    public boolean canCreateWeek(String userName) {
+        return true;
+    }
 }

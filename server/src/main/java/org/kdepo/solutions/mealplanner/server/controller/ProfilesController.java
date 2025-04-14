@@ -1,11 +1,21 @@
 package org.kdepo.solutions.mealplanner.server.controller;
 
 import jakarta.validation.Valid;
+import org.kdepo.solutions.mealplanner.server.dto.DayDto;
+import org.kdepo.solutions.mealplanner.server.dto.MealDto;
+import org.kdepo.solutions.mealplanner.server.dto.RecipeDto;
 import org.kdepo.solutions.mealplanner.server.service.OperationsControlService;
 import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
+import org.kdepo.solutions.mealplanner.shared.Constants;
+import org.kdepo.solutions.mealplanner.shared.model.Day;
+import org.kdepo.solutions.mealplanner.shared.model.Meal;
 import org.kdepo.solutions.mealplanner.shared.model.Profile;
+import org.kdepo.solutions.mealplanner.shared.model.Recipe;
+import org.kdepo.solutions.mealplanner.shared.repository.DaysRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.ProfilesRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -32,10 +43,19 @@ public class ProfilesController {
     private static final String PK = "profile_id";
 
     @Autowired
+    private DaysRepository daysRepository;
+
+    @Autowired
+    private MealsRepository mealsRepository;
+
+    @Autowired
     private PrimaryKeysRepository primaryKeysRepository;
 
     @Autowired
     private ProfilesRepository profilesRepository;
+
+    @Autowired
+    private RecipesRepository recipesRepository;
 
     @Autowired
     private OperationsControlService controlService;
@@ -98,6 +118,43 @@ public class ProfilesController {
         model.addAttribute("profile", profile);
 
         //TODO add profile info to display
+        if (Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
+            List<Day> daysList = daysRepository.getAllDaysFromProfile(profile.getProfileId());
+            List<DayDto> days = new ArrayList<>();
+            for (Day day : daysList) {
+                DayDto dayDto = new DayDto();
+                dayDto.setDayId(day.getDayId());
+                dayDto.setName(day.getName());
+
+                List<Meal> mealsList = mealsRepository.getAllMealsFromDay(day.getDayId());
+                List<MealDto> meals = new ArrayList<>();
+                for (Meal meal : mealsList) {
+                    MealDto mealDto = new MealDto();
+                    mealDto.setMealId(meal.getMealId());
+                    mealDto.setName(meal.getName());
+
+                    List<Recipe> recipesList = recipesRepository.getAllRecipesFromMeal(meal.getMealId());
+                    List<RecipeDto> recipes = new ArrayList<>();
+                    for (Recipe recipe : recipesList) {
+                        RecipeDto recipeDto = new RecipeDto();
+                        recipeDto.setRecipeId(recipe.getRecipeId());
+                        recipeDto.setName(recipe.getName());
+
+                        recipes.add(recipeDto);
+                    }
+
+                    mealDto.setRecipes(recipes);
+                    meals.add(mealDto);
+                }
+
+                dayDto.setMeals(meals);
+                days.add(dayDto);
+            }
+            model.addAttribute("days", days);
+
+        } else if (Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
+
+        }
 
         return "profile_details";
     }
@@ -127,6 +184,7 @@ public class ProfilesController {
         // Prepare entity with default values
         Profile profile = new Profile();
         profile.setProfileId(-1);
+        profile.setProfileTypeId(Constants.ProfileType.UNDEFINED);
         profile.setActive(false);
 
         model.addAttribute("profile", profile);
@@ -168,6 +226,12 @@ public class ProfilesController {
             return "profile_create";
         }
 
+        // Adjust profile type id
+        if (!Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())
+                && !Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
+            profile.setProfileTypeId(Constants.ProfileType.UNDEFINED);
+        }
+
         // Generate primary key for new entity
         Integer profileId = primaryKeysRepository.getNextVal(PK);
         primaryKeysRepository.moveNextVal(PK);
@@ -179,6 +243,7 @@ public class ProfilesController {
         // Create entity
         Profile createdProfile = profilesRepository.addProfile(
                 profile.getProfileId(),
+                profile.getProfileTypeId(),
                 profile.getName(),
                 active
         );
@@ -265,6 +330,7 @@ public class ProfilesController {
         // Update entity
         profilesRepository.updateProfile(
                 profile.getProfileId(),
+                profileFromDb.getProfileTypeId(),
                 profile.getName(),
                 profile.getActive()
         );
@@ -342,6 +408,7 @@ public class ProfilesController {
                 nextActiveProfile.setActive(true);
                 profilesRepository.updateProfile(
                         nextActiveProfile.getProfileId(),
+                        nextActiveProfile.getProfileTypeId(),
                         nextActiveProfile.getName(),
                         nextActiveProfile.getActive()
                 );
@@ -391,6 +458,7 @@ public class ProfilesController {
                 activeProfile.setActive(false);
                 profilesRepository.updateProfile(
                         activeProfile.getProfileId(),
+                        activeProfile.getProfileTypeId(),
                         activeProfile.getName(),
                         activeProfile.getActive()
                 );
@@ -401,6 +469,7 @@ public class ProfilesController {
             profile.setActive(true);
             profilesRepository.updateProfile(
                     profile.getProfileId(),
+                    profile.getProfileTypeId(),
                     profile.getName(),
                     profile.getActive()
             );

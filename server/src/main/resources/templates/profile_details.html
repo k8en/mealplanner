@@ -16,7 +16,38 @@
             <span class="ctrl_button"><a href="/profiles/create">Добавить новый профиль питания</a></span>
             <span class="ctrl_button"><a th:href="@{'/profiles/' + ${profile.profileId} + '/update'}">Редактировать профиль питания</a></span>
             <span class="ctrl_button"><a th:href="@{'/profiles/' + ${profile.profileId} + '/delete'}">Удалить профиль питания</a></span>
+
             <span class="ctrl_button" th:if="${#bools.isFalse(profile.active)}"><a th:href="@{'/profiles/' + ${profile.profileId} + '/active'}">Сделать активным</a></span>
+            <span class="ctrl_button" th:else th:text="'Активный'"></span>
+
+            <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==0)}"><a th:href="@{'/days/create?profile_id=' + ${profile.profileId}}">Добавить день</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==0)}"><a th:href="@{'/weeks/create?profile_id=' + ${profile.profileId}}">Добавить неделю</a></span>
+
+            <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==1)}"><a th:href="@{'/days/create?profile_id=' + ${profile.profileId}}">Добавить день</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==2)}"><a th:href="@{'/weeks/create?profile_id=' + ${profile.profileId}}">Добавить неделю</a></span>
+        </div>
+
+        <h3 th:text="${profile.name}"></h3>
+
+        <div th:switch="${profile.profileTypeId}">
+            <span th:case="'0'">Нет информации для отображения</span>
+            <div th:case="1">
+                <div th:each="day : ${days}">
+                    <a th:href="@{'/days/' + ${day.dayId}}"><span th:text="${day.name}"></span></a>
+
+                    <div th:each="meal : ${meal}">
+                        <a th:href="@{'/meals/' + ${meal.mealId}}"><span th:text="${meal.name}"></span></a>
+
+                        <div th:each="recipe : ${recipes}">
+                            <a th:href="@{'/recipes/' + ${recipe.recipeId}}"><span th:text="${recipe.name}"></span></a>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:case="2">
+                <span>2</span>
+            </div>
         </div>
 
     </div>

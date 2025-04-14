@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ProfilesRepository {
 
-    Profile addProfile(Integer profileId, String name, Boolean active);
+    Profile addProfile(Integer profileId, Integer profileTypeId, String name, Boolean active);
 
     void deleteProfile(Integer profileId);
 
@@ -16,6 +16,6 @@ public interface ProfilesRepository {
 
     boolean isUsed(Integer profileId);
 
-    void updateProfile(Integer profileId, String name, Boolean active);
+    void updateProfile(Integer profileId, Integer profileTypeId, String name, Boolean active);
 
 }

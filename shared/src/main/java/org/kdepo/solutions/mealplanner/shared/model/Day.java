@@ -5,6 +5,7 @@ import java.util.Objects;
 public class Day {
 
     private Integer dayId;
+    private Integer profileId;
     private Integer weekId;
     private String name;
     private Integer orderNumber;
@@ -15,6 +16,14 @@ public class Day {
 
     public void setDayId(Integer dayId) {
         this.dayId = dayId;
+    }
+
+    public Integer getProfileId() {
+        return profileId;
+    }
+
+    public void setProfileId(Integer profileId) {
+        this.profileId = profileId;
     }
 
     public Integer getWeekId() {
@@ -42,21 +51,11 @@ public class Day {
     }
 
     @Override
-    public String toString() {
-        return "Day{" +
-                "dayId=" + dayId +
-                ", weekId=" + weekId +
-                ", name='" + name + '\'' +
-                ", orderNumber=" + orderNumber +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Day day = (Day) o;
         return Objects.equals(dayId, day.dayId)
+                && Objects.equals(profileId, day.profileId)
                 && Objects.equals(weekId, day.weekId)
                 && Objects.equals(name, day.name)
                 && Objects.equals(orderNumber, day.orderNumber);
@@ -64,6 +63,17 @@ public class Day {
 
     @Override
     public int hashCode() {
-        return Objects.hash(dayId, weekId, name, orderNumber);
+        return Objects.hash(dayId, profileId, weekId, name, orderNumber);
+    }
+
+    @Override
+    public String toString() {
+        return "Day{" +
+                "dayId=" + dayId +
+                ", profileId=" + profileId +
+                ", weekId=" + weekId +
+                ", name='" + name + '\'' +
+                ", orderNumber=" + orderNumber +
+                '}';
     }
 }
