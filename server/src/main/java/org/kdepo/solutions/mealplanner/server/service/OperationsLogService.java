@@ -3,6 +3,7 @@ package org.kdepo.solutions.mealplanner.server.service;
 import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
+import org.kdepo.solutions.mealplanner.shared.model.Meal;
 import org.kdepo.solutions.mealplanner.shared.model.Product;
 import org.kdepo.solutions.mealplanner.shared.model.Profile;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
@@ -271,5 +272,37 @@ public class OperationsLogService {
         builder.append(", order_number=").append(week.getOrderNumber());
 
         register(userName, "C", "WEEK", null, builder.toString());
+    }
+
+    public void registerMealCreated(String userName, Meal meal) {
+        builder.setLength(0);
+        builder.append("meal_id=").append(meal.getMealId());
+        builder.append(", day_id=").append(meal.getDayId());
+        builder.append(", name=").append(meal.getName());
+        builder.append(", order_number=").append(meal.getOrderNumber());
+
+        register(userName, "C", "MEAL", null, builder.toString());
+    }
+
+    public void registerMealUpdated(String userName, Meal oldData, @Valid Meal newData) {
+        builder.setLength(0);
+        builder.append("meal_id=").append(oldData.getMealId());
+        builder.append(", day_id=").append(oldData.getDayId());
+        builder.append(", name=").append(oldData.getName());
+        builder.append(", order_number=").append(oldData.getOrderNumber());
+        String oldDataValue = builder.toString();
+
+        builder.setLength(0);
+        builder.append("meal_id=").append(newData.getMealId());
+        builder.append(", day_id=").append(newData.getDayId());
+        builder.append(", name=").append(newData.getName());
+        builder.append(", order_number=").append(newData.getOrderNumber());
+        String newDataValue = builder.toString();
+
+        register(userName, "U", "MEAL", oldDataValue, newDataValue);
+    }
+
+    public void registerMealDeleted(String userName, Integer mealId) {
+        register(userName, "D", "MEAL", String.valueOf(mealId), null);
     }
 }

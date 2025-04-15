@@ -116,4 +116,20 @@ public class OperationsControlService {
     public boolean canCreateWeek(String userName) {
         return true;
     }
+
+    public boolean canReadMeal(String userName, Integer mealId) {
+        return true;
+    }
+
+    public boolean canCreateMeal(String userName) {
+        return true;
+    }
+
+    public boolean canModifyMeal(String userName, Integer mealId) {
+        return true;
+    }
+
+    public boolean canDeleteMeal(String userName, Integer mealId) {
+        return true;
+    }
 }

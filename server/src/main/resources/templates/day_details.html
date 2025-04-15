@@ -23,7 +23,7 @@
         <div th:switch="${#lists.size(meals)}">
             <span th:case="'0'">Нет информации для отображения</span>
             <div th:case="*">
-                <div th:each="meal : ${meal}">
+                <div th:each="meal : ${meals}">
                     <a th:href="@{'/meals/' + ${meal.mealId}}"><span th:text="${meal.name}"></span></a>
                     <div th:each="recipe : ${recipes}">
                         <a th:href="@{'/recipes/' + ${recipe.recipeId}}"><span th:text="${recipe.name}"></span></a>

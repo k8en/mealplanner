@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       style="height: 100%;">
 <head>
-    <title>Удаление информации о профиле питания</title>
+    <title>Удаление информации о приеме пищи</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" th:href="@{/styles/common.css}">
 </head>
@@ -12,17 +12,19 @@
     <div th:replace="~{fragment_header :: header}"/>
     <div class="content">
 
-        <h3>Удаление информации о профиле питания</h3>
+        <h3>Удаление информации о приеме пищи</h3>
 
         <div class="form_block">
-            <form action="#" th:action="@{'/profiles/' + ${profile.profileId} + '/delete'}" method="post" th:object="${profile}">
-                <input type="hidden" th:field="*{profileId}"/>
-                <input type="hidden" th:field="*{profileTypeId}"/>
+            <form action="#" th:action="@{'/meals/' + ${meal.mealId} + '/delete'}" method="post" th:object="${meal}">
+                <input type="hidden" th:field="*{mealId}"/>
+                <input type="hidden" th:field="*{dayId}"/>
 
                 <div class="form_element">
                     <label for="f_name">Название</label>
                     <input type="text" id="f_name" th:field="*{name}" disabled="disabled"/>
                 </div>
+
+                <input type="hidden" th:field="*{orderNumber}"/>
 
                 <div style="display: flex;">
                     <input type="submit" id="submit" value="Подтвердить">
