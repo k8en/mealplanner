@@ -239,6 +239,30 @@ public class OperationsLogService {
         register(userName, "C", "DAY", null, builder.toString());
     }
 
+    public void registerDayUpdated(String userName, Day oldData, @Valid Day newData) {
+        builder.setLength(0);
+        builder.append("day_id=").append(oldData.getDayId());
+        builder.append(", profile_id=").append(oldData.getProfileId());
+        builder.append(", week_id=").append(oldData.getWeekId());
+        builder.append(", name=").append(oldData.getName());
+        builder.append(", order_number=").append(oldData.getOrderNumber());
+        String oldDataValue = builder.toString();
+
+        builder.setLength(0);
+        builder.append("day_id=").append(newData.getDayId());
+        builder.append(", profile_id=").append(newData.getProfileId());
+        builder.append(", week_id=").append(newData.getWeekId());
+        builder.append(", name=").append(newData.getName());
+        builder.append(", order_number=").append(newData.getOrderNumber());
+        String newDataValue = builder.toString();
+
+        register(userName, "U", "DAY", oldDataValue, newDataValue);
+    }
+
+    public void registerDayDeleted(String userName, Integer dayId) {
+        register(userName, "D", "DAY", String.valueOf(dayId), null);
+    }
+
     public void registerWeekCreated(String userName, Week week) {
         builder.setLength(0);
         builder.append("week_id=").append(week.getWeekId());

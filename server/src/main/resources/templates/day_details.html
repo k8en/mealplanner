@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Просмотр информации о дне</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <div class="ctrl_panel" th:if="${isLoggedIn}">
+            <span class="ctrl_button"><a th:href="@{'/days/' + ${day.dayId} + '/update'}">Редактировать профиль питания</a></span>
+            <span class="ctrl_button"><a th:href="@{'/days/' + ${day.dayId} + '/delete'}">Удалить профиль питания</a></span>
+            <span class="ctrl_button"><a th:href="@{'/meals/create?day_id=' + ${day.dayId}}">Добавить прием пищи</a></span>
+        </div>
+
+        <h3 th:text="${day.name}"></h3>
+
+        <div th:switch="${#lists.size(meals)}">
+            <span th:case="'0'">Нет информации для отображения</span>
+            <div th:case="*">
+                <div th:each="meal : ${meal}">
+                    <a th:href="@{'/meals/' + ${meal.mealId}}"><span th:text="${meal.name}"></span></a>
+                    <div th:each="recipe : ${recipes}">
+                        <a th:href="@{'/recipes/' + ${recipe.recipeId}}"><span th:text="${recipe.name}"></span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

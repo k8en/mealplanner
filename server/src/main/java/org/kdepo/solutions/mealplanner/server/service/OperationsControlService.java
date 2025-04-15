@@ -97,7 +97,19 @@ public class OperationsControlService {
         return true;
     }
 
+    public boolean canReadDay(String userName, Integer dayId) {
+        return true;
+    }
+
     public boolean canCreateDay(String userName) {
+        return true;
+    }
+
+    public boolean canModifyDay(String userName, Integer dayId) {
+        return true;
+    }
+
+    public boolean canDeleteDay(String userName, Integer dayId) {
         return true;
     }
 

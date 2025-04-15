@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Удаление информации о дне</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <h3>Удаление информации о дне</h3>
+
+        <div class="form_block">
+            <form action="#" th:action="@{/days/create}" method="post" th:object="${day}">
+                <input type="hidden" th:field="*{dayId}"/>
+                <input type="hidden" th:field="*{profileId}"/>
+                <input type="hidden" th:field="*{weekId}"/>
+
+                <div class="form_element">
+                    <label for="f_name">Название</label>
+                    <input type="text" id="f_name" th:field="*{name}" disabled="disabled"/>
+                </div>
+
+                <input type="hidden" th:field="*{orderNumber}"/>
+
+                <div style="display: flex;">
+                    <input type="submit" id="submit" value="Подтвердить">
+                    <input type="button" value="Отмена" onclick="javascript:window.history.go(-1); return false;">
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

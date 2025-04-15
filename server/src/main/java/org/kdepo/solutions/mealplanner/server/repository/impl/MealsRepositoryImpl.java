@@ -2,14 +2,21 @@ package org.kdepo.solutions.mealplanner.server.repository.impl;
 
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class MealsRepositoryImpl implements MealsRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MealsRepositoryImpl.class);
 
     private static final String SQL_ADD_MEAL = "INSERT INTO meals (meal_id, day_id, name, order_number) VALUES (?, ?, ?, ?)";
     private static final String SQL_DELETE_MEAL = "DELETE FROM meals WHERE meal_id = ?";
@@ -28,114 +35,132 @@ public class MealsRepositoryImpl implements MealsRepository {
 
     @Override
     public Meal addMeal(Integer mealId, Integer dayId, String name, Integer orderNumber) {
-        System.out.println("[MealDao][addMeal] Invoked with parameters:"
-                + " mealId=" + mealId
-                + ", dayId=" + dayId
-                + ", name='" + name + "'"
-                + ", orderNumber=" + orderNumber
+        LOGGER.trace("[DBR][addMeal] Invoked with parameters: mealId={}, dayId={}, name={}, orderNumber={}",
+                mealId, dayId, name, orderNumber
         );
-        jdbcTemplate.update(SQL_ADD_MEAL, mealId, dayId, name, orderNumber);
-
+        jdbcTemplate.update(
+                SQL_ADD_MEAL,
+                ps -> {
+                    ps.setInt(1, mealId);
+                    ps.setInt(2, dayId);
+                    ps.setString(3, name);
+                    ps.setInt(4, orderNumber);
+                }
+        );
         return getMeal(mealId);
     }
 
     @Override
     public void deleteMeal(Integer mealId) {
-        System.out.println("[MealDao][deleteMeal] Invoked with parameters: mealId=" + mealId);
-        jdbcTemplate.update(SQL_DELETE_MEAL, mealId);
+        LOGGER.trace("[DBR][deleteMeal] Invoked with parameters: mealId={}", mealId);
+        jdbcTemplate.update(
+                SQL_DELETE_MEAL,
+                ps -> ps.setInt(1, mealId)
+        );
     }
 
     @Override
     public List<Meal> getAllMealsFromDay(Integer dayId) {
-        System.out.println("[MealDao][getAllMealsFromDay] Invoked with parameters: dayId=" + dayId);
+        LOGGER.trace("[DBR][getAllMealsFromDay] Invoked with parameters: dayId={}", dayId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_MEALS_FROM_DAY,
-                (resultSet, rowNum) -> {
-                    Integer mealId = resultSet.getInt("meal_id");
-                    //Integer dayId = resultSet.getInt("day_id");
-                    String name = resultSet.getString("name");
-                    Integer orderNumber = resultSet.getInt("order_number");
-
-                    Meal meal = new Meal();
-                    meal.setMealId(mealId);
-                    meal.setDayId(dayId);
-                    meal.setName(name);
-                    meal.setOrderNumber(orderNumber);
-
-                    return meal;
-                },
-                dayId
+                ps -> ps.setInt(1, dayId),
+                rs -> {
+                    List<Meal> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(convert(rs));
+                    }
+                    return result;
+                }
         );
     }
 
     @Override
     public List<Integer> getAllMealsWithRecipe(Integer recipeId) {
-        System.out.println("[MealDao][getAllMealsWithRecipe] Invoked with parameters: recipeId=" + recipeId);
+        LOGGER.trace("[DBR][getAllMealsWithRecipe] Invoked with parameters: recipeId={}", recipeId);
         return jdbcTemplate.query(
                 SQL_GET_ALL_MEALS_WITH_RECIPE,
-                (resultSet, rowNum) -> {
-                    return resultSet.getInt("meal_id");
-                },
-                recipeId
+                ps -> ps.setInt(1, recipeId),
+                rs -> {
+                    List<Integer> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getInt("meal_id"));
+                    }
+                    return result;
+                }
         );
     }
 
     @Override
     public Meal getMeal(Integer mealId) {
-        System.out.println("[MealDao][getMeal] Invoked with parameters: mealId=" + mealId);
+        LOGGER.trace("[DBR][getMeal] Invoked with parameters: mealId={}", mealId);
         return jdbcTemplate.query(
                 SQL_GET_MEAL,
-                resultSet -> {
-                    //Integer mealId = resultSet.getInt("meal_id");
-                    Integer dayId = resultSet.getInt("day_id");
-                    String name = resultSet.getString("name");
-                    Integer orderNumber = resultSet.getInt("order_number");
-
-                    Meal meal = new Meal();
-                    meal.setMealId(mealId);
-                    meal.setDayId(dayId);
-                    meal.setName(name);
-                    meal.setOrderNumber(orderNumber);
-
+                ps -> ps.setInt(1, mealId),
+                rs -> {
+                    Meal meal = null;
+                    if (rs.next()) {
+                        meal = convert(rs);
+                    }
                     return meal;
-                },
-                mealId
+                }
         );
     }
 
     @Override
     public Integer getOrderNumber(Integer dayId) {
-        System.out.println("[MealDao][getOrderNumber] Invoked with parameters: dayId=" + dayId);
+        LOGGER.trace("[DBR][getOrderNumber] Invoked with parameters: dayId={}", dayId);
         return jdbcTemplate.query(
                 SQL_GET_ORDER_NUMBER,
-                resultSet -> {
-                    return resultSet.getInt("order_number");
-                },
-                dayId
+                ps -> ps.setInt(1, dayId),
+                rs -> {
+                    Integer nextVal = null;
+                    if (rs.next()) {
+                        nextVal = Integer.parseInt(rs.getString("order_number"));
+                    }
+                    return nextVal;
+                }
         );
     }
 
     @Override
     public boolean isUsed(Integer mealId) {
-        System.out.println("[MealDao][isUsed] Invoked with parameters: mealId=" + mealId);
-        Integer objectId = jdbcTemplate.query(
+        LOGGER.trace("[DBR][isUsed] Invoked with parameters: mealId={}", mealId);
+        return Boolean.TRUE.equals(jdbcTemplate.query(
                 SQL_IS_USED,
-                resultSet -> {
-                    return resultSet.getInt("meal_id");
-                },
-                mealId
-        );
-        return objectId != null;
+                ps -> ps.setInt(1, mealId),
+                ResultSet::next
+        ));
     }
 
     @Override
     public void updateMeal(Integer mealId, Integer dayId, String name, Integer orderNumber) {
-        System.out.println("[MealDao][updateMeal] Invoked with parameters:"
-                + " mealId=" + mealId
-                + ", dayId=" + dayId
-                + ", name='" + name + "'"
-                + ", orderNumber=" + orderNumber
+        LOGGER.trace("[DBR][updateMeal] Invoked with parameters: mealId={}, dayId={}, name={}, orderNumber={}",
+                mealId, dayId, name, orderNumber
         );
-        jdbcTemplate.update(SQL_UPDATE_MEAL, dayId, name, orderNumber, mealId);
+        jdbcTemplate.update(
+                SQL_UPDATE_MEAL,
+                ps -> {
+                    ps.setInt(1, dayId);
+                    ps.setString(2, name);
+                    ps.setInt(3, orderNumber);
+                    ps.setInt(4, mealId);
+                }
+        );
+    }
+
+    private Meal convert(ResultSet rs) throws SQLException {
+        Integer mealId = rs.getInt("meal_id");
+        Integer dayId = rs.getInt("day_id");
+        String name = rs.getString("name");
+        Integer orderNumber = rs.getInt("order_number");
+
+        Meal meal = new Meal();
+        meal.setMealId(mealId);
+        meal.setDayId(dayId);
+        meal.setName(name);
+        meal.setOrderNumber(orderNumber);
+
+        return meal;
     }
 }
