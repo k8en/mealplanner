@@ -18,7 +18,7 @@
             <span class="ctrl_button"><a th:href="@{'/profiles/' + ${profile.profileId} + '/delete'}">Удалить профиль питания</a></span>
 
             <span class="ctrl_button" th:if="${#bools.isFalse(profile.active)}"><a th:href="@{'/profiles/' + ${profile.profileId} + '/active'}">Сделать активным</a></span>
-            <span class="ctrl_button" th:else th:text="'Активный'"></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(profile.active)}">Активный</span>
 
             <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==0)}"><a th:href="@{'/days/create?profile_id=' + ${profile.profileId}}">Добавить день</a></span>
             <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==0)}"><a th:href="@{'/weeks/create?profile_id=' + ${profile.profileId}}">Добавить неделю</a></span>
