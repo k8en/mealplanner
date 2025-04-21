@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.server.dto.DayDto;
 import org.kdepo.solutions.mealplanner.server.dto.MealDto;
 import org.kdepo.solutions.mealplanner.server.dto.RecipeDto;
+import org.kdepo.solutions.mealplanner.server.dto.WeekDto;
 import org.kdepo.solutions.mealplanner.server.service.OperationsControlService;
 import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
 import org.kdepo.solutions.mealplanner.shared.Constants;
@@ -11,11 +12,13 @@ import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
 import org.kdepo.solutions.mealplanner.shared.model.Profile;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
+import org.kdepo.solutions.mealplanner.shared.model.Week;
 import org.kdepo.solutions.mealplanner.shared.repository.DaysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.ProfilesRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.WeeksRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +59,9 @@ public class ProfilesController {
 
     @Autowired
     private RecipesRepository recipesRepository;
+
+    @Autowired
+    private WeeksRepository weeksRepository;
 
     @Autowired
     private OperationsControlService controlService;
@@ -117,7 +123,6 @@ public class ProfilesController {
         // Prepare entities
         model.addAttribute("profile", profile);
 
-        //TODO add profile info to display
         if (Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
             List<Day> daysList = daysRepository.getAllDaysFromProfile(profile.getProfileId());
             List<DayDto> days = new ArrayList<>();
@@ -153,7 +158,49 @@ public class ProfilesController {
             model.addAttribute("days", days);
 
         } else if (Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
+            List<Week> weeksList = weeksRepository.getAllWeeksFromProfile(profile.getProfileId());
+            List<WeekDto> weeks = new ArrayList<>();
+            for (Week week : weeksList) {
+                WeekDto weekDto = new WeekDto();
+                weekDto.setWeekId(week.getWeekId());
+                weekDto.setName(week.getName());
 
+                List<Day> daysList = daysRepository.getAllDaysFromWeek(week.getWeekId());
+                List<DayDto> days = new ArrayList<>();
+                for (Day day : daysList) {
+                    DayDto dayDto = new DayDto();
+                    dayDto.setDayId(day.getDayId());
+                    dayDto.setName(day.getName());
+
+                    List<Meal> mealsList = mealsRepository.getAllMealsFromDay(day.getDayId());
+                    List<MealDto> meals = new ArrayList<>();
+                    for (Meal meal : mealsList) {
+                        MealDto mealDto = new MealDto();
+                        mealDto.setMealId(meal.getMealId());
+                        mealDto.setName(meal.getName());
+
+                        List<Recipe> recipesList = recipesRepository.getAllRecipesFromMeal(meal.getMealId());
+                        List<RecipeDto> recipes = new ArrayList<>();
+                        for (Recipe recipe : recipesList) {
+                            RecipeDto recipeDto = new RecipeDto();
+                            recipeDto.setRecipeId(recipe.getRecipeId());
+                            recipeDto.setName(recipe.getName());
+
+                            recipes.add(recipeDto);
+                        }
+
+                        mealDto.setRecipes(recipes);
+                        meals.add(mealDto);
+                    }
+
+                    dayDto.setMeals(meals);
+                    days.add(dayDto);
+                }
+                weekDto.setDays(days);
+                weeks.add(weekDto);
+            }
+
+            model.addAttribute("weeks", weeks);
         }
 
         return "profile_details";
