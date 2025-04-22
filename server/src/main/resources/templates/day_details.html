@@ -13,8 +13,8 @@
     <div class="content">
 
         <div class="ctrl_panel" th:if="${isLoggedIn}">
-            <span class="ctrl_button"><a th:href="@{'/days/' + ${day.dayId} + '/update'}">Редактировать профиль питания</a></span>
-            <span class="ctrl_button"><a th:href="@{'/days/' + ${day.dayId} + '/delete'}">Удалить профиль питания</a></span>
+            <span class="ctrl_button"><a th:href="@{'/days/' + ${day.dayId} + '/update'}">Редактировать день</a></span>
+            <span class="ctrl_button"><a th:href="@{'/days/' + ${day.dayId} + '/delete'}">Удалить день</a></span>
             <span class="ctrl_button"><a th:href="@{'/meals/create?day_id=' + ${day.dayId}}">Добавить прием пищи</a></span>
         </div>
 

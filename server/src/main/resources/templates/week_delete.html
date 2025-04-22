@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       style="height: 100%;">
 <head>
-    <title>Редактирование информации о дне</title>
+    <title>Удаление информации о неделе</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" th:href="@{/styles/common.css}">
 </head>
@@ -12,18 +12,16 @@
     <div th:replace="~{fragment_header :: header}"/>
     <div class="content">
 
-        <h3>Редактирование информации о дне</h3>
+        <h3>Удаление информации о неделе</h3>
 
         <div class="form_block">
-            <form action="#" th:action="@{'/days/' + ${day.dayId} + '/update'}" method="post" th:object="${day}">
-                <input type="hidden" th:field="*{dayId}"/>
-                <input type="hidden" th:field="*{profileId}"/>
+            <form action="#" th:action="@{'/weeks/' + ${week.weekId} + '/delete'}" method="post" th:object="${week}">
                 <input type="hidden" th:field="*{weekId}"/>
+                <input type="hidden" th:field="*{profileId}"/>
 
                 <div class="form_element">
                     <label for="f_name">Название</label>
-                    <input type="text" id="f_name" th:field="*{name}" placeholder="Введите название.."/>
-                    <span class="validation_error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    <input type="text" id="f_name" th:field="*{name}" disabled="disabled"/>
                 </div>
 
                 <input type="hidden" th:field="*{orderNumber}"/>

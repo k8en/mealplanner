@@ -113,7 +113,19 @@ public class OperationsControlService {
         return true;
     }
 
+    public boolean canReadWeek(String userName, Integer weekId) {
+        return true;
+    }
+
     public boolean canCreateWeek(String userName) {
+        return true;
+    }
+
+    public boolean canModifyWeek(String userName, Integer weekId) {
+        return true;
+    }
+
+    public boolean canDeleteWeek(String userName, Integer weekId) {
         return true;
     }
 

@@ -15,7 +15,7 @@
         <h3>Удаление информации о дне</h3>
 
         <div class="form_block">
-            <form action="#" th:action="@{/days/create}" method="post" th:object="${day}">
+            <form action="#" th:action="@{'/days/' + ${day.dayId} + '/delete'}" method="post" th:object="${day}">
                 <input type="hidden" th:field="*{dayId}"/>
                 <input type="hidden" th:field="*{profileId}"/>
                 <input type="hidden" th:field="*{weekId}"/>

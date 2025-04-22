@@ -124,7 +124,7 @@ public class DaysController {
 
     @GetMapping("/create")
     public String showDayCreationForm(Model model,
-                                      @RequestParam(value = "profile_id", required = false) Integer profileId,
+                                      @RequestParam(value = "profile_id") Integer profileId,
                                       @RequestParam(value = "week_id", required = false) Integer weekId) {
         LOGGER.trace("[WEB] GET /days/create?profile_id={}&week_id={}", profileId, weekId);
 
@@ -284,6 +284,10 @@ public class DaysController {
                 LOGGER.warn("[WEB] Cannot accept day creation form: week {} was not found", weekId);
                 return "redirect:/profiles/" + profile.getProfileId();
             }
+            if (!week.getProfileId().equals(profile.getProfileId())) {
+                LOGGER.warn("[WEB] Cannot accept day creation form: profile {} mismatch with profile {} from week {}", profileId, week.getProfileId(), weekId);
+                return "redirect:/profiles/" + profile.getProfileId();
+            }
             day.setWeekId(weekId);
 
             profileTypeId = Constants.ProfileType.DAYS_GROUPED_BY_WEEKS;
@@ -342,7 +346,11 @@ public class DaysController {
             logService.registerProfileUpdated(userName, oldData, profile);
         }
 
-        return "redirect:/profiles/" + profile.getProfileId();
+        if (weekId != null) {
+            return "redirect:/weeks/" + weekId;
+        } else {
+            return "redirect:/profiles/" + profile.getProfileId();
+        }
     }
 
     @GetMapping("/{id}/update")
