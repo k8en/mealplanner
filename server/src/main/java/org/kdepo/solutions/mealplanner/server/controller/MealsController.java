@@ -7,6 +7,7 @@ import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
 import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
+import org.kdepo.solutions.mealplanner.shared.model.SelectableEntity;
 import org.kdepo.solutions.mealplanner.shared.repository.DaysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
@@ -29,7 +30,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/meals")
@@ -388,5 +391,111 @@ public class MealsController {
         logService.registerMealDeleted(userName, mealFromDb.getMealId());
 
         return "redirect:/days/" + mealFromDb.getDayId();
+    }
+
+    @GetMapping("/{id}/recipes")
+    public String showMealRecipesForm(@PathVariable Integer id, Model model) {
+        LOGGER.trace("[WEB] GET /meals/{}/recipes", id);
+
+        // Authentication checks
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName;
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            userName = authentication.getName();
+        } else {
+            LOGGER.warn("[WEB] Cannot show recipes set form: anonymous users cannot set recipes on meals");
+            return "redirect:/profiles";
+        }
+
+        Meal meal = mealsRepository.getMeal(id);
+        if (meal == null) {
+            LOGGER.warn("[WEB] Cannot show recipes set form: meal {} was not found", id);
+            return "redirect:/profiles";
+        }
+
+        if (!controlService.canModifyMeal(userName, meal.getMealId())) {
+            LOGGER.warn("[WEB] Cannot show recipes set form: user '{}' has no access to meal {} modification", userName, id);
+            return "redirect:/meals/" + meal.getMealId();
+        }
+
+        model.addAttribute("meal", meal);
+
+        // Convert recipes to selectable entities
+        List<Recipe> selectedRecipes = recipesRepository.getAllRecipesFromMeal(meal.getMealId());
+        List<Integer> selectedRecipesIds = selectedRecipes.stream()
+                .map(Recipe::getRecipeId)
+                .toList();
+        List<Recipe> allRecipes = recipesRepository.getAllRecipes();
+        List<SelectableEntity> recipes = new ArrayList<>();
+        for (Recipe recipe : allRecipes) {
+            SelectableEntity selectableEntity = new SelectableEntity();
+            selectableEntity.setId(recipe.getRecipeId());
+            selectableEntity.setName(recipe.getName());
+            selectableEntity.setSelected(selectedRecipesIds.contains(recipe.getRecipeId()));
+            recipes.add(selectableEntity);
+        }
+        model.addAttribute("recipes", recipes);
+
+        return "meal_recipes";
+    }
+
+    @PostMapping("/{id}/recipes")
+    public String acceptMealRecipesForm(@PathVariable Integer id,
+                                        @RequestParam(value = "selectedRecipes", required = false) Optional<List<Integer>> selectedRecipes) {
+        LOGGER.trace("[WEB] POST /meals/{}/recipes", id);
+
+        // Authentication checks
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName;
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            userName = authentication.getName();
+        } else {
+            LOGGER.warn("[WEB] Cannot accept recipes set form: anonymous users cannot set recipes on meals");
+            return "redirect:/profiles";
+        }
+
+        Meal meal = mealsRepository.getMeal(id);
+        if (meal == null) {
+            LOGGER.warn("[WEB] Cannot accept recipes set form: meal {} was not found", id);
+            return "redirect:/profiles";
+        }
+
+        if (!controlService.canModifyMeal(userName, meal.getMealId())) {
+            LOGGER.warn("[WEB] Cannot accept recipes set form: user '{}' has no access to meal {} modification", userName, id);
+            return "redirect:/meals/" + meal.getMealId();
+        }
+
+        List<Integer> recipes = selectedRecipes.orElse(Collections.emptyList());
+        List<Recipe> selectedRecipesFromDb = recipesRepository.getAllRecipesFromMeal(id);
+        List<Integer> selectedRecipesIdsFromDb = selectedRecipesFromDb.stream()
+                .map(Recipe::getRecipeId)
+                .toList();
+        List<Integer> recipesIdsToDelete = selectedRecipesIdsFromDb.stream()
+                .filter(e -> !recipes.contains(e))
+                .toList();
+        List<Integer> recipesIdsToAdd = recipes.stream()
+                .filter(e -> !selectedRecipesIdsFromDb.contains(e))
+                .toList();
+
+        // Delete deselected recipes
+        for (Integer recipeIdToDelete : recipesIdsToDelete) {
+            recipesRepository.deleteRecipeFromMeal(recipeIdToDelete, id);
+        }
+
+        // Adjust order numbers for the remaining recipes
+        List<Recipe> remainingRecipes = recipesRepository.getAllRecipesFromMeal(id);
+        int orderNumber = 1;
+        for (Recipe recipe : remainingRecipes) {
+            recipesRepository.updateMealsContents(id, recipe.getRecipeId(), orderNumber);
+            orderNumber++;
+        }
+
+        // Add new selected recipes
+        for (Integer recipeIdToAdd : recipesIdsToAdd) {
+            recipesRepository.addRecipeToMeal(recipeIdToAdd, id, orderNumber);
+            orderNumber++;
+        }
+
+        return "redirect:/meals/" + id;
     }
 }

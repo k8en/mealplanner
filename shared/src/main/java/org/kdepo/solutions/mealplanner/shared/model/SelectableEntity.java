@@ -2,18 +2,18 @@ package org.kdepo.solutions.mealplanner.shared.model;
 
 import java.util.Objects;
 
-public class TagSelectable {
+public class SelectableEntity {
 
-    private Integer tagId;
+    private Integer id;
     private String name;
     private Boolean selected;
 
-    public Integer getTagId() {
-        return tagId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setTagId(Integer tagId) {
-        this.tagId = tagId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -34,8 +34,8 @@ public class TagSelectable {
 
     @Override
     public String toString() {
-        return "TagSelectable{" +
-                "tagId=" + tagId +
+        return "SelectableEntity{" +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 ", selected=" + selected +
                 '}';
@@ -44,14 +44,14 @@ public class TagSelectable {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        TagSelectable that = (TagSelectable) o;
-        return Objects.equals(tagId, that.tagId)
+        SelectableEntity that = (SelectableEntity) o;
+        return Objects.equals(id, that.id)
                 && Objects.equals(name, that.name)
                 && Objects.equals(selected, that.selected);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tagId, name, selected);
+        return Objects.hash(id, name, selected);
     }
 }

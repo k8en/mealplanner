@@ -7,7 +7,7 @@ import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Tag;
-import org.kdepo.solutions.mealplanner.shared.model.TagSelectable;
+import org.kdepo.solutions.mealplanner.shared.model.SelectableEntity;
 import org.kdepo.solutions.mealplanner.shared.model.Unit;
 import org.kdepo.solutions.mealplanner.shared.repository.IngredientsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
@@ -641,13 +641,13 @@ public class RecipesController {
                 .map(Tag::getTagId)
                 .toList();
         List<Tag> allTags = tagsRepository.getAllTags();
-        List<TagSelectable> tags = new ArrayList<>();
+        List<SelectableEntity> tags = new ArrayList<>();
         for (Tag tag : allTags) {
-            TagSelectable tagSelectable = new TagSelectable();
-            tagSelectable.setTagId(tag.getTagId());
-            tagSelectable.setName(tag.getName());
-            tagSelectable.setSelected(selectedTagsIds.contains(tag.getTagId()));
-            tags.add(tagSelectable);
+            SelectableEntity selectableEntity = new SelectableEntity();
+            selectableEntity.setId(tag.getTagId());
+            selectableEntity.setName(tag.getName());
+            selectableEntity.setSelected(selectedTagsIds.contains(tag.getTagId()));
+            tags.add(selectableEntity);
         }
         model.addAttribute("tags", tags);
 

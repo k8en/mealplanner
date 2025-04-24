@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       style="height: 100%;">
 <head>
-    <title>Редактирование информации о метках</title>
+    <title>Редактирование информации о рецептах</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" th:href="@{/styles/common.css}">
 </head>
@@ -12,18 +12,18 @@
     <div th:replace="~{fragment_header :: header}"/>
     <div class="content">
 
-        <h3>Редактирование информации о метках</h3>
+        <h3>Редактирование информации о рецептах</h3>
 
         <div class="form_block">
-            <form th:action="@{'/recipes/' + ${recipe.recipeId} + '/tags'}" method="post">
+            <form th:action="@{'/meals/' + ${meal.mealId} + '/recipes'}" method="post">
 
-                <div class="form_element" th:each="tag : ${tags}">
+                <div class="form_element" th:each="recipe : ${recipes}">
                     <input type="checkbox"
-                           name="selectedTags"
-                           th:value="${tag.id}"
-                           th:checked="${tag.selected}" />
+                           name="selectedRecipes"
+                           th:value="${recipe.id}"
+                           th:checked="${recipe.selected}" />
 
-                    <label th:text="${tag.name}"></label>
+                    <label th:text="${recipe.name}"></label>
                     <br/>
                 </div>
 
