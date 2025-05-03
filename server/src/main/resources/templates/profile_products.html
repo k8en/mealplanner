@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Список продуктов профиля</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <h3>Список продуктов профиля</h3>
+
+        <div th:switch="${#maps.size(productsMap)}">
+            <span th:case="'0'">Нет информации для отображения</span>
+            <div th:case="*">
+                <table>
+                    <tr th:each="entry : ${productsMap}">
+                        <td><a th:href="@{'/products/' + ${entry.key.productId}}"><span th:text="${entry.key.name}"></span></a></td>
+                        <td>
+                            <div th:each="unitsMap : ${entry.value}">
+                                <span th:text="${unitsMap.value} + ' ' + ${unitsMap.key.shortName}"></span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

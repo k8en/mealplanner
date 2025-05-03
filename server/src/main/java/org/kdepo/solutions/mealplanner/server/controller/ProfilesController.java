@@ -9,15 +9,21 @@ import org.kdepo.solutions.mealplanner.server.service.OperationsControlService;
 import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
 import org.kdepo.solutions.mealplanner.shared.Constants;
 import org.kdepo.solutions.mealplanner.shared.model.Day;
+import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
+import org.kdepo.solutions.mealplanner.shared.model.Product;
 import org.kdepo.solutions.mealplanner.shared.model.Profile;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
+import org.kdepo.solutions.mealplanner.shared.model.Unit;
 import org.kdepo.solutions.mealplanner.shared.model.Week;
 import org.kdepo.solutions.mealplanner.shared.repository.DaysRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.IngredientsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.ProductsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.ProfilesRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.UnitsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.WeeksRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +39,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/profiles")
@@ -49,16 +58,25 @@ public class ProfilesController {
     private DaysRepository daysRepository;
 
     @Autowired
+    private IngredientsRepository ingredientsRepository;
+
+    @Autowired
     private MealsRepository mealsRepository;
 
     @Autowired
     private PrimaryKeysRepository primaryKeysRepository;
 
     @Autowired
+    private ProductsRepository productsRepository;
+
+    @Autowired
     private ProfilesRepository profilesRepository;
 
     @Autowired
     private RecipesRepository recipesRepository;
+
+    @Autowired
+    private UnitsRepository unitsRepository;
 
     @Autowired
     private WeeksRepository weeksRepository;
@@ -526,4 +544,168 @@ public class ProfilesController {
 
         return "redirect:/profiles/" + id;
     }
+
+    @GetMapping("/{id}/products")
+    public String showProfileProductsListPage(@PathVariable Integer id,
+                                              Model model,
+                                              @RequestParam(value = "day_id", required = false) Integer dayId,
+                                              @RequestParam(value = "week_id", required = false) Integer weekId) {
+        LOGGER.trace("[WEB] GET /profiles/{}/products", id);
+
+        // Authentication checks
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName;
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            userName = authentication.getName();
+            model.addAttribute("userName", userName);
+        } else {
+            LOGGER.warn("[WEB] Cannot show profile products list page: anonymous user cannot read profile products list");
+            return "redirect:/profiles";
+        }
+        model.addAttribute("isLoggedIn", userName != null);
+
+        // Operation availability checks
+        Profile profile = profilesRepository.getProfile(id);
+        if (profile == null) {
+            LOGGER.warn("[WEB] Cannot show profile products list page: profile {} was not found", id);
+            return "redirect:/profiles";
+        }
+
+        if (!controlService.canReadProfile(userName, profile.getProfileId())) {
+            LOGGER.warn("[WEB] Cannot show profile products list page: user '{}' has no access to profile {}", userName, id);
+            return "redirect:/profiles";
+        }
+
+        // Prepare entities
+        model.addAttribute("profile", profile);
+
+        // Collect recipes list
+        List<Recipe> recipes = new ArrayList<>();
+        if (dayId != null && weekId == null) {
+            // Collect recipes for one day only
+            Day day = daysRepository.getDay(dayId);
+            if (day == null) {
+                LOGGER.warn("[WEB] Cannot show profile products list page: day {} was not found", dayId);
+                return "redirect:/profiles";
+            }
+
+            if (!controlService.canReadDay(userName, day.getDayId())) {
+                LOGGER.warn("[WEB] Cannot show profile products list page: user '{}' has no access to day {}", userName, dayId);
+                return "redirect:/profiles";
+            }
+
+            if (!profile.getProfileId().equals(day.getProfileId())) {
+                LOGGER.warn("[WEB] Cannot show profile products list page: day {} doesn't match profile {}", dayId, profile.getProfileId());
+                return "redirect:/profiles";
+            }
+
+            List<Meal> meals = mealsRepository.getAllMealsFromDay(day.getDayId());
+            for (Meal meal : meals) {
+                recipes.addAll(recipesRepository.getAllRecipesFromMeal(meal.getMealId()));
+            }
+
+        } else if (dayId == null && weekId != null) {
+            // Collect recipes for all days from week
+            Week week = weeksRepository.getWeek(weekId);
+            if (week == null) {
+                LOGGER.warn("[WEB] Cannot show profile products list page: week {} was not found", weekId);
+                return "redirect:/profiles";
+            }
+
+            if (!controlService.canReadWeek(userName, week.getWeekId())) {
+                LOGGER.warn("[WEB] Cannot show profile products list page: user '{}' has no access to week {}", userName, weekId);
+                return "redirect:/profiles";
+            }
+
+            if (!profile.getProfileId().equals(week.getProfileId())) {
+                LOGGER.warn("[WEB] Cannot show profile products list page: week {} doesn't match profile {}", weekId, profile.getProfileId());
+                return "redirect:/profiles";
+            }
+
+            List<Day> days = daysRepository.getAllDaysFromWeek(week.getWeekId());
+            for (Day day : days) {
+                List<Meal> meals = mealsRepository.getAllMealsFromDay(day.getDayId());
+                for (Meal meal : meals) {
+                    recipes.addAll(recipesRepository.getAllRecipesFromMeal(meal.getMealId()));
+                }
+            }
+
+        } else if (dayId == null && weekId == null) {
+            // Collect recipes for all profile
+            if (Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
+                List<Day> days = daysRepository.getAllDaysFromProfile(profile.getProfileId());
+                for (Day day : days) {
+                    List<Meal> meals = mealsRepository.getAllMealsFromDay(day.getDayId());
+                    for (Meal meal : meals) {
+                        recipes.addAll(recipesRepository.getAllRecipesFromMeal(meal.getMealId()));
+                    }
+                }
+            } else if (Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
+                List<Week> weeks = weeksRepository.getAllWeeksFromProfile(profile.getProfileId());
+                for (Week week : weeks) {
+                    List<Day> days = daysRepository.getAllDaysFromWeek(week.getWeekId());
+                    for (Day day : days) {
+                        List<Meal> meals = mealsRepository.getAllMealsFromDay(day.getDayId());
+                        for (Meal meal : meals) {
+                            recipes.addAll(recipesRepository.getAllRecipesFromMeal(meal.getMealId()));
+                        }
+                    }
+                }
+            }
+
+        } else {
+            LOGGER.warn("[WEB] Cannot show profile products list page: too many parameters provided {} {}", dayId, weekId);
+            return "redirect:/profiles";
+        }
+
+        // Collect ingredients from recipes
+        List<Ingredient> ingredients = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            ingredients.addAll(ingredientsRepository.getAllIngredientsFromRecipe(recipe.getRecipeId()));
+        }
+
+        // Collect products from ingredients
+        // <ProductId <UnitId, Amount>>
+        Map<Integer, Map<Integer, Integer>> productsUnitsAmountsIdsMap = new HashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            Integer productId = ingredient.getProductId();
+            Map<Integer, Integer> unitsMap = productsUnitsAmountsIdsMap.get(productId);
+            if (unitsMap == null) {
+                unitsMap = new HashMap<>();
+                unitsMap.put(ingredient.getUnitId(), ingredient.getAmount());
+                productsUnitsAmountsIdsMap.put(productId, unitsMap);
+            } else {
+                Integer amount = unitsMap.get(ingredient.getUnitId());
+                if (amount == null) {
+                    unitsMap.put(ingredient.getUnitId(), ingredient.getAmount());
+                } else {
+                    amount = amount + ingredient.getAmount();
+                    unitsMap.put(ingredient.getUnitId(), amount);
+                }
+            }
+        }
+
+        Map<Integer, Unit> cachedUnitsMap = new HashMap<>();
+        Map<Product, Map<Unit, Integer>> productsMap = new HashMap<>();
+        for (Map.Entry<Integer, Map<Integer, Integer>> productsUnitsAmountsMapEntry : productsUnitsAmountsIdsMap.entrySet()) {
+            Product product = productsRepository.getProduct(productsUnitsAmountsMapEntry.getKey());
+
+            Map<Unit, Integer> unitsAmountsMap = new HashMap<>();
+            Map<Integer, Integer> unitsIdsAmountMap = productsUnitsAmountsMapEntry.getValue();
+            for (Map.Entry<Integer, Integer> unitIdAmountEntry : unitsIdsAmountMap.entrySet()) {
+                Unit unit = cachedUnitsMap.get(unitIdAmountEntry.getKey());
+                if (unit == null) {
+                    unit = unitsRepository.getUnit(unitIdAmountEntry.getKey());
+                    cachedUnitsMap.put(unitIdAmountEntry.getKey(), unit);
+                }
+                unitsAmountsMap.put(unit, unitIdAmountEntry.getValue());
+            }
+
+            productsMap.put(product, unitsAmountsMap);
+        }
+        model.addAttribute("productsMap", productsMap);
+
+        return "profile_products";
+    }
+
 }

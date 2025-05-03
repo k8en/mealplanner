@@ -29,6 +29,8 @@
 
         <h3 th:text="${profile.name}"></h3>
 
+        <a th:href="@{'/profiles/' + ${profile.profileId} + '/products'}">К списку продуктов</a>
+
         <div th:switch="${profile.profileTypeId}">
             <span th:case="'0'">Нет информации для отображения</span>
             <div th:case="1">
