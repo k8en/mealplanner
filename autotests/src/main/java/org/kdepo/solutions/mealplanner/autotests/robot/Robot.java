@@ -174,6 +174,11 @@ public class Robot {
         }
     }
 
+    public void submitForm() {
+        System.out.println("[QA] Submit form");
+        clickOnElement("submit");
+    }
+
     public void logout() {
         System.out.println("[QA] Log out from the current account");
 
@@ -184,8 +189,8 @@ public class Robot {
         clickOnElement("submit");
     }
 
-    public void createTag(String name, String description) {
-        System.out.println("[QA] Create new tag with the next parameters: name='" + name + "', description='" + description + "'");
+    public void openTagCreationForm() {
+        System.out.println("[QA] Open tag creation form");
 
         String url = serverAddress + "/tags/create";
 
@@ -193,11 +198,128 @@ public class Robot {
 
         String pageTitle = driver.getTitle();
         if (!RobotConstants.PageTitle.TAG_CREATE.equals(pageTitle)) {
-            throw new UrlNotLoadedException("Error! Tag create form not accessible. Actual page title is '" + pageTitle + "'");
+            throw new UrlNotLoadedException(
+                    "Error! Tag create form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.TAG_CREATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
         }
+    }
+
+    public void fillTagCreationForm(String name, String description) {
+        System.out.println("[QA] Fill tag creation form with the next parameters: name=[" + name + "], description=[" + description + "]");
 
         sendTextToElement("f_name", name);
         sendTextToElement("f_description", description);
+
+        clickOnElement("submit");
+    }
+
+    public void openTagDetailsPage(int tagId) {
+        System.out.println("[QA] Open tag details page with the next tagId=[" + tagId + "]");
+
+        String url = serverAddress + "/tags/" + tagId;
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.TAG_DETAILS.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Tag details page is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.TAG_DETAILS + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openTagModificationForm(int tagId) {
+        System.out.println("[QA] Open tag modification form");
+
+        String url = serverAddress + "/tags/" + tagId + "/update";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.TAG_UPDATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Tag modification form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.TAG_UPDATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void fillTagModificationForm(Integer tagId, String name, String description) {
+        System.out.println("[QA] Fill tag creation form with the next parameters: tagId=[" + tagId + "], name=[" + name + "], description=[" + description + "]");
+
+        sendTextToElement("f_name", name);
+        sendTextToElement("f_description", description);
+
+        clickOnElement("submit");
+    }
+
+    public void openTagDeletionForm(int tagId) {
+        System.out.println("[QA] Open tag deletion form");
+
+        String url = serverAddress + "/tags/" + tagId + "/delete";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.TAG_UPDATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Tag deletion form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.TAG_DELETE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openTagSetForm(int tagId) {
+        System.out.println("[QA] Open tag set form");
+
+        String url = serverAddress + "/tags/" + tagId + "/set";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.TAG_SET.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Tag set form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.TAG_SET + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openTagUnsetForm(int tagId) {
+        System.out.println("[QA] Open tag unset form");
+
+        String url = serverAddress + "/tags/" + tagId + "/unset";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.TAG_UNSET.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Tag unset form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.TAG_UNSET + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void deleteTag(Integer tagId) {
+        System.out.println("[QA] Delete tag with the next tagId=" + tagId);
+
+        String url = serverAddress + "/tags/" + tagId + "/delete";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.TAG_DELETE.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Tag delete form not accessible. Actual page title is '" + pageTitle + "'");
+        }
 
         clickOnElement("submit");
     }
@@ -217,7 +339,7 @@ public class Robot {
         compareTextWithElement("f_description", description);
     }
 
-    public void openTagsList() {
+    public void openTagsListPage() {
         System.out.println("[QA] Open tags list page");
 
         String url = serverAddress + "/tags";
@@ -228,39 +350,6 @@ public class Robot {
         if (!RobotConstants.PageTitle.TAGS_LIST.equals(pageTitle)) {
             throw new UrlNotLoadedException("Error! Tags list page not accessible. Actual page title is '" + pageTitle + "'");
         }
-    }
-
-    public void updateTag(Integer tagId, String name, String description) {
-        System.out.println("[QA] Update tag data with the next parameters: tagId=" + tagId + ", name='" + name + "', description='" + description + "'");
-
-        String url = serverAddress + "/tags/" + tagId + "/update";
-
-        navigate(url);
-
-        String pageTitle = driver.getTitle();
-        if (!RobotConstants.PageTitle.TAG_UPDATE.equals(pageTitle)) {
-            throw new UrlNotLoadedException("Error! Tag update form not accessible. Actual page title is '" + pageTitle + "'");
-        }
-
-        sendTextToElement("f_name", name);
-        sendTextToElement("f_description", description);
-
-        clickOnElement("submit");
-    }
-
-    public void deleteTag(Integer tagId) {
-        System.out.println("[QA] Delete tag with the next tagId=" + tagId);
-
-        String url = serverAddress + "/tags/" + tagId + "/delete";
-
-        navigate(url);
-
-        String pageTitle = driver.getTitle();
-        if (!RobotConstants.PageTitle.TAG_DELETE.equals(pageTitle)) {
-            throw new UrlNotLoadedException("Error! Tag delete form not accessible. Actual page title is '" + pageTitle + "'");
-        }
-
-        clickOnElement("submit");
     }
 
     public void createProduct(String name, String description, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
@@ -292,6 +381,40 @@ public class Robot {
         clickOnElement("submit");
     }
 
+    public void openProductDetailsPage(int productId) {
+        System.out.println("[QA] Open product details page with the next productId=[" + productId + "]");
+
+        String url = serverAddress + "/products/" + productId;
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.PRODUCT_DETAILS.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Product details page is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.PRODUCT_DETAILS + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openProductCreationForm() {
+        System.out.println("[QA] Open product creation form");
+
+        String url = serverAddress + "/products/create";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.PRODUCT_CREATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Product create form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.PRODUCT_CREATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
     public Integer getProductIdFromUrl() {
         return getIdFromUrl(driver.getCurrentUrl(), "/products/");
     }
@@ -319,7 +442,7 @@ public class Robot {
         compareTextWithElement("f_carbs", String.valueOf(carbs));
     }
 
-    public void openProductsList() {
+    public void openProductsListPage() {
         System.out.println("[QA] Open products list page");
 
         String url = serverAddress + "/products";
@@ -441,7 +564,7 @@ public class Robot {
         compareTextWithElement("f_carbs", String.valueOf(carbs));
     }
 
-    public void openRecipesList() {
+    public void openRecipesListPage() {
         System.out.println("[QA] Open recipes list page");
 
         String url = serverAddress + "/recipes";
