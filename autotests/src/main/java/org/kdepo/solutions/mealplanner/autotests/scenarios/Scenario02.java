@@ -12,28 +12,31 @@ public class Scenario02 {
     public static void execute(Robot robot, String username, String password) {
         System.out.println("[QA] Started scenario 02");
 
-        // Login as user
-        robot.login("user", "password");
-        robot.pause(1000);
-
-        // Check list pages as user
-        robot.openTagsList();
-        robot.pause(1000);
-        robot.openProductsList();
-        robot.pause(1000);
-        robot.openRecipesList();
-        robot.pause(1000);
-
+        // Generate unique key
         String uuid = UUID.randomUUID().toString().substring(0, 8);
         System.out.println("[QA] Test key is generated as " + uuid);
         System.out.println();
+
+        // Login as user
+        robot.login(username, password);
+        robot.pause(1000);
+
+        // Check list pages as user
+        robot.openTagsListPage();
+        robot.pause(1000);
+        robot.openProductsListPage();
+        robot.pause(1000);
+        robot.openRecipesListPage();
+        robot.pause(1000);
 
         // Tag manipulation
         // 1. Create new tag
         Tag tag = new Tag();
         tag.setName("Метка_" + uuid);
         tag.setDescription("Описание_" + uuid);
-        robot.createTag(tag.getName(), tag.getDescription());
+        robot.openTagCreationForm();
+        robot.pause(1000);
+        robot.fillTagCreationForm(tag.getName(), tag.getDescription());
         robot.pause(1000);
         Integer tagId = robot.getTagIdFromUrl();
         tag.setTagId(tagId);
@@ -45,7 +48,9 @@ public class Scenario02 {
         // 3. Update tag
         tag.setName(tag.getName() + "_edited");
         tag.setDescription(tag.getDescription() + "_edited");
-        robot.updateTag(tag.getTagId(), tag.getName(), tag.getDescription());
+        robot.openTagModificationForm(tag.getTagId());
+        robot.pause(1000);
+        robot.fillTagModificationForm(tag.getTagId(), tag.getName(), tag.getDescription());
         robot.pause(1000);
 
         // 4. Check that tag is updated as expected
@@ -53,7 +58,12 @@ public class Scenario02 {
         robot.pause(1000);
 
         // 5. Delete tag
-        robot.deleteTag(tag.getTagId());
+        robot.openTagDeletionForm(tag.getTagId());
+        robot.pause(1000);
+        robot.submitForm();
+
+        // 6. Check that tag is deleted
+        //
 
         System.out.println();
 
@@ -66,6 +76,8 @@ public class Scenario02 {
         product.setProteins(BigDecimal.valueOf(20L));
         product.setFats(BigDecimal.valueOf(30L));
         product.setCarbs(BigDecimal.valueOf(40L));
+        robot.openProductCreationForm();
+        robot.pause(1000);
         robot.createProduct(product.getName(), product.getDescription(), product.getCalories(), product.getProteins(), product.getFats(), product.getCarbs());
         robot.pause(1000);
         Integer productId = robot.getProductIdFromUrl();

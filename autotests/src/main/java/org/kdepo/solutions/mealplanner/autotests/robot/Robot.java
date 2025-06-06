@@ -415,6 +415,40 @@ public class Robot {
         }
     }
 
+    public void openProductModificationForm(int productId) {
+        System.out.println("[QA] Open product modification form with the next productId=[" + productId + "]");
+
+        String url = serverAddress + "/products/" + productId + "/update";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.PRODUCT_UPDATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Product modification form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.PRODUCT_UPDATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openProductDeletionForm(int productId) {
+        System.out.println("[QA] Open product deletion form with the next productId=[" + productId + "]");
+
+        String url = serverAddress + "/products/" + productId + "/delete";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.PRODUCT_DELETE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Product deletion form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.PRODUCT_DELETE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
     public Integer getProductIdFromUrl() {
         return getIdFromUrl(driver.getCurrentUrl(), "/products/");
     }
@@ -577,6 +611,91 @@ public class Robot {
         }
     }
 
+    public void openRecipeDetailsPage(int recipeId) {
+        System.out.println("[QA] Open recipe details page with the next recipeId=[" + recipeId + "]");
+
+        String url = serverAddress + "/recipes/" + recipeId;
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPE_DETAILS.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Recipe details page is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.RECIPE_DETAILS + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openRecipeCreationForm() {
+        System.out.println("[QA] Open recipe creation form");
+
+        String url = serverAddress + "/recipes/create";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPE_CREATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Recipe create form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.RECIPE_CREATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openRecipeModificationForm(int recipeId) {
+        System.out.println("[QA] Open recipe modification form with the next recipeId=[" + recipeId + "]");
+
+        String url = serverAddress + "/recipes/" + recipeId + "/update";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPE_UPDATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Recipe modification form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.RECIPE_UPDATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openRecipeDeletionForm(int recipeId) {
+        System.out.println("[QA] Open recipe deletion form with the next recipeId=[" + recipeId + "]");
+
+        String url = serverAddress + "/recipes/" + recipeId + "/delete";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPE_DELETE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Recipe deletion form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.RECIPE_DELETE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openRecipeTagsForm(int recipeId) {
+        System.out.println("[QA] Open recipe tags modification form with the next recipeId=[" + recipeId + "]");
+
+        String url = serverAddress + "/recipes/" + recipeId + "/tags";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.RECIPE_TAGS_UPDATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Recipe tags modification form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.RECIPE_TAGS_UPDATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
     public void updateRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
         System.out.println("[QA] Update recipe parameters with the next data: "
                 + "recipeId=" + recipeId
@@ -626,6 +745,74 @@ public class Robot {
         }
 
         clickOnElement("submit");
+    }
+
+    public void openIngredientDetailsPage(int ingredientId) {
+        System.out.println("[QA] Open ingredient details page with the next ingredientId=[" + ingredientId + "]");
+
+        String url = serverAddress + "/ingredients/" + ingredientId;
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.INGREDIENT_DETAILS.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Ingredient details page is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.INGREDIENT_DETAILS + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openIngredientCreationForm(int recipeId) {
+        System.out.println("[QA] Open ingredient creation form");
+
+        String url = serverAddress + "/ingredients/create?recipe_id=" + recipeId;
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.INGREDIENT_CREATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Ingredient create form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.INGREDIENT_CREATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openIngredientModificationForm(int ingredientId) {
+        System.out.println("[QA] Open ingredient modification form with the next ingredientId=[" + ingredientId + "]");
+
+        String url = serverAddress + "/ingredients/" + ingredientId + "/update";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.INGREDIENT_UPDATE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Ingredient modification form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.INGREDIENT_UPDATE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
+    }
+
+    public void openIngredientDeletionForm(int ingredientId) {
+        System.out.println("[QA] Open ingredient deletion form with the next ingredientId=[" + ingredientId + "]");
+
+        String url = serverAddress + "/ingredients/" + ingredientId + "/delete";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.INGREDIENT_DELETE.equals(pageTitle)) {
+            throw new UrlNotLoadedException(
+                    "Error! Ingredient deletion form is not accessible!"
+                            + " Expected page title is [" + RobotConstants.PageTitle.INGREDIENT_DELETE + "]"
+                            + " Actual page title is [" + pageTitle + "]"
+            );
+        }
     }
 
     public void createIngredient(Integer recipeId, String name, Integer productId, Integer amount, Integer unitId) {
@@ -747,5 +934,18 @@ public class Robot {
         }
 
         clickOnElement("submit");
+    }
+
+    public void openProfilesListPage() {
+        System.out.println("[QA] Open profiles list page");
+
+        String url = serverAddress + "/profiles";
+
+        navigate(url);
+
+        String pageTitle = driver.getTitle();
+        if (!RobotConstants.PageTitle.PROFILES_LIST.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Profiles list page not accessible. Actual page title is '" + pageTitle + "'");
+        }
     }
 }

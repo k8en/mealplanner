@@ -5,14 +5,18 @@ public class RobotConstants {
     public interface PageTitle {
         String INGREDIENT_CREATE = "Добавление нового ингредиента";
         String INGREDIENT_DELETE = "Удаление информации об ингредиенте";
+        String INGREDIENT_DETAILS = "Просмотр информации об ингредиенте";
         String INGREDIENT_UPDATE = "Редактирование информации об ингредиенте";
         String PRODUCT_CREATE = "Добавление нового продукта";
         String PRODUCT_DELETE = "Удаление информации о продукте";
         String PRODUCT_DETAILS = "Просмотр информации о продукте";
         String PRODUCT_UPDATE = "Редактирование информации о продукте";
         String PRODUCTS_LIST = "Список продуктов";
+        String PROFILES_LIST = "Список профилей питания";
         String RECIPE_CREATE = "Добавление нового рецепта";
         String RECIPE_DELETE = "Удаление информации о рецепте";
+        String RECIPE_DETAILS = "Просмотр информации о рецепте";
+        String RECIPE_TAGS_UPDATE = "Редактирование информации о метках";
         String RECIPE_UPDATE = "Редактирование информации о рецепте";
         String RECIPES_LIST = "Список рецептов";
         String TAG_CREATE = "Добавление новой метки";

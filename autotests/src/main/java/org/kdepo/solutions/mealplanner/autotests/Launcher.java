@@ -3,6 +3,7 @@ package org.kdepo.solutions.mealplanner.autotests;
 import org.kdepo.solutions.mealplanner.autotests.robot.Robot;
 import org.kdepo.solutions.mealplanner.autotests.scenarios.Scenario01;
 import org.kdepo.solutions.mealplanner.autotests.scenarios.Scenario02;
+import org.kdepo.solutions.mealplanner.autotests.scenarios.Scenario03;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
@@ -45,6 +46,8 @@ public class Launcher {
         Scenario01.execute(robot);
         System.out.println();
         Scenario02.execute(robot, "user", "password");
+        System.out.println();
+        Scenario03.execute(robot, "user", "password");
         System.out.println();
 
         System.out.println("[QA] Completed");
