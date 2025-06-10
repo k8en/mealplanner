@@ -19,14 +19,14 @@ public class DaysRepositoryImpl implements DaysRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DaysRepositoryImpl.class);
 
-    private static final String SQL_ADD_DAY = "INSERT INTO days (day_id, profile_id, week_id, name, order_number) VALUES (?, ?, ?, ?, ?)";
+    private static final String SQL_ADD_DAY = "INSERT INTO days (day_id, menu_id, week_id, name, order_number) VALUES (?, ?, ?, ?, ?)";
     private static final String SQL_DELETE_DAY = "DELETE FROM days WHERE day_id = ?";
-    private static final String SQL_GET_ALL_DAYS_FROM_PROFILE = "SELECT * FROM days WHERE profile_id = ? ORDER BY order_number ASC";
+    private static final String SQL_GET_ALL_DAYS_FROM_MENU = "SELECT * FROM days WHERE menu_id = ? ORDER BY order_number ASC";
     private static final String SQL_GET_ALL_DAYS_FROM_WEEK = "SELECT * FROM days WHERE week_id = ? ORDER BY order_number ASC";
     private static final String SQL_GET_DAY = "SELECT * FROM days WHERE day_id = ?";
     private static final String SQL_GET_ORDER_NUMBER = "SELECT IFNULL(MAX(order_number) + 1, 1) AS order_number FROM days WHERE week_id = ?";
     private static final String SQL_IS_USED = "SELECT day_id FROM meals WHERE day_id = ? LIMIT 1";
-    private static final String SQL_UPDATE_DAY = "UPDATE days SET profile_id = ?, week_id = ?, name = ?, order_number = ? WHERE day_id = ?";
+    private static final String SQL_UPDATE_DAY = "UPDATE days SET menu_id = ?, week_id = ?, name = ?, order_number = ? WHERE day_id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -35,16 +35,16 @@ public class DaysRepositoryImpl implements DaysRepository {
     }
 
     @Override
-    public Day addDay(Integer dayId, Integer profileId, Integer weekId, String name, Integer orderNumber) {
-        LOGGER.trace("[DBR][addDay] Invoked with parameters: dayId={}, profileId={}, weekId={}, name={}, orderNumber={}",
-                dayId, profileId, weekId, name, orderNumber
+    public Day addDay(Integer dayId, Integer menuId, Integer weekId, String name, Integer orderNumber) {
+        LOGGER.trace("[DBR][addDay] Invoked with parameters: dayId={}, menuId={}, weekId={}, name={}, orderNumber={}",
+                dayId, menuId, weekId, name, orderNumber
         );
 
         jdbcTemplate.update(
                 SQL_ADD_DAY,
                 ps -> {
                     ps.setInt(1, dayId);
-                    ps.setInt(2, profileId);
+                    ps.setInt(2, menuId);
                     ps.setObject(3, weekId, Types.INTEGER);
                     ps.setString(4, name);
                     ps.setInt(5, orderNumber);
@@ -64,11 +64,11 @@ public class DaysRepositoryImpl implements DaysRepository {
     }
 
     @Override
-    public List<Day> getAllDaysFromProfile(Integer profileId) {
-        LOGGER.trace("[DBR][getAllDaysFromProfile] Invoked with parameters: profileId={}", profileId);
+    public List<Day> getAllDaysFromMenu(Integer menuId) {
+        LOGGER.trace("[DBR][getAllDaysFromMenu] Invoked with parameters: menuId={}", menuId);
         return jdbcTemplate.query(
-                SQL_GET_ALL_DAYS_FROM_PROFILE,
-                ps -> ps.setInt(1, profileId),
+                SQL_GET_ALL_DAYS_FROM_MENU,
+                ps -> ps.setInt(1, menuId),
                 rs -> {
                     List<Day> result = new ArrayList<>();
                     while (rs.next()) {
@@ -138,15 +138,15 @@ public class DaysRepositoryImpl implements DaysRepository {
     }
 
     @Override
-    public void updateDay(Integer dayId, Integer profileId, Integer weekId, String name, Integer orderNumber) {
-        LOGGER.trace("[DBR][updateDay] Invoked with parameters: dayId={}, profileId={}, weekId={}, name={}, orderNumber={}",
-                dayId, profileId, weekId, name, orderNumber
+    public void updateDay(Integer dayId, Integer menuId, Integer weekId, String name, Integer orderNumber) {
+        LOGGER.trace("[DBR][updateDay] Invoked with parameters: dayId={}, menuId={}, weekId={}, name={}, orderNumber={}",
+                dayId, menuId, weekId, name, orderNumber
         );
 
         jdbcTemplate.update(
                 SQL_UPDATE_DAY,
                 ps -> {
-                    ps.setInt(1, profileId);
+                    ps.setInt(1, menuId);
                     ps.setObject(2, weekId, Types.INTEGER);
                     ps.setString(3, name);
                     ps.setInt(4, orderNumber);
@@ -157,7 +157,7 @@ public class DaysRepositoryImpl implements DaysRepository {
 
     private Day convert(ResultSet rs) throws SQLException {
         Integer dayId = rs.getInt("day_id");
-        Integer profileId = rs.getInt("profile_id");
+        Integer menuId = rs.getInt("menu_id");
 
         Integer weekId = rs.getInt("week_id");
         if (rs.wasNull()) {
@@ -169,7 +169,7 @@ public class DaysRepositoryImpl implements DaysRepository {
 
         Day day = new Day();
         day.setDayId(dayId);
-        day.setProfileId(profileId);
+        day.setMenuId(menuId);
         day.setWeekId(weekId);
         day.setName(name);
         day.setOrderNumber(orderNumber);

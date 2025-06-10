@@ -29,7 +29,7 @@ public class Scenario01 {
      * <li>01-20 check access to ingredient create form via direct link</li>
      * <li>01-21 check access to ingredient update form via direct link</li>
      * <li>01-22 check access to ingredient delete form via direct link</li>
-     * <li>01-23 check access to profiles list page</li>
+     * <li>01-23 check access to menus list page</li>
      * </ul>
      *
      * @param robot {@link Robot} auto tester
@@ -125,8 +125,8 @@ public class Scenario01 {
         robot.openIngredientDeletionForm(1);
         robot.pause(1000);
 
-        System.out.println("[QA] 01-23 check access to profiles list page");
-        robot.openProfilesListPage();
+        System.out.println("[QA] 01-23 check access to menus list page");
+        robot.openMenusListPage();
         robot.pause(1000);
 
         System.out.println("[QA] Completed scenario 01");

@@ -6,18 +6,18 @@ import java.util.List;
 
 public interface WeeksRepository {
 
-    Week addWeek(Integer weekId, Integer profileId, String name, Integer orderNumber);
+    Week addWeek(Integer weekId, Integer menuId, String name, Integer orderNumber);
 
     void deleteWeek(Integer weekId);
 
-    List<Week> getAllWeeksFromProfile(Integer profileId);
+    List<Week> getAllWeeksFromMenu(Integer menuId);
 
-    Integer getOrderNumber(Integer profileId);
+    Integer getOrderNumber(Integer menuId);
 
     Week getWeek(Integer weekId);
 
     boolean isUsed(Integer weekId);
 
-    void updateWeek(Integer weekId, Integer profileId, String name, Integer orderNumber);
+    void updateWeek(Integer weekId, Integer menuId, String name, Integer orderNumber);
 
 }

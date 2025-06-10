@@ -98,14 +98,23 @@ public class DbConstructor {
             + "                               REFERENCES units (unit_id) \n"
             + ")";
 
-    private static final String SQL_CREATE_TABLE_PROFILES = ""
-            + "CREATE TABLE profiles (\n"
-            + "    profile_id      NUMERIC (5)  PRIMARY KEY\n"
-            + "                                 UNIQUE\n"
-            + "                                 NOT NULL,\n"
-            + "    profile_type_id NUMERIC (1)  NOT NULL,\n"
-            + "    name            VARCHAR (50) NOT NULL,\n"
-            + "    active          NUMERIC (1)  NOT NULL\n"
+    private static final String SQL_CREATE_TABLE_MENU_TYPES = ""
+            + "CREATE TABLE menu_types (\n"
+            + "    menu_type_id NUMERIC (1)  PRIMARY KEY\n"
+            + "                              UNIQUE\n"
+            + "                              NOT NULL,\n"
+            + "    name         VARCHAR (20) NOT NULL\n"
+            + ")";
+
+    private static final String SQL_CREATE_TABLE_MENUS = ""
+            + "CREATE TABLE menus (\n"
+            + "    menu_id      NUMERIC (5)  PRIMARY KEY\n"
+            + "                              UNIQUE\n"
+            + "                              NOT NULL,\n"
+            + "    menu_type_id NUMERIC (1)  NOT NULL\n"
+            + "                              REFERENCES menu_types (menu_type_id),\n"
+            + "    name         VARCHAR (50) NOT NULL,\n"
+            + "    active       NUMERIC (1)  NOT NULL\n"
             + ")";
 
     private static final String SQL_CREATE_TABLE_WEEKS = ""
@@ -113,8 +122,8 @@ public class DbConstructor {
             + "    week_id      NUMERIC (5)  PRIMARY KEY\n"
             + "                              UNIQUE\n"
             + "                              NOT NULL,\n"
-            + "    profile_id   NUMERIC (5)  NOT NULL\n"
-            + "                              REFERENCES profiles (profile_id),\n"
+            + "    menu_id      NUMERIC (5)  NOT NULL\n"
+            + "                              REFERENCES menus (menu_id),\n"
             + "    name         VARCHAR (20) NOT NULL,\n"
             + "    order_number NUMERIC (5)  NOT NULL\n"
             + ")";
@@ -124,8 +133,8 @@ public class DbConstructor {
             + "    day_id       NUMERIC (5)  PRIMARY KEY\n"
             + "                              UNIQUE\n"
             + "                              NOT NULL,\n"
-            + "    profile_id   NUMERIC (5)  NOT NULL\n"
-            + "                              REFERENCES profiles (profile_id),\n"
+            + "    menu_id      NUMERIC (5)  NOT NULL\n"
+            + "                              REFERENCES menus (menu_id),\n"
             + "    week_id      NUMERIC (5)  REFERENCES weeks (week_id),\n"
             + "    name         VARCHAR (20) NOT NULL,\n"
             + "    order_number NUMERIC (5)  NOT NULL\n"
@@ -155,8 +164,8 @@ public class DbConstructor {
             "INSERT INTO primary_keys (name, next_val) VALUES ('day_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('ingredient_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('meal_id', 1)",
+            "INSERT INTO primary_keys (name, next_val) VALUES ('menu_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('product_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('profile_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('recipe_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('tag_id', 1)",
             "INSERT INTO primary_keys (name, next_val) VALUES ('unit_id', 1)",
@@ -173,19 +182,32 @@ public class DbConstructor {
     );
 
     private static final List<String> SQL_INSERT_TEST_LINES = Arrays.asList(
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (1, 'Вода', null, 0, 0, 0, 0)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (2, 'Гречка', null, 3130000, 126000, 33000, 621000)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (3, 'Картофель', null, 800000, 20000, 4000, 181000)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (4, 'Крабовые палочки', null, 730000, 60000, 10000, 100000)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (5, 'Кукуруза консервированная', null, 790000, 24100, 5000, 174400)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (6, 'Масло сливочное', null, 7340000, 5000, 825000, 8000)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (7, 'Морковь', null, 330000, 13000, 1000, 69000)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (8, 'Огурец', null, 150000, 8000, 1000, 26000)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (9, 'Яйцо куриное', null, 1570000, 127000, 109000, 7000)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (10, 'Масло растительное', null, 8730000, 0, 999000, 0)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (11, 'Майонез', null, 6240000, 31000, 670000, 26000)",
-            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (12, 'Рис', null, 3440000, 67000, 7000, 789000)",
-            "UPDATE primary_keys  SET next_val = '13' WHERE name = 'product_id'"
+            "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (1, 'Вода', null, 0, 0, 0, 0)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (2, 'Гречка', null, 3130000, 126000, 33000, 621000)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (3, 'Картофель', null, 800000, 20000, 4000, 181000)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (4, 'Крабовые палочки', null, 730000, 60000, 10000, 100000)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (5, 'Кукуруза консервированная', null, 790000, 24100, 5000, 174400)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (6, 'Масло сливочное', null, 7340000, 5000, 825000, 8000)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (7, 'Морковь', null, 330000, 13000, 1000, 69000)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (8, 'Огурец', null, 150000, 8000, 1000, 26000)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (9, 'Яйцо куриное', null, 1570000, 127000, 109000, 7000)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (10, 'Масло растительное', null, 8730000, 0, 999000, 0)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (11, 'Майонез', null, 6240000, 31000, 670000, 26000)"
+            , "INSERT INTO products (product_id, name, description, calories, proteins, fats, carbs) VALUES (12, 'Рис', null, 3440000, 67000, 7000, 789000)"
+            , "UPDATE primary_keys  SET next_val = '13' WHERE name = 'product_id'"
+
+            , "INSERT INTO tags (tag_id, name, description) VALUES (1, 'Завтрак', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (2, 'Перекус', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (3, 'Обед', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (4, 'Полдник', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (5, 'Ужин', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (6, 'Напиток безалкогольный', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (7, 'Напиток алкогольный', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (8, 'Каша', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (9, 'Суп', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (10, 'Салат', null)"
+            , "INSERT INTO tags (tag_id, name, description) VALUES (11, 'Торт', null)"
+            , "UPDATE primary_keys  SET next_val = '12' WHERE name = 'tag_id'"
     );
 
     private static DbConstructor instance;
@@ -232,7 +254,8 @@ public class DbConstructor {
         createTableQueryList.add(SQL_CREATE_TABLE_RECIPES);
         createTableQueryList.add(SQL_CREATE_TABLE_RECIPES_TAGS);
         createTableQueryList.add(SQL_CREATE_TABLE_INGREDIENTS);
-        createTableQueryList.add(SQL_CREATE_TABLE_PROFILES);
+        createTableQueryList.add(SQL_CREATE_TABLE_MENU_TYPES);
+        createTableQueryList.add(SQL_CREATE_TABLE_MENUS);
         createTableQueryList.add(SQL_CREATE_TABLE_WEEKS);
         createTableQueryList.add(SQL_CREATE_TABLE_DAYS);
         createTableQueryList.add(SQL_CREATE_TABLE_MEALS);

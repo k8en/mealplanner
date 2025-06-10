@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       style="height: 100%;">
 <head>
-    <title>Удаление информации о профиле питания</title>
+    <title>Удаление информации о меню</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" th:href="@{/styles/common.css}">
 </head>
@@ -12,12 +12,12 @@
     <div th:replace="~{fragment_header :: header}"/>
     <div class="content">
 
-        <h3>Удаление информации о профиле питания</h3>
+        <h3>Удаление информации о меню</h3>
 
         <div class="form_block">
-            <form action="#" th:action="@{'/profiles/' + ${profile.profileId} + '/delete'}" method="post" th:object="${profile}">
-                <input type="hidden" th:field="*{profileId}"/>
-                <input type="hidden" th:field="*{profileTypeId}"/>
+            <form action="#" th:action="@{'/menus/' + ${menu.menuId} + '/delete'}" method="post" th:object="${menu}">
+                <input type="hidden" th:field="*{menuId}"/>
+                <input type="hidden" th:field="*{menuTypeId}"/>
 
                 <div class="form_element">
                     <label for="f_name">Название</label>

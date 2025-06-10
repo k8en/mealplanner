@@ -5,7 +5,7 @@ import java.util.Objects;
 public class Week {
 
     private Integer weekId;
-    private Integer profileId;
+    private Integer menuId;
     private String name;
     private Integer orderNumber;
 
@@ -17,12 +17,12 @@ public class Week {
         this.weekId = weekId;
     }
 
-    public Integer getProfileId() {
-        return profileId;
+    public Integer getMenuId() {
+        return menuId;
     }
 
-    public void setProfileId(Integer profileId) {
-        this.profileId = profileId;
+    public void setMenuId(Integer menuId) {
+        this.menuId = menuId;
     }
 
     public String getName() {
@@ -45,7 +45,7 @@ public class Week {
     public String toString() {
         return "Week{" +
                 "weekId=" + weekId +
-                ", profileId=" + profileId +
+                ", menuId=" + menuId +
                 ", name='" + name + '\'' +
                 ", orderNumber=" + orderNumber +
                 '}';
@@ -57,13 +57,13 @@ public class Week {
         if (o == null || getClass() != o.getClass()) return false;
         Week week = (Week) o;
         return Objects.equals(weekId, week.weekId)
-                && Objects.equals(profileId, week.profileId)
+                && Objects.equals(menuId, week.menuId)
                 && Objects.equals(name, week.name)
                 && Objects.equals(orderNumber, week.orderNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(weekId, profileId, name, orderNumber);
+        return Objects.hash(weekId, menuId, name, orderNumber);
     }
 }

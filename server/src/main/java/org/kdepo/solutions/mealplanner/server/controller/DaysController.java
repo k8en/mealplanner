@@ -8,13 +8,13 @@ import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
 import org.kdepo.solutions.mealplanner.shared.Constants;
 import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
-import org.kdepo.solutions.mealplanner.shared.model.Profile;
+import org.kdepo.solutions.mealplanner.shared.model.Menu;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Week;
 import org.kdepo.solutions.mealplanner.shared.repository.DaysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
-import org.kdepo.solutions.mealplanner.shared.repository.ProfilesRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.MenusRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.WeeksRepository;
 import org.slf4j.Logger;
@@ -52,10 +52,10 @@ public class DaysController {
     private MealsRepository mealsRepository;
 
     @Autowired
-    private PrimaryKeysRepository primaryKeysRepository;
+    private MenusRepository menusRepository;
 
     @Autowired
-    private ProfilesRepository profilesRepository;
+    private PrimaryKeysRepository primaryKeysRepository;
 
     @Autowired
     private RecipesRepository recipesRepository;
@@ -86,12 +86,12 @@ public class DaysController {
         Day day = daysRepository.getDay(id);
         if (day == null) {
             LOGGER.warn("[WEB] Cannot show day details page: day {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canReadDay(userName, day.getDayId())) {
             LOGGER.warn("[WEB] Cannot show day details page: user '{}' has no access to day {}", userName, id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Prepare entities
@@ -124,9 +124,9 @@ public class DaysController {
 
     @GetMapping("/create")
     public String showDayCreationForm(Model model,
-                                      @RequestParam(value = "profile_id") Integer profileId,
+                                      @RequestParam(value = "menu_id") Integer menuId,
                                       @RequestParam(value = "week_id", required = false) Integer weekId) {
-        LOGGER.trace("[WEB] GET /days/create?profile_id={}&week_id={}", profileId, weekId);
+        LOGGER.trace("[WEB] GET /days/create?menu_id={}&week_id={}", menuId, weekId);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -136,25 +136,25 @@ public class DaysController {
             model.addAttribute("userName", userName);
         } else {
             LOGGER.warn("[WEB] Cannot show day creation form: anonymous users cannot create days");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
         if (!controlService.canCreateDay(userName)) {
             LOGGER.warn("[WEB] Cannot show day creation form: user '{}' cannot create days", userName);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
-        if (profileId == null) {
-            LOGGER.warn("[WEB] Cannot show day creation form: profile is not provided for day creation");
-            return "redirect:/profiles";
+        if (menuId == null) {
+            LOGGER.warn("[WEB] Cannot show day creation form: menu is not provided for day creation");
+            return "redirect:/menus";
         }
 
-        Profile profile = profilesRepository.getProfile(profileId);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Cannot show day creation form: profile {} was not found", profileId);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(menuId);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Cannot show day creation form: menu {} was not found", menuId);
+            return "redirect:/menus";
         }
 
         Week week = null;
@@ -162,27 +162,27 @@ public class DaysController {
             week = weeksRepository.getWeek(weekId);
             if (week == null) {
                 LOGGER.warn("[WEB] Cannot show day creation form: week {} was not found", weekId);
-                return "redirect:/profiles";
+                return "redirect:/menus";
             }
         }
 
-        if (week != null && Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
-            LOGGER.warn("[WEB] Cannot show day creation form: profile {} type mismatch - week is provided, but this this is DAYS_WITHOUT_GROUPING", profileId);
-            return "redirect:/profiles";
+        if (week != null && Constants.MenuType.DAYS_WITHOUT_GROUPING.equals(menu.getMenuTypeId())) {
+            LOGGER.warn("[WEB] Cannot show day creation form: menu {} type mismatch - week is provided, but this this is DAYS_WITHOUT_GROUPING", menuId);
+            return "redirect:/menus";
         }
 
-        if (week == null && Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
-            LOGGER.warn("[WEB] Cannot show day creation form: profile {} type mismatch - week is not provided, but this is DAYS_GROUPED_BY_WEEKS", profileId);
-            return "redirect:/profiles";
+        if (week == null && Constants.MenuType.DAYS_GROUPED_BY_WEEKS.equals(menu.getMenuTypeId())) {
+            LOGGER.warn("[WEB] Cannot show day creation form: menu {} type mismatch - week is not provided, but this is DAYS_GROUPED_BY_WEEKS", menuId);
+            return "redirect:/menus";
         }
 
-        model.addAttribute("profile", profile);
+        model.addAttribute("menu", menu);
         model.addAttribute("week", week);
 
         String name;
         Integer orderNumber;
         if (week == null) {
-            List<Day> daysList = daysRepository.getAllDaysFromProfile(profileId);
+            List<Day> daysList = daysRepository.getAllDaysFromMenu(menuId);
             orderNumber = daysList.size() + 1;
             name = "День " + orderNumber;
         } else {
@@ -213,7 +213,7 @@ public class DaysController {
         // Prepare entity with default values
         Day day = new Day();
         day.setDayId(-1);
-        day.setProfileId(profileId);
+        day.setMenuId(menuId);
         day.setWeekId(weekId);
         day.setName(name);
         day.setOrderNumber(orderNumber);
@@ -234,13 +234,13 @@ public class DaysController {
             userName = authentication.getName();
         } else {
             LOGGER.warn("[WEB] Cannot accept day creation form: anonymous users cannot create days");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Operation availability checks
         if (!controlService.canCreateDay(userName)) {
             LOGGER.warn("[WEB] Cannot accept day creation form: user '{}' cannot create days", userName);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Validate that provided data is correct
@@ -257,40 +257,40 @@ public class DaysController {
             return "day_create";
         }
 
-        Integer profileId = day.getProfileId();
+        Integer menuId = day.getMenuId();
         Integer weekId = day.getWeekId();
 
-        if (profileId == null) {
-            LOGGER.warn("[WEB] Profile is not provided for day creation");
-            return "redirect:/profiles";
+        if (menuId == null) {
+            LOGGER.warn("[WEB] Menu is not provided for day creation");
+            return "redirect:/menus";
         }
 
-        Profile profile = profilesRepository.getProfile(profileId);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Profile {} was not found", profileId);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(menuId);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Menu {} was not found", menuId);
+            return "redirect:/menus";
         }
 
-        if (!controlService.canReadProfile(userName, profileId)) {
-            LOGGER.warn("[WEB] Cannot accept day creation form: user '{}' has no access to profile {}", userName, profileId);
-            return "redirect:/profiles";
+        if (!controlService.canReadMenu(userName, menuId)) {
+            LOGGER.warn("[WEB] Cannot accept day creation form: user '{}' has no access to menu {}", userName, menuId);
+            return "redirect:/menus";
         }
 
-        int profileTypeId;
+        int menuTypeId;
         if (weekId != null) {
             // Split by weeks
             Week week = weeksRepository.getWeek(weekId);
             if (week == null) {
                 LOGGER.warn("[WEB] Cannot accept day creation form: week {} was not found", weekId);
-                return "redirect:/profiles/" + profile.getProfileId();
+                return "redirect:/menus/" + menu.getMenuId();
             }
-            if (!week.getProfileId().equals(profile.getProfileId())) {
-                LOGGER.warn("[WEB] Cannot accept day creation form: profile {} mismatch with profile {} from week {}", profileId, week.getProfileId(), weekId);
-                return "redirect:/profiles/" + profile.getProfileId();
+            if (!week.getMenuId().equals(menu.getMenuId())) {
+                LOGGER.warn("[WEB] Cannot accept day creation form: menu {} mismatch with menu {} from week {}", menuId, week.getMenuId(), weekId);
+                return "redirect:/menus/" + menu.getMenuId();
             }
             day.setWeekId(weekId);
 
-            profileTypeId = Constants.ProfileType.DAYS_GROUPED_BY_WEEKS;
+            menuTypeId = Constants.MenuType.DAYS_GROUPED_BY_WEEKS;
 
             List<Day> daysList = daysRepository.getAllDaysFromWeek(weekId);
             int orderNumber = daysList.size() + 1;
@@ -305,9 +305,9 @@ public class DaysController {
 
         } else {
             // Split by days
-            profileTypeId = Constants.ProfileType.DAYS_WITHOUT_GROUPING;
+            menuTypeId = Constants.MenuType.DAYS_WITHOUT_GROUPING;
 
-            List<Day> daysList = daysRepository.getAllDaysFromProfile(profileId);
+            List<Day> daysList = daysRepository.getAllDaysFromMenu(menuId);
             int orderNumber = daysList.size() + 1;
             day.setOrderNumber(orderNumber);
 
@@ -321,7 +321,7 @@ public class DaysController {
         // Create entity
         Day createdDay = daysRepository.addDay(
                 day.getDayId(),
-                day.getProfileId(),
+                day.getMenuId(),
                 day.getWeekId(),
                 day.getName(),
                 day.getOrderNumber()
@@ -330,26 +330,26 @@ public class DaysController {
         // Register operation in system events log
         logService.registerDayCreated(userName, createdDay);
 
-        // Check and update profile if necessary
-        if (Constants.ProfileType.UNDEFINED.equals(profile.getProfileTypeId())) {
-            Profile oldData = profilesRepository.getProfile(profileId);
+        // Check and update menu if necessary
+        if (Constants.MenuType.UNDEFINED.equals(menu.getMenuTypeId())) {
+            Menu oldData = menusRepository.getMenu(menuId);
 
-            profile.setProfileTypeId(profileTypeId);
-            profilesRepository.updateProfile(
-                    profile.getProfileId(),
-                    profile.getProfileTypeId(),
-                    profile.getName(),
-                    profile.getActive()
+            menu.setMenuTypeId(menuTypeId);
+            menusRepository.updateMenu(
+                    menu.getMenuId(),
+                    menu.getMenuTypeId(),
+                    menu.getName(),
+                    menu.getActive()
             );
 
             // Register operation in system events log
-            logService.registerProfileUpdated(userName, oldData, profile);
+            logService.registerMenuUpdated(userName, oldData, menu);
         }
 
         if (weekId != null) {
             return "redirect:/weeks/" + weekId;
         } else {
-            return "redirect:/profiles/" + profile.getProfileId();
+            return "redirect:/menus/" + menu.getMenuId();
         }
     }
 
@@ -372,7 +372,7 @@ public class DaysController {
         Day day = daysRepository.getDay(id);
         if (day == null) {
             LOGGER.warn("[WEB] Cannot show day modification form: day {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canModifyDay(userName, day.getDayId())) {
@@ -402,12 +402,12 @@ public class DaysController {
         Day dayFromDb = daysRepository.getDay(day.getDayId());
         if (dayFromDb == null) {
             LOGGER.warn("[WEB] Cannot accept day modification form: day {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!day.getDayId().equals(id)) {
             LOGGER.warn("[WEB] Cannot accept day modification form: day id mismatch: {} and {}", day.getDayId(), id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canModifyDay(userName, dayFromDb.getDayId())) {
@@ -430,14 +430,14 @@ public class DaysController {
         }
 
         // Adjust not editable data
-        day.setProfileId(dayFromDb.getProfileId());
+        day.setMenuId(dayFromDb.getMenuId());
         day.setWeekId(dayFromDb.getWeekId());
         day.setOrderNumber(dayFromDb.getOrderNumber());
 
         // Update entity
         daysRepository.updateDay(
                 day.getDayId(),
-                day.getProfileId(),
+                day.getMenuId(),
                 day.getWeekId(),
                 day.getName(),
                 day.getOrderNumber()
@@ -468,7 +468,7 @@ public class DaysController {
         Day day = daysRepository.getDay(id);
         if (day == null) {
             LOGGER.warn("[WEB] Cannot show day deletion form: day {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canDeleteDay(userName, day.getDayId())) {
@@ -498,7 +498,7 @@ public class DaysController {
         Day dayFromDb = daysRepository.getDay(id);
         if (dayFromDb == null) {
             LOGGER.warn("[WEB] Cannot accept day deletion form: day {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canDeleteDay(userName, dayFromDb.getDayId())) {
@@ -506,7 +506,7 @@ public class DaysController {
             return "redirect:/days/" + dayFromDb.getDayId();
         }
 
-        Profile profile = profilesRepository.getProfile(dayFromDb.getProfileId());
+        Menu menu = menusRepository.getMenu(dayFromDb.getMenuId());
 
         // Delete dependent entities
         List<Meal> mealsList = mealsRepository.getAllMealsFromDay(dayFromDb.getDayId());
@@ -525,29 +525,29 @@ public class DaysController {
         // Register operation in system events log
         logService.registerDayDeleted(userName, dayFromDb.getDayId());
 
-        // Update profile type if no more days
-        if (Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
-            List<Day> daysList = daysRepository.getAllDaysFromProfile(profile.getProfileId());
+        // Update menu type if no more days
+        if (Constants.MenuType.DAYS_WITHOUT_GROUPING.equals(menu.getMenuTypeId())) {
+            List<Day> daysList = daysRepository.getAllDaysFromMenu(menu.getMenuId());
             if (daysList.isEmpty()) {
-                Profile oldData = profilesRepository.getProfile(dayFromDb.getProfileId());
+                Menu oldData = menusRepository.getMenu(dayFromDb.getMenuId());
 
-                profile.setProfileTypeId(Constants.ProfileType.UNDEFINED);
-                profilesRepository.updateProfile(
-                        profile.getProfileId(),
-                        profile.getProfileTypeId(),
-                        profile.getName(),
-                        profile.getActive()
+                menu.setMenuTypeId(Constants.MenuType.UNDEFINED);
+                menusRepository.updateMenu(
+                        menu.getMenuId(),
+                        menu.getMenuTypeId(),
+                        menu.getName(),
+                        menu.getActive()
                 );
 
                 // Register operation in system events log
-                logService.registerProfileUpdated(userName, oldData, profile);
+                logService.registerMenuUpdated(userName, oldData, menu);
             }
         }
 
-        // Redirect depends on profile type
-        if (Constants.ProfileType.UNDEFINED.equals(profile.getProfileTypeId())
-                || Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
-            return "redirect:/profiles/" + profile.getProfileId();
+        // Redirect depends on menu type
+        if (Constants.MenuType.UNDEFINED.equals(menu.getMenuTypeId())
+                || Constants.MenuType.DAYS_WITHOUT_GROUPING.equals(menu.getMenuTypeId())) {
+            return "redirect:/menus/" + menu.getMenuId();
         } else {
             return "redirect:/weeks/" + dayFromDb.getWeekId();
         }

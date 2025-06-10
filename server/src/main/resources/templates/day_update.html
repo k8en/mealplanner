@@ -17,7 +17,7 @@
         <div class="form_block">
             <form action="#" th:action="@{'/days/' + ${day.dayId} + '/update'}" method="post" th:object="${day}">
                 <input type="hidden" th:field="*{dayId}"/>
-                <input type="hidden" th:field="*{profileId}"/>
+                <input type="hidden" th:field="*{menuId}"/>
                 <input type="hidden" th:field="*{weekId}"/>
 
                 <div class="form_element">

@@ -2,18 +2,18 @@ package org.kdepo.solutions.mealplanner.server.dto;
 
 import java.util.List;
 
-public class ProfileDto {
+public class MenuDto {
 
-    private Integer profileId;
+    private Integer menuId;
     private String name;
     private List<WeekDto> weeks;
 
-    public Integer getProfileId() {
-        return profileId;
+    public Integer getMenuId() {
+        return menuId;
     }
 
-    public void setProfileId(Integer profileId) {
-        this.profileId = profileId;
+    public void setMenuId(Integer menuId) {
+        this.menuId = menuId;
     }
 
     public String getName() {

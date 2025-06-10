@@ -81,19 +81,19 @@ public class OperationsControlService {
         return true;
     }
 
-    public boolean canReadProfile(String userName, Integer profileId) {
+    public boolean canReadMenu(String userName, Integer menuId) {
         return true;
     }
 
-    public boolean canCreateProfile(String userName) {
+    public boolean canCreateMenu(String userName) {
         return true;
     }
 
-    public boolean canModifyProfile(String userName, Integer profileId) {
+    public boolean canModifyMenu(String userName, Integer menuId) {
         return true;
     }
 
-    public boolean canDeleteProfile(String userName, Integer profileId) {
+    public boolean canDeleteMenu(String userName, Integer menuId) {
         return true;
     }
 

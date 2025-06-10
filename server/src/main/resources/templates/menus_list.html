@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       style="height: 100%;">
 <head>
-    <title>Список профилей питания</title>
+    <title>Список меню</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" th:href="@{/styles/common.css}">
 </head>
@@ -13,12 +13,12 @@
     <div class="content">
 
         <div class="ctrl_panel" th:if="${isLoggedIn}">
-            <span class="ctrl_button"><a href="/profiles/create">Добавить новый профиль питания</a></span>
+            <span class="ctrl_button"><a href="/menus/create">Добавить новое меню</a></span>
         </div>
 
-        <h3>Список профилей питания</h3>
+        <h3>Список меню</h3>
 
-        <div th:switch="${#lists.size(profiles)}">
+        <div th:switch="${#lists.size(menus)}">
             <span th:case="'0'">Нет информации для отображения</span>
             <div th:case="*">
                 <table class="table">
@@ -26,9 +26,9 @@
                         <th class="th">Название</th>
                         <th class="th">Примечание</th>
                     </tr>
-                    <tr class="tr" th:each="profile : ${profiles}">
-                        <td class="td"><a th:href="@{'/profiles/' + ${profile.profileId}}"><span th:text="${profile.name}"></span></a></td>
-                        <td class="td"><span th:if="${profile.active}">Активный профиль питания</span></td>
+                    <tr class="tr" th:each="menu : ${menus}">
+                        <td class="td"><a th:href="@{'/menus/' + ${menu.menuId}}"><span th:text="${menu.name}"></span></a></td>
+                        <td class="td"><span th:if="${menu.active}">Активное меню</span></td>
                     </tr>
                 </table>
             </div>

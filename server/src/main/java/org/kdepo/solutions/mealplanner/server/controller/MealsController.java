@@ -77,12 +77,12 @@ public class MealsController {
         Meal meal = mealsRepository.getMeal(id);
         if (meal == null) {
             LOGGER.warn("[WEB] Cannot show meal details page: meal {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canReadMeal(userName, meal.getMealId())) {
             LOGGER.warn("[WEB] Cannot show meal details page: user '{}' has no access to meal {}", userName, id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Prepare entities
@@ -115,25 +115,25 @@ public class MealsController {
             model.addAttribute("userName", userName);
         } else {
             LOGGER.warn("[WEB] Cannot show meal creation form: anonymous users cannot create meals");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
         if (!controlService.canCreateMeal(userName)) {
             LOGGER.warn("[WEB] Cannot show meal creation form: user '{}' cannot create meals", userName);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (dayId == null) {
             LOGGER.warn("[WEB] Cannot show meal creation form: day is not provided");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         Day day = daysRepository.getDay(dayId);
         if (day == null) {
             LOGGER.warn("[WEB] Cannot show meal creation form: day {} was not found", dayId);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Prepare entity with default values
@@ -162,13 +162,13 @@ public class MealsController {
             userName = authentication.getName();
         } else {
             LOGGER.warn("[WEB] Cannot accept meal creation form: anonymous users cannot create meals");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Operation availability checks
         if (!controlService.canCreateMeal(userName)) {
             LOGGER.warn("[WEB] Cannot accept meal creation form: user '{}' cannot create meals", userName);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Validate that provided data is correct
@@ -188,13 +188,13 @@ public class MealsController {
         Integer dayId = meal.getDayId();
         if (dayId == null) {
             LOGGER.warn("[WEB] Cannot accept meal creation form: day is not provided");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         Day day = daysRepository.getDay(dayId);
         if (day == null) {
             LOGGER.warn("[WEB] Cannot accept meal creation form: day {} was not found", dayId);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         List<Meal> mealsList = mealsRepository.getAllMealsFromDay(day.getDayId());
@@ -239,7 +239,7 @@ public class MealsController {
         Meal meal = mealsRepository.getMeal(id);
         if (meal == null) {
             LOGGER.warn("[WEB] Cannot show meal modification form: meal {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canModifyMeal(userName, meal.getMealId())) {
@@ -269,12 +269,12 @@ public class MealsController {
         Meal mealFromDb = mealsRepository.getMeal(meal.getMealId());
         if (mealFromDb == null) {
             LOGGER.warn("[WEB] Cannot accept meal modification form: meal {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!meal.getMealId().equals(id)) {
             LOGGER.warn("[WEB] Cannot accept meal modification form: meal id mismatch: {} and {}", meal.getMealId(), id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canModifyMeal(userName, mealFromDb.getMealId())) {
@@ -339,7 +339,7 @@ public class MealsController {
         Meal meal = mealsRepository.getMeal(id);
         if (meal == null) {
             LOGGER.warn("[WEB] Cannot show meal deletion form: meal {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canDeleteMeal(userName, meal.getMealId())) {
@@ -369,7 +369,7 @@ public class MealsController {
         Meal mealFromDb = mealsRepository.getMeal(id);
         if (mealFromDb == null) {
             LOGGER.warn("[WEB] Cannot accept meal deletion form: meal {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canDeleteMeal(userName, mealFromDb.getMealId())) {
@@ -404,13 +404,13 @@ public class MealsController {
             userName = authentication.getName();
         } else {
             LOGGER.warn("[WEB] Cannot show recipes set form: anonymous users cannot set recipes on meals");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         Meal meal = mealsRepository.getMeal(id);
         if (meal == null) {
             LOGGER.warn("[WEB] Cannot show recipes set form: meal {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canModifyMeal(userName, meal.getMealId())) {
@@ -451,13 +451,13 @@ public class MealsController {
             userName = authentication.getName();
         } else {
             LOGGER.warn("[WEB] Cannot accept recipes set form: anonymous users cannot set recipes on meals");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         Meal meal = mealsRepository.getMeal(id);
         if (meal == null) {
             LOGGER.warn("[WEB] Cannot accept recipes set form: meal {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canModifyMeal(userName, meal.getMealId())) {

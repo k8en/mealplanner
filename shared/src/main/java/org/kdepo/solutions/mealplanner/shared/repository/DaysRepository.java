@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface DaysRepository {
 
-    Day addDay(Integer dayId, Integer profileId, Integer weekId, String name, Integer orderNumber);
+    Day addDay(Integer dayId, Integer menuId, Integer weekId, String name, Integer orderNumber);
 
     void deleteDay(Integer dayId);
 
-    List<Day> getAllDaysFromProfile(Integer profileId);
+    List<Day> getAllDaysFromMenu(Integer menuId);
 
     List<Day> getAllDaysFromWeek(Integer weekId);
 
@@ -20,6 +20,6 @@ public interface DaysRepository {
 
     boolean isUsed(Integer dayId);
 
-    void updateDay(Integer dayId, Integer profileId, Integer weekId, String name, Integer orderNumber);
+    void updateDay(Integer dayId, Integer menuId, Integer weekId, String name, Integer orderNumber);
 
 }

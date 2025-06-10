@@ -936,16 +936,16 @@ public class Robot {
         clickOnElement("submit");
     }
 
-    public void openProfilesListPage() {
-        System.out.println("[QA] Open profiles list page");
+    public void openMenusListPage() {
+        System.out.println("[QA] Open menus list page");
 
-        String url = serverAddress + "/profiles";
+        String url = serverAddress + "/menus";
 
         navigate(url);
 
         String pageTitle = driver.getTitle();
-        if (!RobotConstants.PageTitle.PROFILES_LIST.equals(pageTitle)) {
-            throw new UrlNotLoadedException("Error! Profiles list page not accessible. Actual page title is '" + pageTitle + "'");
+        if (!RobotConstants.PageTitle.MENUS_LIST.equals(pageTitle)) {
+            throw new UrlNotLoadedException("Error! Menus list page not accessible. Actual page title is '" + pageTitle + "'");
         }
     }
 }

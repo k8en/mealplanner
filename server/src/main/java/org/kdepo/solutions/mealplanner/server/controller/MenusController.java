@@ -11,17 +11,17 @@ import org.kdepo.solutions.mealplanner.shared.Constants;
 import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
+import org.kdepo.solutions.mealplanner.shared.model.Menu;
 import org.kdepo.solutions.mealplanner.shared.model.Product;
-import org.kdepo.solutions.mealplanner.shared.model.Profile;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Unit;
 import org.kdepo.solutions.mealplanner.shared.model.Week;
 import org.kdepo.solutions.mealplanner.shared.repository.DaysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.IngredientsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.MenusRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.ProductsRepository;
-import org.kdepo.solutions.mealplanner.shared.repository.ProfilesRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.UnitsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.WeeksRepository;
@@ -47,12 +47,12 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/profiles")
-public class ProfilesController {
+@RequestMapping("/menus")
+public class MenusController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProfilesController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MenusController.class);
 
-    private static final String PK = "profile_id";
+    private static final String PK = "menu_id";
 
     @Autowired
     private DaysRepository daysRepository;
@@ -64,13 +64,13 @@ public class ProfilesController {
     private MealsRepository mealsRepository;
 
     @Autowired
+    private MenusRepository menusRepository;
+
+    @Autowired
     private PrimaryKeysRepository primaryKeysRepository;
 
     @Autowired
     private ProductsRepository productsRepository;
-
-    @Autowired
-    private ProfilesRepository profilesRepository;
 
     @Autowired
     private RecipesRepository recipesRepository;
@@ -88,8 +88,8 @@ public class ProfilesController {
     private OperationsLogService logService;
 
     @GetMapping
-    public String showProfilesListPage(Model model) {
-        LOGGER.trace("[WEB] GET /profiles");
+    public String showMenusListPage(Model model) {
+        LOGGER.trace("[WEB] GET /menus");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -98,21 +98,21 @@ public class ProfilesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("[WEB] Cannot show profiles list page: anonymous user cannot read profiles list");
+            LOGGER.warn("[WEB] Cannot show menu list page: anonymous user cannot read menus list");
             return "redirect:/recipes";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Prepare entities
-        List<Profile> profiles = profilesRepository.getAllProfiles();
-        model.addAttribute("profiles", profiles);
+        List<Menu> menus = menusRepository.getAllMenus();
+        model.addAttribute("menus", menus);
 
-        return "profiles_list";
+        return "menus_list";
     }
 
     @GetMapping("/{id}")
-    public String showProfileDetailsPage(@PathVariable Integer id, Model model) {
-        LOGGER.trace("[WEB] GET /profiles/{}", id);
+    public String showMenuDetailsPage(@PathVariable Integer id, Model model) {
+        LOGGER.trace("[WEB] GET /menus/{}", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -121,28 +121,28 @@ public class ProfilesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("[WEB] Cannot show profile details page: anonymous user cannot read profile details");
-            return "redirect:/profiles";
+            LOGGER.warn("[WEB] Cannot show menu details page: anonymous user cannot read menu details");
+            return "redirect:/menus";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
-        Profile profile = profilesRepository.getProfile(id);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Cannot show profile details page: profile {} was not found", id);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(id);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Cannot show menu details page: menu {} was not found", id);
+            return "redirect:/menus";
         }
 
-        if (!controlService.canReadProfile(userName, profile.getProfileId())) {
-            LOGGER.warn("[WEB] Cannot show profile details page: user '{}' has no access to profile {}", userName, id);
-            return "redirect:/profiles";
+        if (!controlService.canReadMenu(userName, menu.getMenuId())) {
+            LOGGER.warn("[WEB] Cannot show menu details page: user '{}' has no access to menu {}", userName, id);
+            return "redirect:/menus";
         }
 
         // Prepare entities
-        model.addAttribute("profile", profile);
+        model.addAttribute("menu", menu);
 
-        if (Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
-            List<Day> daysList = daysRepository.getAllDaysFromProfile(profile.getProfileId());
+        if (Constants.MenuType.DAYS_WITHOUT_GROUPING.equals(menu.getMenuTypeId())) {
+            List<Day> daysList = daysRepository.getAllDaysFromMenu(menu.getMenuId());
             List<DayDto> days = new ArrayList<>();
             for (Day day : daysList) {
                 DayDto dayDto = new DayDto();
@@ -175,8 +175,8 @@ public class ProfilesController {
             }
             model.addAttribute("days", days);
 
-        } else if (Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
-            List<Week> weeksList = weeksRepository.getAllWeeksFromProfile(profile.getProfileId());
+        } else if (Constants.MenuType.DAYS_GROUPED_BY_WEEKS.equals(menu.getMenuTypeId())) {
+            List<Week> weeksList = weeksRepository.getAllWeeksFromMenu(menu.getMenuId());
             List<WeekDto> weeks = new ArrayList<>();
             for (Week week : weeksList) {
                 WeekDto weekDto = new WeekDto();
@@ -221,12 +221,12 @@ public class ProfilesController {
             model.addAttribute("weeks", weeks);
         }
 
-        return "profile_details";
+        return "menu_details";
     }
 
     @GetMapping("/create")
-    public String showProfileCreationForm(Model model) {
-        LOGGER.trace("[WEB] GET /profiles/create");
+    public String showMenuCreationForm(Model model) {
+        LOGGER.trace("[WEB] GET /menus/create");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -235,31 +235,31 @@ public class ProfilesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("[WEB] Cannot show profile creation form: anonymous user cannot create profiles");
-            return "redirect:/profiles";
+            LOGGER.warn("[WEB] Cannot show menu creation form: anonymous user cannot create menu");
+            return "redirect:/menus";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
-        if (!controlService.canCreateProfile(userName)) {
-            LOGGER.warn("[WEB] Cannot show profile creation form: user '{}' cannot create profiles", userName);
-            return "redirect:/profiles";
+        if (!controlService.canCreateMenu(userName)) {
+            LOGGER.warn("[WEB] Cannot show menu creation form: user '{}' cannot create menus", userName);
+            return "redirect:/menus";
         }
 
         // Prepare entity with default values
-        Profile profile = new Profile();
-        profile.setProfileId(-1);
-        profile.setProfileTypeId(Constants.ProfileType.UNDEFINED);
-        profile.setActive(false);
+        Menu menu = new Menu();
+        menu.setMenuId(-1);
+        menu.setMenuTypeId(Constants.MenuType.UNDEFINED);
+        menu.setActive(false);
 
-        model.addAttribute("profile", profile);
+        model.addAttribute("menu", menu);
 
-        return "profile_create";
+        return "menu_create";
     }
 
     @PostMapping("/create")
-    public String acceptProfileCreationForm(@Valid Profile profile, BindingResult result) {
-        LOGGER.trace("[WEB] POST /profiles/create");
+    public String acceptMenuCreationForm(@Valid Menu menu, BindingResult result) {
+        LOGGER.trace("[WEB] POST /menus/create");
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -267,61 +267,61 @@ public class ProfilesController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            LOGGER.warn("[WEB] Cannot accept profile creation form: anonymous user cannot create profiles");
-            return "redirect:/profiles";
+            LOGGER.warn("[WEB] Cannot accept menu creation form: anonymous user cannot create menus");
+            return "redirect:/menus";
         }
 
         // Operation availability checks
-        if (!controlService.canCreateProfile(userName)) {
-            LOGGER.warn("[WEB] Cannot accept profile creation form: user '{}' cannot create profiles", userName);
-            return "redirect:/profiles";
+        if (!controlService.canCreateMenu(userName)) {
+            LOGGER.warn("[WEB] Cannot accept menu creation form: user '{}' cannot create menus", userName);
+            return "redirect:/menus";
         }
 
         // Validate that provided data is correct
-        String profileName = profile.getName();
-        if (profileName == null || profileName.isEmpty()) {
-            FieldError fieldError = new FieldError("profile", "name", "Поле не может быть пустым!");
+        String menuName = menu.getName();
+        if (menuName == null || menuName.isEmpty()) {
+            FieldError fieldError = new FieldError("menu", "name", "Поле не может быть пустым!");
             result.addError(fieldError);
-            return "profile_create";
+            return "menu_create";
         }
 
-        if (profileName.length() > 50) {
-            FieldError fieldError = new FieldError("profile", "name", "Название не может быть длиннее 50 символов!");
+        if (menuName.length() > 50) {
+            FieldError fieldError = new FieldError("menu", "name", "Название не может быть длиннее 50 символов!");
             result.addError(fieldError);
-            return "profile_create";
+            return "menu_create";
         }
 
-        // Adjust profile type id
-        if (!Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())
-                && !Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
-            profile.setProfileTypeId(Constants.ProfileType.UNDEFINED);
+        // Adjust menu type id
+        if (!Constants.MenuType.DAYS_WITHOUT_GROUPING.equals(menu.getMenuTypeId())
+                && !Constants.MenuType.DAYS_GROUPED_BY_WEEKS.equals(menu.getMenuTypeId())) {
+            menu.setMenuTypeId(Constants.MenuType.UNDEFINED);
         }
 
         // Generate primary key for new entity
-        Integer profileId = primaryKeysRepository.getNextVal(PK);
+        Integer menuId = primaryKeysRepository.getNextVal(PK);
         primaryKeysRepository.moveNextVal(PK);
-        profile.setProfileId(profileId);
+        menu.setMenuId(menuId);
 
-        List<Profile> profiles = profilesRepository.getAllProfiles();
-        boolean active = profiles.isEmpty();
+        List<Menu> menus = menusRepository.getAllMenus();
+        boolean active = menus.isEmpty();
 
         // Create entity
-        Profile createdProfile = profilesRepository.addProfile(
-                profile.getProfileId(),
-                profile.getProfileTypeId(),
-                profile.getName(),
+        Menu createdMenu = menusRepository.addMenu(
+                menu.getMenuId(),
+                menu.getMenuTypeId(),
+                menu.getName(),
                 active
         );
 
         // Register operation in system events log
-        logService.registerProfileCreated(userName, createdProfile);
+        logService.registerMenuCreated(userName, createdMenu);
 
-        return "redirect:/profiles/" + profile.getProfileId();
+        return "redirect:/menus/" + menu.getMenuId();
     }
 
     @GetMapping("/{id}/update")
-    public String showProfileModificationForm(@PathVariable Integer id, Model model) {
-        LOGGER.trace("[WEB] GET /profiles/{}/update", id);
+    public String showMenuModificationForm(@PathVariable Integer id, Model model) {
+        LOGGER.trace("[WEB] GET /menus/{}/update", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -330,30 +330,30 @@ public class ProfilesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("[WEB] Cannot show profile modification form: anonymous user cannot modify profiles");
-            return "redirect:/profiles/" + id;
+            LOGGER.warn("[WEB] Cannot show menu modification form: anonymous user cannot modify menus");
+            return "redirect:/menus/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
-        Profile profile = profilesRepository.getProfile(id);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Cannot show profile modification form: profile {} was not found", id);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(id);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Cannot show menu modification form: menu {} was not found", id);
+            return "redirect:/menus";
         }
 
-        if (!controlService.canModifyProfile(userName, profile.getProfileId())) {
-            LOGGER.warn("[WEB] Cannot show profile modification form: user '{}' has no access to profile {} modification", userName, id);
-            return "redirect:/profiles/" + profile.getProfileId();
+        if (!controlService.canModifyMenu(userName, menu.getMenuId())) {
+            LOGGER.warn("[WEB] Cannot show menu modification form: user '{}' has no access to menu {} modification", userName, id);
+            return "redirect:/menus/" + menu.getMenuId();
         }
 
-        model.addAttribute("profile", profile);
+        model.addAttribute("menu", menu);
 
-        return "profile_update";
+        return "menu_update";
     }
 
     @PostMapping("/{id}/update")
-    public String acceptProfileModificationForm(@Valid Profile profile, @PathVariable Integer id, BindingResult result) {
-        LOGGER.trace("[WEB] POST /profiles/{}/update", id);
+    public String acceptMenuModificationForm(@Valid Menu menu, @PathVariable Integer id, BindingResult result) {
+        LOGGER.trace("[WEB] POST /menus/{}/update", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -361,54 +361,54 @@ public class ProfilesController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            LOGGER.warn("[WEB] Cannot accept profile modification form: anonymous user cannot modify profiles");
-            return "redirect:/profiles/" + id;
+            LOGGER.warn("[WEB] Cannot accept menu modification form: anonymous user cannot modify menus");
+            return "redirect:/menus/" + id;
         }
 
-        Profile profileFromDb = profilesRepository.getProfile(profile.getProfileId());
-        if (profileFromDb == null) {
-            LOGGER.warn("[WEB] Cannot accept profile modification form: profile {} was not found", id);
-            return "redirect:/profiles";
+        Menu menuFromDb = menusRepository.getMenu(menu.getMenuId());
+        if (menuFromDb == null) {
+            LOGGER.warn("[WEB] Cannot accept menu modification form: menu {} was not found", id);
+            return "redirect:/menus";
         }
 
-        if (!controlService.canModifyProfile(userName, profileFromDb.getProfileId())) {
-            LOGGER.warn("[WEB] Cannot accept profile modification form: user '{}' has no access to profile {} modification", userName, id);
-            return "redirect:/profiles/" + profileFromDb.getProfileId();
+        if (!controlService.canModifyMenu(userName, menuFromDb.getMenuId())) {
+            LOGGER.warn("[WEB] Cannot accept menu modification form: user '{}' has no access to menu {} modification", userName, id);
+            return "redirect:/menus/" + menuFromDb.getMenuId();
         }
 
         // Validate that provided data is correct
-        String profileName = profile.getName();
-        if (profileName == null || profileName.isEmpty()) {
-            FieldError nameFieldError = new FieldError("profile", "name", "Поле не может быть пустым!");
+        String menuName = menu.getName();
+        if (menuName == null || menuName.isEmpty()) {
+            FieldError nameFieldError = new FieldError("menu", "name", "Поле не может быть пустым!");
             result.addError(nameFieldError);
-            return "profile_update";
+            return "menu_update";
         }
 
-        if (profileName.length() > 50) {
-            FieldError nameFieldError = new FieldError("profile", "name", "Название не может быть длиннее 50 символов!");
+        if (menuName.length() > 50) {
+            FieldError nameFieldError = new FieldError("menu", "name", "Название не может быть длиннее 50 символов!");
             result.addError(nameFieldError);
-            return "profile_update";
+            return "menu_update";
         }
 
-        profile.setActive(profileFromDb.getActive()); // Because this field is not present on the UI
+        menu.setActive(menuFromDb.getActive()); // Because this field is not present on the UI
 
         // Update entity
-        profilesRepository.updateProfile(
-                profile.getProfileId(),
-                profileFromDb.getProfileTypeId(),
-                profile.getName(),
-                profile.getActive()
+        menusRepository.updateMenu(
+                menu.getMenuId(),
+                menuFromDb.getMenuTypeId(),
+                menu.getName(),
+                menu.getActive()
         );
 
         // Register operation in system events log
-        logService.registerProfileUpdated(userName, profileFromDb, profile);
+        logService.registerMenuUpdated(userName, menuFromDb, menu);
 
-        return "redirect:/profiles/" + profile.getProfileId();
+        return "redirect:/menus/" + menu.getMenuId();
     }
 
     @GetMapping("/{id}/delete")
-    public String showProfileDeletionForm(@PathVariable Integer id, Model model) {
-        LOGGER.trace("[WEB] GET /profiles/{}/delete", id);
+    public String showMenuDeletionForm(@PathVariable Integer id, Model model) {
+        LOGGER.trace("[WEB] GET /menus/{}/delete", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -417,30 +417,30 @@ public class ProfilesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("[WEB] Cannot show profile deletion form: anonymous user cannot delete profiles");
-            return "redirect:/profiles/" + id;
+            LOGGER.warn("[WEB] Cannot show menu deletion form: anonymous user cannot delete menus");
+            return "redirect:/menus/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
-        Profile profile = profilesRepository.getProfile(id);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Cannot show profile deletion form: profile {} was not found", id);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(id);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Cannot show menu deletion form: menu {} was not found", id);
+            return "redirect:/menus";
         }
 
-        if (!controlService.canDeleteProfile(userName, profile.getProfileId())) {
-            LOGGER.warn("[WEB] Cannot show profile deletion form: user '{}' has no access to profile {} deletion", userName, id);
-            return "redirect:/profiles/" + profile.getProfileId();
+        if (!controlService.canDeleteMenu(userName, menu.getMenuId())) {
+            LOGGER.warn("[WEB] Cannot show menu deletion form: user '{}' has no access to menu {} deletion", userName, id);
+            return "redirect:/menus/" + menu.getMenuId();
         }
 
-        model.addAttribute("profile", profile);
+        model.addAttribute("menu", menu);
 
-        return "profile_delete";
+        return "menu_delete";
     }
 
     @PostMapping("/{id}/delete")
-    public String acceptProfileDeletionForm(@PathVariable Integer id) {
-        LOGGER.trace("[WEB] POST /profiles/{}/delete", id);
+    public String acceptMenuDeletionForm(@PathVariable Integer id) {
+        LOGGER.trace("[WEB] POST /menus/{}/delete", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -448,47 +448,47 @@ public class ProfilesController {
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
             userName = authentication.getName();
         } else {
-            LOGGER.warn("[WEB] Cannot accept profile deletion form: anonymous user cannot delete profiles");
-            return "redirect:/profiles/" + id;
+            LOGGER.warn("[WEB] Cannot accept menu deletion form: anonymous user cannot delete menus");
+            return "redirect:/menus/" + id;
         }
 
-        Profile profileFromDb = profilesRepository.getProfile(id);
-        if (profileFromDb == null) {
-            LOGGER.warn("[WEB] Cannot accept profile deletion form: profile {} was not found", id);
-            return "redirect:/profiles";
+        Menu menuFromDb = menusRepository.getMenu(id);
+        if (menuFromDb == null) {
+            LOGGER.warn("[WEB] Cannot accept menu deletion form: menu {} was not found", id);
+            return "redirect:/menus";
         }
 
-        if (!controlService.canDeleteProfile(userName, profileFromDb.getProfileId())) {
-            LOGGER.warn("[WEB] Cannot accept profile deletion form: user '{}' has no access to profile {} deletion", userName, id);
-            return "redirect:/profiles/" + profileFromDb.getProfileId();
+        if (!controlService.canDeleteMenu(userName, menuFromDb.getMenuId())) {
+            LOGGER.warn("[WEB] Cannot accept menu deletion form: user '{}' has no access to menu {} deletion", userName, id);
+            return "redirect:/menus/" + menuFromDb.getMenuId();
         }
 
         // Delete entity
-        profilesRepository.deleteProfile(profileFromDb.getProfileId());
+        menusRepository.deleteMenu(menuFromDb.getMenuId());
 
-        if (profileFromDb.getActive()) {
-            List<Profile> allProfiles = profilesRepository.getAllProfiles();
-            if (!allProfiles.isEmpty()) {
-                Profile nextActiveProfile = allProfiles.get(0);
-                nextActiveProfile.setActive(true);
-                profilesRepository.updateProfile(
-                        nextActiveProfile.getProfileId(),
-                        nextActiveProfile.getProfileTypeId(),
-                        nextActiveProfile.getName(),
-                        nextActiveProfile.getActive()
+        if (menuFromDb.getActive()) {
+            List<Menu> allMenus = menusRepository.getAllMenus();
+            if (!allMenus.isEmpty()) {
+                Menu nextActiveMenu = allMenus.get(0);
+                nextActiveMenu.setActive(true);
+                menusRepository.updateMenu(
+                        nextActiveMenu.getMenuId(),
+                        nextActiveMenu.getMenuTypeId(),
+                        nextActiveMenu.getName(),
+                        nextActiveMenu.getActive()
                 );
             }
         }
 
         // Register operation in system events log
-        logService.registerProfileDeleted(userName, profileFromDb.getProfileId());
+        logService.registerMenuDeleted(userName, menuFromDb.getMenuId());
 
-        return "redirect:/profiles";
+        return "redirect:/menus";
     }
 
     @GetMapping("/{id}/active")
-    public String setProfileActive(@PathVariable Integer id, Model model) {
-        LOGGER.trace("[WEB] GET /profiles/{}/active", id);
+    public String setMenuActive(@PathVariable Integer id, Model model) {
+        LOGGER.trace("[WEB] GET /menus/{}/active", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -497,60 +497,60 @@ public class ProfilesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("[WEB] Cannot set profile active: anonymous user cannot modify profiles");
-            return "redirect:/profiles/" + id;
+            LOGGER.warn("[WEB] Cannot set menu active: anonymous user cannot modify menus");
+            return "redirect:/menus/" + id;
         }
         model.addAttribute("isLoggedIn", userName != null);
 
-        Profile profile = profilesRepository.getProfile(id);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Cannot set profile active: profile {} was not found", id);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(id);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Cannot set menu active: menu {} was not found", id);
+            return "redirect:/menus";
         }
 
-        if (!controlService.canModifyProfile(userName, profile.getProfileId())) {
-            LOGGER.warn("[WEB] Cannot set profile active: user '{}' has no access to profile {} modification", userName, id);
-            return "redirect:/profiles/" + profile.getProfileId();
+        if (!controlService.canModifyMenu(userName, menu.getMenuId())) {
+            LOGGER.warn("[WEB] Cannot set menu active: user '{}' has no access to menu {} modification", userName, id);
+            return "redirect:/menus/" + menu.getMenuId();
         }
 
-        List<Profile> allProfiles = profilesRepository.getAllProfiles();
-        List<Profile> activeProfiles = allProfiles.stream()
-                .filter(Profile::getActive)
+        List<Menu> allMenus = menusRepository.getAllMenus();
+        List<Menu> activeMenus = allMenus.stream()
+                .filter(Menu::getActive)
                 .toList();
 
-        for (Profile activeProfile : activeProfiles) {
-            if (!profile.getProfileId().equals(activeProfile.getProfileId())) {
-                activeProfile.setActive(false);
-                profilesRepository.updateProfile(
-                        activeProfile.getProfileId(),
-                        activeProfile.getProfileTypeId(),
-                        activeProfile.getName(),
-                        activeProfile.getActive()
+        for (Menu activeMenu : activeMenus) {
+            if (!menu.getMenuId().equals(activeMenu.getMenuId())) {
+                activeMenu.setActive(false);
+                menusRepository.updateMenu(
+                        activeMenu.getMenuId(),
+                        activeMenu.getMenuTypeId(),
+                        activeMenu.getName(),
+                        activeMenu.getActive()
                 );
             }
         }
 
-        if (!profile.getActive()) {
-            profile.setActive(true);
-            profilesRepository.updateProfile(
-                    profile.getProfileId(),
-                    profile.getProfileTypeId(),
-                    profile.getName(),
-                    profile.getActive()
+        if (!menu.getActive()) {
+            menu.setActive(true);
+            menusRepository.updateMenu(
+                    menu.getMenuId(),
+                    menu.getMenuTypeId(),
+                    menu.getName(),
+                    menu.getActive()
             );
         }
 
-        model.addAttribute("profile", profile);
+        model.addAttribute("menu", menu);
 
-        return "redirect:/profiles/" + id;
+        return "redirect:/menus/" + id;
     }
 
     @GetMapping("/{id}/products")
-    public String showProfileProductsListPage(@PathVariable Integer id,
-                                              Model model,
-                                              @RequestParam(value = "day_id", required = false) Integer dayId,
-                                              @RequestParam(value = "week_id", required = false) Integer weekId) {
-        LOGGER.trace("[WEB] GET /profiles/{}/products", id);
+    public String showMenuProductsListPage(@PathVariable Integer id,
+                                           Model model,
+                                           @RequestParam(value = "day_id", required = false) Integer dayId,
+                                           @RequestParam(value = "week_id", required = false) Integer weekId) {
+        LOGGER.trace("[WEB] GET /menus/{}/products", id);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -559,25 +559,25 @@ public class ProfilesController {
             userName = authentication.getName();
             model.addAttribute("userName", userName);
         } else {
-            LOGGER.warn("[WEB] Cannot show profile products list page: anonymous user cannot read profile products list");
-            return "redirect:/profiles";
+            LOGGER.warn("[WEB] Cannot show menu products list page: anonymous user cannot read menu products list");
+            return "redirect:/menus";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
-        Profile profile = profilesRepository.getProfile(id);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Cannot show profile products list page: profile {} was not found", id);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(id);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Cannot show menu products list page: menu {} was not found", id);
+            return "redirect:/menus";
         }
 
-        if (!controlService.canReadProfile(userName, profile.getProfileId())) {
-            LOGGER.warn("[WEB] Cannot show profile products list page: user '{}' has no access to profile {}", userName, id);
-            return "redirect:/profiles";
+        if (!controlService.canReadMenu(userName, menu.getMenuId())) {
+            LOGGER.warn("[WEB] Cannot show menu products list page: user '{}' has no access to menu {}", userName, id);
+            return "redirect:/menus";
         }
 
         // Prepare entities
-        model.addAttribute("profile", profile);
+        model.addAttribute("menu", menu);
 
         // Collect recipes list
         List<Recipe> recipes = new ArrayList<>();
@@ -585,18 +585,18 @@ public class ProfilesController {
             // Collect recipes for one day only
             Day day = daysRepository.getDay(dayId);
             if (day == null) {
-                LOGGER.warn("[WEB] Cannot show profile products list page: day {} was not found", dayId);
-                return "redirect:/profiles";
+                LOGGER.warn("[WEB] Cannot show menu products list page: day {} was not found", dayId);
+                return "redirect:/menus";
             }
 
             if (!controlService.canReadDay(userName, day.getDayId())) {
-                LOGGER.warn("[WEB] Cannot show profile products list page: user '{}' has no access to day {}", userName, dayId);
-                return "redirect:/profiles";
+                LOGGER.warn("[WEB] Cannot show menu products list page: user '{}' has no access to day {}", userName, dayId);
+                return "redirect:/menus";
             }
 
-            if (!profile.getProfileId().equals(day.getProfileId())) {
-                LOGGER.warn("[WEB] Cannot show profile products list page: day {} doesn't match profile {}", dayId, profile.getProfileId());
-                return "redirect:/profiles";
+            if (!menu.getMenuId().equals(day.getMenuId())) {
+                LOGGER.warn("[WEB] Cannot show menu products list page: day {} doesn't match menu {}", dayId, menu.getMenuId());
+                return "redirect:/menus";
             }
 
             List<Meal> meals = mealsRepository.getAllMealsFromDay(day.getDayId());
@@ -608,18 +608,18 @@ public class ProfilesController {
             // Collect recipes for all days from week
             Week week = weeksRepository.getWeek(weekId);
             if (week == null) {
-                LOGGER.warn("[WEB] Cannot show profile products list page: week {} was not found", weekId);
-                return "redirect:/profiles";
+                LOGGER.warn("[WEB] Cannot show menu products list page: week {} was not found", weekId);
+                return "redirect:/menus";
             }
 
             if (!controlService.canReadWeek(userName, week.getWeekId())) {
-                LOGGER.warn("[WEB] Cannot show profile products list page: user '{}' has no access to week {}", userName, weekId);
-                return "redirect:/profiles";
+                LOGGER.warn("[WEB] Cannot show menu products list page: user '{}' has no access to week {}", userName, weekId);
+                return "redirect:/menus";
             }
 
-            if (!profile.getProfileId().equals(week.getProfileId())) {
-                LOGGER.warn("[WEB] Cannot show profile products list page: week {} doesn't match profile {}", weekId, profile.getProfileId());
-                return "redirect:/profiles";
+            if (!menu.getMenuId().equals(week.getMenuId())) {
+                LOGGER.warn("[WEB] Cannot show menu products list page: week {} doesn't match menu {}", weekId, menu.getMenuId());
+                return "redirect:/menus";
             }
 
             List<Day> days = daysRepository.getAllDaysFromWeek(week.getWeekId());
@@ -631,17 +631,17 @@ public class ProfilesController {
             }
 
         } else if (dayId == null && weekId == null) {
-            // Collect recipes for all profile
-            if (Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
-                List<Day> days = daysRepository.getAllDaysFromProfile(profile.getProfileId());
+            // Collect recipes for all menu
+            if (Constants.MenuType.DAYS_WITHOUT_GROUPING.equals(menu.getMenuTypeId())) {
+                List<Day> days = daysRepository.getAllDaysFromMenu(menu.getMenuId());
                 for (Day day : days) {
                     List<Meal> meals = mealsRepository.getAllMealsFromDay(day.getDayId());
                     for (Meal meal : meals) {
                         recipes.addAll(recipesRepository.getAllRecipesFromMeal(meal.getMealId()));
                     }
                 }
-            } else if (Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
-                List<Week> weeks = weeksRepository.getAllWeeksFromProfile(profile.getProfileId());
+            } else if (Constants.MenuType.DAYS_GROUPED_BY_WEEKS.equals(menu.getMenuTypeId())) {
+                List<Week> weeks = weeksRepository.getAllWeeksFromMenu(menu.getMenuId());
                 for (Week week : weeks) {
                     List<Day> days = daysRepository.getAllDaysFromWeek(week.getWeekId());
                     for (Day day : days) {
@@ -654,8 +654,8 @@ public class ProfilesController {
             }
 
         } else {
-            LOGGER.warn("[WEB] Cannot show profile products list page: too many parameters provided {} {}", dayId, weekId);
-            return "redirect:/profiles";
+            LOGGER.warn("[WEB] Cannot show menu products list page: too many parameters provided {} {}", dayId, weekId);
+            return "redirect:/menus";
         }
 
         // Collect ingredients from recipes
@@ -705,7 +705,6 @@ public class ProfilesController {
         }
         model.addAttribute("productsMap", productsMap);
 
-        return "profile_products";
+        return "menus_products";
     }
-
 }

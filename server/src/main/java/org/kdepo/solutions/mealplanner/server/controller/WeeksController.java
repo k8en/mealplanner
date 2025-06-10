@@ -9,13 +9,13 @@ import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
 import org.kdepo.solutions.mealplanner.shared.Constants;
 import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
-import org.kdepo.solutions.mealplanner.shared.model.Profile;
+import org.kdepo.solutions.mealplanner.shared.model.Menu;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Week;
 import org.kdepo.solutions.mealplanner.shared.repository.DaysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
-import org.kdepo.solutions.mealplanner.shared.repository.ProfilesRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.MenusRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.RecipesRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.WeeksRepository;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class WeeksController {
     private MealsRepository mealsRepository;
 
     @Autowired
-    private ProfilesRepository profilesRepository;
+    private MenusRepository menusRepository;
 
     @Autowired
     private PrimaryKeysRepository primaryKeysRepository;
@@ -87,12 +87,12 @@ public class WeeksController {
         Week week = weeksRepository.getWeek(id);
         if (week == null) {
             LOGGER.warn("[WEB] Cannot show week details page: week {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canReadWeek(userName, week.getWeekId())) {
             LOGGER.warn("[WEB] Cannot show week details page: user '{}' has no access to week {}", userName, id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Prepare entities
@@ -135,8 +135,8 @@ public class WeeksController {
     }
 
     @GetMapping("/create")
-    public String showWeekCreationForm(Model model, @RequestParam(value = "profile_id") Integer profileId) {
-        LOGGER.trace("[WEB] GET /weeks/create?profile_id={}", profileId);
+    public String showWeekCreationForm(Model model, @RequestParam(value = "menu_id") Integer menuId) {
+        LOGGER.trace("[WEB] GET /weeks/create?menu_id={}", menuId);
 
         // Authentication checks
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -146,37 +146,37 @@ public class WeeksController {
             model.addAttribute("userName", userName);
         } else {
             LOGGER.warn("[WEB] Cannot show week creation form: anonymous users cannot create weeks");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
         model.addAttribute("isLoggedIn", userName != null);
 
         // Operation availability checks
         if (!controlService.canCreateWeek(userName)) {
             LOGGER.warn("[WEB] Cannot show week creation form: user '{}' cannot create weeks", userName);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
-        if (profileId == null) {
-            LOGGER.warn("[WEB] Cannot show week creation form: profile is not provided for week creation");
-            return "redirect:/profiles";
+        if (menuId == null) {
+            LOGGER.warn("[WEB] Cannot show week creation form: menu is not provided for week creation");
+            return "redirect:/menus";
         }
 
-        Profile profile = profilesRepository.getProfile(profileId);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Cannot show week creation form: profile {} was not found", profileId);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(menuId);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Cannot show week creation form: menu {} was not found", menuId);
+            return "redirect:/menus";
         }
-        if (Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
-            LOGGER.warn("[WEB] Cannot show week creation form: profile {} type mismatch", profileId);
-            return "redirect:/profiles";
+        if (Constants.MenuType.DAYS_WITHOUT_GROUPING.equals(menu.getMenuTypeId())) {
+            LOGGER.warn("[WEB] Cannot show week creation form: menu {} type mismatch", menuId);
+            return "redirect:/menus";
         }
-        model.addAttribute("profile", profile);
+        model.addAttribute("menu", menu);
 
         Week week = new Week();
         week.setWeekId(-1);
-        week.setProfileId(profileId);
+        week.setMenuId(menuId);
 
-        List<Week> weeksList = weeksRepository.getAllWeeksFromProfile(profileId);
+        List<Week> weeksList = weeksRepository.getAllWeeksFromMenu(menuId);
         int orderNumber = weeksList.size() + 1;
         week.setName("Неделя " + orderNumber);
         week.setOrderNumber(orderNumber);
@@ -196,13 +196,13 @@ public class WeeksController {
             userName = authentication.getName();
         } else {
             LOGGER.warn("[WEB] Cannot accept week creation form: anonymous users cannot create weeks");
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Operation availability checks
         if (!controlService.canCreateWeek(userName)) {
             LOGGER.warn("[WEB] Cannot accept week creation form: user '{}' cannot create weeks", userName);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         // Validate that provided data is correct
@@ -219,21 +219,21 @@ public class WeeksController {
             return "week_create";
         }
 
-        Integer profileId = week.getProfileId();
+        Integer menuId = week.getMenuId();
 
-        if (profileId == null) {
-            LOGGER.warn("[WEB] Profile is not provided for week creation");
-            return "redirect:/profiles";
+        if (menuId == null) {
+            LOGGER.warn("[WEB] Menu is not provided for week creation");
+            return "redirect:/menus";
         }
 
-        Profile profile = profilesRepository.getProfile(profileId);
-        if (profile == null) {
-            LOGGER.warn("[WEB] Cannot accept week creation form: profile {} was not found", profileId);
-            return "redirect:/profiles";
+        Menu menu = menusRepository.getMenu(menuId);
+        if (menu == null) {
+            LOGGER.warn("[WEB] Cannot accept week creation form: menu {} was not found", menuId);
+            return "redirect:/menus";
         }
-        if (Constants.ProfileType.DAYS_WITHOUT_GROUPING.equals(profile.getProfileTypeId())) {
-            LOGGER.warn("[WEB] Cannot accept week creation form: profile {} is not suitable for grouping by weeks", profileId);
-            return "redirect:/profiles";
+        if (Constants.MenuType.DAYS_WITHOUT_GROUPING.equals(menu.getMenuTypeId())) {
+            LOGGER.warn("[WEB] Cannot accept week creation form: menu {} is not suitable for grouping by weeks", menuId);
+            return "redirect:/menus";
         }
 
         // Generate primary key for new entity
@@ -244,7 +244,7 @@ public class WeeksController {
         // Create entity
         Week createdWeek = weeksRepository.addWeek(
                 week.getWeekId(),
-                week.getProfileId(),
+                week.getMenuId(),
                 week.getName(),
                 week.getOrderNumber()
         );
@@ -252,23 +252,23 @@ public class WeeksController {
         // Register operation in system events log
         logService.registerWeekCreated(userName, createdWeek);
 
-        // Check and update profile if necessary
-        if (Constants.ProfileType.UNDEFINED.equals(profile.getProfileTypeId())) {
-            Profile oldData = profilesRepository.getProfile(profileId);
+        // Check and update menu if necessary
+        if (Constants.MenuType.UNDEFINED.equals(menu.getMenuTypeId())) {
+            Menu oldData = menusRepository.getMenu(menuId);
 
-            profile.setProfileTypeId(Constants.ProfileType.DAYS_GROUPED_BY_WEEKS);
-            profilesRepository.updateProfile(
-                    profile.getProfileId(),
-                    profile.getProfileTypeId(),
-                    profile.getName(),
-                    profile.getActive()
+            menu.setMenuTypeId(Constants.MenuType.DAYS_GROUPED_BY_WEEKS);
+            menusRepository.updateMenu(
+                    menu.getMenuId(),
+                    menu.getMenuTypeId(),
+                    menu.getName(),
+                    menu.getActive()
             );
 
             // Register operation in system events log
-            logService.registerProfileUpdated(userName, oldData, profile);
+            logService.registerMenuUpdated(userName, oldData, menu);
         }
 
-        return "redirect:/profiles/" + profile.getProfileId();
+        return "redirect:/menus/" + menu.getMenuId();
     }
 
     @GetMapping("/{id}/update")
@@ -290,7 +290,7 @@ public class WeeksController {
         Week week = weeksRepository.getWeek(id);
         if (week == null) {
             LOGGER.warn("[WEB] Cannot show week modification form: week {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canModifyWeek(userName, week.getWeekId())) {
@@ -320,12 +320,12 @@ public class WeeksController {
         Week weekFromDb = weeksRepository.getWeek(week.getWeekId());
         if (weekFromDb == null) {
             LOGGER.warn("[WEB] Cannot accept week modification form: week {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!week.getWeekId().equals(id)) {
             LOGGER.warn("[WEB] Cannot accept week modification form: week id mismatch: {} and {}", week.getWeekId(), id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canModifyWeek(userName, weekFromDb.getWeekId())) {
@@ -348,13 +348,13 @@ public class WeeksController {
         }
 
         // Adjust not editable data
-        week.setProfileId(weekFromDb.getProfileId());
+        week.setMenuId(weekFromDb.getMenuId());
         week.setOrderNumber(weekFromDb.getOrderNumber());
 
         // Update entity
         weeksRepository.updateWeek(
                 week.getWeekId(),
-                week.getProfileId(),
+                week.getMenuId(),
                 week.getName(),
                 week.getOrderNumber()
         );
@@ -384,7 +384,7 @@ public class WeeksController {
         Week week = weeksRepository.getWeek(id);
         if (week == null) {
             LOGGER.warn("[WEB] Cannot show week deletion form: week {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canDeleteWeek(userName, week.getWeekId())) {
@@ -414,7 +414,7 @@ public class WeeksController {
         Week weekFromDb = weeksRepository.getWeek(id);
         if (weekFromDb == null) {
             LOGGER.warn("[WEB] Cannot accept week deletion form: week {} was not found", id);
-            return "redirect:/profiles";
+            return "redirect:/menus";
         }
 
         if (!controlService.canDeleteWeek(userName, weekFromDb.getWeekId())) {
@@ -422,7 +422,7 @@ public class WeeksController {
             return "redirect:/weeks/" + weekFromDb.getWeekId();
         }
 
-        Profile profile = profilesRepository.getProfile(weekFromDb.getProfileId());
+        Menu menu = menusRepository.getMenu(weekFromDb.getMenuId());
 
         // Delete dependent entities
         List<Day> daysList = daysRepository.getAllDaysFromWeek(weekFromDb.getWeekId());
@@ -446,25 +446,25 @@ public class WeeksController {
         // Register operation in system events log
         logService.registerWeekDeleted(userName, weekFromDb.getWeekId());
 
-        // Update profile type if no more weeks
-        if (Constants.ProfileType.DAYS_GROUPED_BY_WEEKS.equals(profile.getProfileTypeId())) {
-            List<Week> weeksList = weeksRepository.getAllWeeksFromProfile(profile.getProfileId());
+        // Update menu type if no more weeks
+        if (Constants.MenuType.DAYS_GROUPED_BY_WEEKS.equals(menu.getMenuTypeId())) {
+            List<Week> weeksList = weeksRepository.getAllWeeksFromMenu(menu.getMenuId());
             if (weeksList.isEmpty()) {
-                Profile oldData = profilesRepository.getProfile(weekFromDb.getProfileId());
+                Menu oldData = menusRepository.getMenu(weekFromDb.getMenuId());
 
-                profile.setProfileTypeId(Constants.ProfileType.UNDEFINED);
-                profilesRepository.updateProfile(
-                        profile.getProfileId(),
-                        profile.getProfileTypeId(),
-                        profile.getName(),
-                        profile.getActive()
+                menu.setMenuTypeId(Constants.MenuType.UNDEFINED);
+                menusRepository.updateMenu(
+                        menu.getMenuId(),
+                        menu.getMenuTypeId(),
+                        menu.getName(),
+                        menu.getActive()
                 );
 
                 // Register operation in system events log
-                logService.registerProfileUpdated(userName, oldData, profile);
+                logService.registerMenuUpdated(userName, oldData, menu);
             }
         }
 
-        return "redirect:/profiles/" + profile.getProfileId();
+        return "redirect:/menus/" + menu.getMenuId();
     }
 }

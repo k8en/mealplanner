@@ -15,7 +15,7 @@
         <div class="ctrl_panel" th:if="${isLoggedIn}">
             <span class="ctrl_button"><a th:href="@{'/weeks/' + ${week.weekId} + '/update'}">Редактировать неделю</a></span>
             <span class="ctrl_button"><a th:href="@{'/weeks/' + ${week.weekId} + '/delete'}">Удалить неделю</a></span>
-            <span class="ctrl_button"><a th:href="@{'/days/create?profile_id=' + ${week.profileId} + '&week_id=' + ${week.weekId}}">Добавить день</a></span>
+            <span class="ctrl_button"><a th:href="@{'/days/create?menu_id=' + ${week.menuId} + '&week_id=' + ${week.weekId}}">Добавить день</a></span>
         </div>
 
         <h3 th:text="${week.name}"></h3>

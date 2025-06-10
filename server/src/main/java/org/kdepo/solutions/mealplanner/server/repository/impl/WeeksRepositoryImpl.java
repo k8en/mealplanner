@@ -18,13 +18,13 @@ public class WeeksRepositoryImpl implements WeeksRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WeeksRepositoryImpl.class);
 
-    private static final String SQL_ADD_WEEK = "INSERT INTO weeks (week_id, profile_id, name, order_number) VALUES (?, ?, ?, ?)";
+    private static final String SQL_ADD_WEEK = "INSERT INTO weeks (week_id, menu_id, name, order_number) VALUES (?, ?, ?, ?)";
     private static final String SQL_DELETE_WEEK = "DELETE FROM weeks WHERE week_id = ?";
-    private static final String SQL_GET_ALL_WEEKS_FROM_PROFILE = "SELECT * FROM weeks WHERE profile_id = ? ORDER BY order_number ASC";
-    private static final String SQL_GET_ORDER_NUMBER = "SELECT IFNULL(MAX(order_number) + 1, 1) AS order_number FROM weeks WHERE profile_id = ?";
+    private static final String SQL_GET_ALL_WEEKS_FROM_MENU = "SELECT * FROM weeks WHERE menu_id = ? ORDER BY order_number ASC";
+    private static final String SQL_GET_ORDER_NUMBER = "SELECT IFNULL(MAX(order_number) + 1, 1) AS order_number FROM weeks WHERE menu_id = ?";
     private static final String SQL_GET_WEEK = "SELECT * FROM weeks WHERE week_id = ?";
     private static final String SQL_IS_USED = "SELECT week_id FROM days WHERE week_id = ? LIMIT 1";
-    private static final String SQL_UPDATE_WEEK = "UPDATE weeks SET profile_id = ?, name = ?, order_number = ? WHERE week_id = ?";
+    private static final String SQL_UPDATE_WEEK = "UPDATE weeks SET menu_id = ?, name = ?, order_number = ? WHERE week_id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -33,16 +33,16 @@ public class WeeksRepositoryImpl implements WeeksRepository {
     }
 
     @Override
-    public Week addWeek(Integer weekId, Integer profileId, String name, Integer orderNumber) {
-        LOGGER.trace("[DBR][addWeek] Invoked with parameters: weekId={}, profileId={}, name={}, orderNumber={}",
-                weekId, profileId, name, orderNumber
+    public Week addWeek(Integer weekId, Integer menuId, String name, Integer orderNumber) {
+        LOGGER.trace("[DBR][addWeek] Invoked with parameters: weekId={}, menuId={}, name={}, orderNumber={}",
+                weekId, menuId, name, orderNumber
         );
 
         jdbcTemplate.update(
                 SQL_ADD_WEEK,
                 ps -> {
                     ps.setInt(1, weekId);
-                    ps.setInt(2, profileId);
+                    ps.setInt(2, menuId);
                     ps.setString(3, name);
                     ps.setInt(4, orderNumber);
                 }
@@ -61,11 +61,11 @@ public class WeeksRepositoryImpl implements WeeksRepository {
     }
 
     @Override
-    public List<Week> getAllWeeksFromProfile(Integer profileId) {
-        LOGGER.trace("[DBR][getAllWeeksFromProfile] Invoked with parameters: profileId={}", profileId);
+    public List<Week> getAllWeeksFromMenu(Integer menuId) {
+        LOGGER.trace("[DBR][getAllWeeksFromMenu] Invoked with parameters: menuId={}", menuId);
         return jdbcTemplate.query(
-                SQL_GET_ALL_WEEKS_FROM_PROFILE,
-                ps -> ps.setInt(1, profileId),
+                SQL_GET_ALL_WEEKS_FROM_MENU,
+                ps -> ps.setInt(1, menuId),
                 rs -> {
                     List<Week> result = new ArrayList<>();
                     while (rs.next()) {
@@ -77,11 +77,11 @@ public class WeeksRepositoryImpl implements WeeksRepository {
     }
 
     @Override
-    public Integer getOrderNumber(Integer profileId) {
-        LOGGER.trace("[DBR][getOrderNumber] Invoked with parameters: profileId={}", profileId);
+    public Integer getOrderNumber(Integer menuId) {
+        LOGGER.trace("[DBR][getOrderNumber] Invoked with parameters: menuId={}", menuId);
         return jdbcTemplate.query(
                 SQL_GET_ORDER_NUMBER,
-                ps -> ps.setInt(1, profileId),
+                ps -> ps.setInt(1, menuId),
                 rs -> {
                     Integer nextVal = null;
                     if (rs.next()) {
@@ -119,15 +119,15 @@ public class WeeksRepositoryImpl implements WeeksRepository {
     }
 
     @Override
-    public void updateWeek(Integer weekId, Integer profileId, String name, Integer orderNumber) {
-        LOGGER.trace("[DBR][updateWeek] Invoked with parameters: weekId={}, profileId={}, name={}, orderNumber={}",
-                weekId, profileId, name, orderNumber
+    public void updateWeek(Integer weekId, Integer menuId, String name, Integer orderNumber) {
+        LOGGER.trace("[DBR][updateWeek] Invoked with parameters: weekId={}, menuId={}, name={}, orderNumber={}",
+                weekId, menuId, name, orderNumber
         );
 
         jdbcTemplate.update(
                 SQL_UPDATE_WEEK,
                 ps -> {
-                    ps.setInt(1, profileId);
+                    ps.setInt(1, menuId);
                     ps.setString(2, name);
                     ps.setInt(3, orderNumber);
                     ps.setInt(4, weekId);
@@ -137,13 +137,13 @@ public class WeeksRepositoryImpl implements WeeksRepository {
 
     private Week convert(ResultSet rs) throws SQLException {
         Integer weekId = rs.getInt("week_id");
-        Integer profileId = rs.getInt("profile_id");
+        Integer menuId = rs.getInt("menu_id");
         String name = rs.getString("name");
         Integer orderNumber = rs.getInt("order_number");
 
         Week week = new Week();
         week.setWeekId(weekId);
-        week.setProfileId(profileId);
+        week.setMenuId(menuId);
         week.setName(name);
         week.setOrderNumber(orderNumber);
 

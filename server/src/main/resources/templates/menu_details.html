@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       style="height: 100%;">
 <head>
-    <title>Просмотр информации о профиле питания</title>
+    <title>Просмотр информации о меню</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" th:href="@{/styles/common.css}">
 </head>
@@ -13,25 +13,25 @@
     <div class="content">
 
         <div class="ctrl_panel" th:if="${isLoggedIn}">
-            <span class="ctrl_button"><a href="/profiles/create">Добавить новый профиль питания</a></span>
-            <span class="ctrl_button"><a th:href="@{'/profiles/' + ${profile.profileId} + '/update'}">Редактировать профиль питания</a></span>
-            <span class="ctrl_button"><a th:href="@{'/profiles/' + ${profile.profileId} + '/delete'}">Удалить профиль питания</a></span>
+            <span class="ctrl_button"><a href="/menus/create">Добавить новое меню</a></span>
+            <span class="ctrl_button"><a th:href="@{'/menus/' + ${menu.menuId} + '/update'}">Редактировать меню</a></span>
+            <span class="ctrl_button"><a th:href="@{'/menus/' + ${menu.menuId} + '/delete'}">Удалить меню</a></span>
 
-            <span class="ctrl_button" th:if="${#bools.isFalse(profile.active)}"><a th:href="@{'/profiles/' + ${profile.profileId} + '/active'}">Сделать активным</a></span>
-            <span class="ctrl_button" th:if="${#bools.isTrue(profile.active)}">Активный</span>
+            <span class="ctrl_button" th:if="${#bools.isFalse(menu.active)}"><a th:href="@{'/menus/' + ${menu.menuId} + '/active'}">Сделать активным</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(menu.active)}">Активный</span>
 
-            <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==0)}"><a th:href="@{'/days/create?profile_id=' + ${profile.profileId}}">Добавить день</a></span>
-            <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==0)}"><a th:href="@{'/weeks/create?profile_id=' + ${profile.profileId}}">Добавить неделю</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(menu.menuTypeId==0)}"><a th:href="@{'/days/create?menu_id=' + ${menu.menuId}}">Добавить день</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(menu.menuTypeId==0)}"><a th:href="@{'/weeks/create?menu_id=' + ${menu.menuId}}">Добавить неделю</a></span>
 
-            <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==1)}"><a th:href="@{'/days/create?profile_id=' + ${profile.profileId}}">Добавить день</a></span>
-            <span class="ctrl_button" th:if="${#bools.isTrue(profile.profileTypeId==2)}"><a th:href="@{'/weeks/create?profile_id=' + ${profile.profileId}}">Добавить неделю</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(menu.menuTypeId==1)}"><a th:href="@{'/days/create?menu_id=' + ${menu.menuId}}">Добавить день</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(menu.menuTypeId==2)}"><a th:href="@{'/weeks/create?menu_id=' + ${menu.menuId}}">Добавить неделю</a></span>
         </div>
 
-        <h3 th:text="${profile.name}"></h3>
+        <h3 th:text="${menu.name}"></h3>
 
-        <a th:href="@{'/profiles/' + ${profile.profileId} + '/products'}">К списку продуктов</a>
+        <a th:href="@{'/menus/' + ${menu.menuId} + '/products'}">К списку продуктов</a>
 
-        <div th:switch="${profile.profileTypeId}">
+        <div th:switch="${menu.menuTypeId}">
             <span th:case="'0'">Нет информации для отображения</span>
             <div th:case="1">
                 <div th:each="day : ${days}">

@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       style="height: 100%;">
 <head>
-    <title>Список продуктов профиля</title>
+    <title>Список продуктов меню</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" th:href="@{/styles/common.css}">
 </head>
@@ -12,7 +12,7 @@
     <div th:replace="~{fragment_header :: header}"/>
     <div class="content">
 
-        <h3>Список продуктов профиля</h3>
+        <h3>Список продуктов меню</h3>
 
         <div th:switch="${#maps.size(productsMap)}">
             <span th:case="'0'">Нет информации для отображения</span>

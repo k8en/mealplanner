@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
+import org.kdepo.solutions.mealplanner.shared.model.Menu;
 import org.kdepo.solutions.mealplanner.shared.model.Product;
-import org.kdepo.solutions.mealplanner.shared.model.Profile;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.Tag;
 import org.kdepo.solutions.mealplanner.shared.model.Week;
@@ -197,42 +197,42 @@ public class OperationsLogService {
         register(userName, "D", "INGREDIENT", String.valueOf(ingredientId), null);
     }
 
-    public void registerProfileCreated(String userName, Profile profile) {
+    public void registerMenuCreated(String userName, Menu menu) {
         builder.setLength(0);
-        builder.append("profile_id=").append(profile.getProfileId());
-        builder.append(", profile_type_id=").append(profile.getProfileTypeId());
-        builder.append(", name=").append(profile.getName());
-        builder.append(", active=").append(profile.getActive());
+        builder.append("menu_id=").append(menu.getMenuId());
+        builder.append(", menu_type_id=").append(menu.getMenuTypeId());
+        builder.append(", name=").append(menu.getName());
+        builder.append(", active=").append(menu.getActive());
 
-        register(userName, "C", "PROFILE", null, builder.toString());
+        register(userName, "C", "MENU", null, builder.toString());
     }
 
-    public void registerProfileUpdated(String userName, Profile oldData, @Valid Profile newData) {
+    public void registerMenuUpdated(String userName, Menu oldData, @Valid Menu newData) {
         builder.setLength(0);
-        builder.append("profile_id=").append(oldData.getProfileId());
-        builder.append(", profile_type_id=").append(oldData.getProfileTypeId());
+        builder.append("menu_id=").append(oldData.getMenuId());
+        builder.append(", menu_type_id=").append(oldData.getMenuTypeId());
         builder.append(", name=").append(oldData.getName());
         builder.append(", active=").append(oldData.getActive());
         String oldDataValue = builder.toString();
 
         builder.setLength(0);
-        builder.append("profile_id=").append(newData.getProfileId());
-        builder.append(", profile_type_id=").append(newData.getProfileTypeId());
+        builder.append("menu_id=").append(newData.getMenuId());
+        builder.append(", menu_type_id=").append(newData.getMenuTypeId());
         builder.append(", name=").append(newData.getName());
         builder.append(", active=").append(newData.getActive());
         String newDataValue = builder.toString();
 
-        register(userName, "U", "PROFILE", oldDataValue, newDataValue);
+        register(userName, "U", "MENU", oldDataValue, newDataValue);
     }
 
-    public void registerProfileDeleted(String userName, Integer profileId) {
-        register(userName, "D", "PROFILE", String.valueOf(profileId), null);
+    public void registerMenuDeleted(String userName, Integer menuId) {
+        register(userName, "D", "MENU", String.valueOf(menuId), null);
     }
 
     public void registerDayCreated(String userName, Day day) {
         builder.setLength(0);
         builder.append("day_id=").append(day.getDayId());
-        builder.append(", profile_id=").append(day.getProfileId());
+        builder.append(", menu_id=").append(day.getMenuId());
         builder.append(", week_id=").append(day.getWeekId());
         builder.append(", name=").append(day.getName());
         builder.append(", order_number=").append(day.getOrderNumber());
@@ -243,7 +243,7 @@ public class OperationsLogService {
     public void registerDayUpdated(String userName, Day oldData, @Valid Day newData) {
         builder.setLength(0);
         builder.append("day_id=").append(oldData.getDayId());
-        builder.append(", profile_id=").append(oldData.getProfileId());
+        builder.append(", menu_id=").append(oldData.getMenuId());
         builder.append(", week_id=").append(oldData.getWeekId());
         builder.append(", name=").append(oldData.getName());
         builder.append(", order_number=").append(oldData.getOrderNumber());
@@ -251,7 +251,7 @@ public class OperationsLogService {
 
         builder.setLength(0);
         builder.append("day_id=").append(newData.getDayId());
-        builder.append(", profile_id=").append(newData.getProfileId());
+        builder.append(", menu_id=").append(newData.getMenuId());
         builder.append(", week_id=").append(newData.getWeekId());
         builder.append(", name=").append(newData.getName());
         builder.append(", order_number=").append(newData.getOrderNumber());
@@ -267,7 +267,7 @@ public class OperationsLogService {
     public void registerWeekCreated(String userName, Week week) {
         builder.setLength(0);
         builder.append("week_id=").append(week.getWeekId());
-        builder.append(", profile_id=").append(week.getProfileId());
+        builder.append(", menu_id=").append(week.getMenuId());
         builder.append(", name=").append(week.getName());
         builder.append(", order_number=").append(week.getOrderNumber());
 
@@ -277,14 +277,14 @@ public class OperationsLogService {
     public void registerWeekUpdated(String userName, Week oldData, @Valid Week newData) {
         builder.setLength(0);
         builder.append("week_id=").append(oldData.getWeekId());
-        builder.append(", profile_id=").append(oldData.getProfileId());
+        builder.append(", menu_id=").append(oldData.getMenuId());
         builder.append(", name=").append(oldData.getName());
         builder.append(", order_number=").append(oldData.getOrderNumber());
         String oldDataValue = builder.toString();
 
         builder.setLength(0);
         builder.append("week_id=").append(newData.getWeekId());
-        builder.append(", profile_id=").append(newData.getProfileId());
+        builder.append(", menu_id=").append(newData.getMenuId());
         builder.append(", name=").append(newData.getName());
         builder.append(", order_number=").append(newData.getOrderNumber());
         String newDataValue = builder.toString();
