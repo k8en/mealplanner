@@ -59,20 +59,30 @@ public class DbConstructor {
             + "    description VARCHAR (200) \n"
             + ")";
 
+    private static final String SQL_CREATE_TABLE_INSTRUCTION_TYPES = ""
+            + "CREATE TABLE instruction_types (\n"
+            + "    instruction_type_id NUMERIC (1)  PRIMARY KEY\n"
+            + "                                     UNIQUE\n"
+            + "                                     NOT NULL,\n"
+            + "    name                VARCHAR (50) NOT NULL\n"
+            + ")";
+
     private static final String SQL_CREATE_TABLE_RECIPES = ""
             + "CREATE TABLE recipes (\n"
-            + "    recipe_id   NUMERIC (5)    PRIMARY KEY\n"
-            + "                               UNIQUE\n"
-            + "                               NOT NULL,\n"
-            + "    name        VARCHAR (200)  NOT NULL,\n"
-            + "    description VARCHAR (2000) NOT NULL,\n"
-            + "    source      VARCHAR (200),\n"
-            + "    portions    NUMERIC (2)    NOT NULL,\n"
-            + "    weight      NUMERIC (8)    NOT NULL,\n"
-            + "    calories    NUMERIC (8)    NOT NULL,\n"
-            + "    proteins    NUMERIC (8)    NOT NULL,\n"
-            + "    fats        NUMERIC (8)    NOT NULL,\n"
-            + "    carbs       NUMERIC (8)    NOT NULL\n"
+            + "    recipe_id           NUMERIC (5)    PRIMARY KEY\n"
+            + "                                       UNIQUE\n"
+            + "                                       NOT NULL,\n"
+            + "    instruction_type_id NUMERIC (1)    NOT NULL\n"
+            + "                                       REFERENCES instruction_types (instruction_type_id),\n"
+            + "    name                VARCHAR (200)  NOT NULL,\n"
+            + "    description         VARCHAR (2000) NOT NULL,\n"
+            + "    source              VARCHAR (200),\n"
+            + "    portions            NUMERIC (2)    NOT NULL,\n"
+            + "    weight              NUMERIC (8)    NOT NULL,\n"
+            + "    calories            NUMERIC (8)    NOT NULL,\n"
+            + "    proteins            NUMERIC (8)    NOT NULL,\n"
+            + "    fats                NUMERIC (8)    NOT NULL,\n"
+            + "    carbs               NUMERIC (8)    NOT NULL\n"
             + ")";
 
     private static final String SQL_CREATE_TABLE_RECIPES_TAGS = ""
@@ -96,6 +106,29 @@ public class DbConstructor {
             + "    amount        NUMERIC (6)  NOT NULL,\n"
             + "    unit_id       NUMERIC (5)  NOT NULL\n"
             + "                               REFERENCES units (unit_id) \n"
+            + ")";
+
+    private static final String SQL_CREATE_TABLE_INSTRUCTIONS = ""
+            + "CREATE TABLE instructions (\n"
+            + "    instruction_id      NUMERIC (5) PRIMARY KEY\n"
+            + "                                    NOT NULL\n"
+            + "                                    UNIQUE,\n"
+            + "    recipe_id           NUMERIC (5) NOT NULL\n"
+            + "                                    REFERENCES recipes (recipe_id),\n"
+            + "    instruction_type_id NUMERIC (1) NOT NULL\n"
+            + "                                    REFERENCES instruction_types (instruction_type_id)\n"
+            + ")";
+
+    private static final String SQL_CREATE_TABLE_INSTRUCTIONS_STEPS = ""
+            + "CREATE TABLE instructions_steps (\n"
+            + "    instruction__step_id NUMERIC (5) PRIMARY KEY\n"
+            + "                         NOT NULL\n"
+            + "                         UNIQUE,\n"
+            + "    instruction_id       NUMERIC (5) NOT NULL\n"
+            + "                         REFERENCES instructions (instruction_id),\n"
+            + "    name                 VARCHAR (50) NOT NULL,\n"
+            + "    description          VARCHAR (2000) NOT NULL,\n"
+            + "    order_number         NUMERIC (5)  NOT NULL\n"
             + ")";
 
     private static final String SQL_CREATE_TABLE_MENU_TYPES = ""
@@ -161,15 +194,23 @@ public class DbConstructor {
             + ")";
 
     private static final List<String> SQL_INSERT_DATA_LINES = Arrays.asList(
-            "INSERT INTO primary_keys (name, next_val) VALUES ('day_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('ingredient_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('meal_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('menu_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('product_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('recipe_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('tag_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('unit_id', 1)",
-            "INSERT INTO primary_keys (name, next_val) VALUES ('week_id', 1)"
+            "INSERT INTO primary_keys (name, next_val) VALUES ('day_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('ingredient_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('instruction_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('instruction_step_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('meal_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('menu_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('product_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('recipe_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('tag_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('unit_id', 1)"
+            , "INSERT INTO primary_keys (name, next_val) VALUES ('week_id', 1)"
+
+            , "INSERT INTO menu_types (menu_type_id, name) VALUES ('1', 'Группировка по дням')"
+            , "INSERT INTO menu_types (menu_type_id, name) VALUES ('2', 'Группировка по неделям')"
+
+            , "INSERT INTO instruction_types (instruction_type_id, name) VALUES ('1', 'Простая текстовая инструкция')"
+            , "INSERT INTO instruction_types (instruction_type_id, name) VALUES ('2', 'Пошаговая инструкция с картинками')"
 
             , "INSERT INTO units (unit_id, name, short_name, accuracy) VALUES ('1', 'Штука', 'шт', '0')"
             , "INSERT INTO units (unit_id, name, short_name, accuracy) VALUES ('2', 'Грамм', 'г', '0')"
@@ -251,9 +292,12 @@ public class DbConstructor {
         createTableQueryList.add(SQL_CREATE_TABLE_UNITS);
         createTableQueryList.add(SQL_CREATE_TABLE_PRODUCTS);
         createTableQueryList.add(SQL_CREATE_TABLE_TAGS);
+        createTableQueryList.add(SQL_CREATE_TABLE_INSTRUCTION_TYPES);
         createTableQueryList.add(SQL_CREATE_TABLE_RECIPES);
         createTableQueryList.add(SQL_CREATE_TABLE_RECIPES_TAGS);
         createTableQueryList.add(SQL_CREATE_TABLE_INGREDIENTS);
+        createTableQueryList.add(SQL_CREATE_TABLE_INSTRUCTIONS);
+        createTableQueryList.add(SQL_CREATE_TABLE_INSTRUCTIONS_STEPS);
         createTableQueryList.add(SQL_CREATE_TABLE_MENU_TYPES);
         createTableQueryList.add(SQL_CREATE_TABLE_MENUS);
         createTableQueryList.add(SQL_CREATE_TABLE_WEEKS);

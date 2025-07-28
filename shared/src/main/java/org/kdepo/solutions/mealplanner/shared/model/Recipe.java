@@ -7,6 +7,7 @@ import java.util.Objects;
 public class Recipe {
 
     private Integer recipeId;
+    private Integer instructionTypeId;
     private String name;
     private String description;
     private String source;
@@ -25,6 +26,14 @@ public class Recipe {
 
     public void setRecipeId(Integer recipeId) {
         this.recipeId = recipeId;
+    }
+
+    public Integer getInstructionTypeId() {
+        return instructionTypeId;
+    }
+
+    public void setInstructionTypeId(Integer instructionTypeId) {
+        this.instructionTypeId = instructionTypeId;
     }
 
     public String getName() {
@@ -119,6 +128,7 @@ public class Recipe {
     public String toString() {
         return "Recipe{" +
                 "recipeId=" + recipeId +
+                ", instructionTypeId=" + instructionTypeId +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", source='" + source + '\'' +
@@ -135,10 +145,10 @@ public class Recipe {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Recipe recipe = (Recipe) o;
         return Objects.equals(recipeId, recipe.recipeId)
+                && Objects.equals(instructionTypeId, recipe.instructionTypeId)
                 && Objects.equals(name, recipe.name)
                 && Objects.equals(description, recipe.description)
                 && Objects.equals(source, recipe.source)
@@ -154,6 +164,6 @@ public class Recipe {
 
     @Override
     public int hashCode() {
-        return Objects.hash(recipeId, name, description, source, portions, weight, calories, proteins, fats, carbs, ingredientsList, tagsList);
+        return Objects.hash(recipeId, instructionTypeId, name, description, source, portions, weight, calories, proteins, fats, carbs, ingredientsList, tagsList);
     }
 }

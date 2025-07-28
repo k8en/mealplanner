@@ -4,10 +4,11 @@ import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.server.dto.RecipeDto;
 import org.kdepo.solutions.mealplanner.server.service.OperationsControlService;
 import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
+import org.kdepo.solutions.mealplanner.shared.Constants;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
-import org.kdepo.solutions.mealplanner.shared.model.Tag;
 import org.kdepo.solutions.mealplanner.shared.model.SelectableEntity;
+import org.kdepo.solutions.mealplanner.shared.model.Tag;
 import org.kdepo.solutions.mealplanner.shared.model.Unit;
 import org.kdepo.solutions.mealplanner.shared.repository.IngredientsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
@@ -168,14 +169,6 @@ public class RecipesController {
         recipeDto.setFats(recipe.getFats());
         recipeDto.setCarbs(recipe.getCarbs());
 
-        // Prepare instruction as paragraphs
-        List<String> paragraphs = new ArrayList<>();
-        if (recipe.getDescription() != null) {
-            String[] paragraphsArray = recipe.getDescription().split("\n");
-            paragraphs.addAll(Arrays.asList(paragraphsArray));
-            recipeDto.setParagraphs(paragraphs);
-        }
-
         // Prepare ingredients list with recalculation data
         List<Ingredient> ingredients = recipe.getIngredientsList();
         for (Ingredient ingredient : ingredients) {
@@ -188,15 +181,34 @@ public class RecipesController {
 
             ingredient.setName(recalculatedIngredient);
         }
+        model.addAttribute("ingredients", ingredients);
+
+        String templateName = "recipe_details";
+        if (Constants.InstructionType.UNDEFINED.equals(recipe.getInstructionTypeId())) {
+
+        } else if (Constants.InstructionType.PLAIN_TEXT.equals(recipe.getInstructionTypeId())) {
+            // Prepare instruction as paragraphs
+            List<String> paragraphs = new ArrayList<>();
+            if (recipe.getDescription() != null) {
+                String[] paragraphsArray = recipe.getDescription().split("\n");
+                paragraphs.addAll(Arrays.asList(paragraphsArray));
+                recipeDto.setParagraphs(paragraphs);
+            }
+
+        } else if (Constants.InstructionType.STEP_BY_STEP.equals(recipe.getInstructionTypeId())) {
+            // TODO
+
+        } else {
+            LOGGER.warn("[WEB] Recipe {} has unknown instruction type {}", recipe.getRecipeId(), recipe.getInstructionTypeId());
+            return "redirect:/recipes";
+        }
 
         model.addAttribute("recipe", recipeDto);
-
-        model.addAttribute("ingredients", ingredients);
 
         List<Tag> tags = recipe.getTagsList();
         model.addAttribute("tags", tags);
 
-        return "recipe_details";
+        return templateName;
     }
 
     @GetMapping("/create")
@@ -224,6 +236,7 @@ public class RecipesController {
         // Prepare entity with default values
         Recipe recipe = new Recipe();
         recipe.setRecipeId(-1);
+        recipe.setInstructionTypeId(Constants.InstructionType.UNDEFINED);
         recipe.setPortions(defaultPortioning); // TODO exclude into settings
         recipe.setWeight(BigDecimal.ZERO);
         recipe.setCalories(BigDecimal.ZERO);
@@ -342,9 +355,13 @@ public class RecipesController {
         primaryKeysRepository.moveNextVal(PK);
         recipe.setRecipeId(recipeId);
 
+        // Newly created recipe should have undefined instruction type
+        recipe.setInstructionTypeId(Constants.InstructionType.UNDEFINED);
+
         // Create entity
         Recipe createdRecipe = recipesRepository.addRecipe(
                 recipe.getRecipeId(),
+                recipe.getInstructionTypeId(),
                 recipe.getName(),
                 recipe.getDescription(),
                 recipe.getSource(),
@@ -501,9 +518,13 @@ public class RecipesController {
             return "recipe_update";
         }
 
+        // Instruction type cannot be updated from UI
+        recipe.setInstructionTypeId(recipeFromDb.getInstructionTypeId());
+
         // Update entity
         recipesRepository.updateRecipe(
                 recipe.getRecipeId(),
+                recipe.getInstructionTypeId(),
                 recipe.getName(),
                 recipe.getDescription(),
                 recipe.getSource(),
@@ -598,6 +619,8 @@ public class RecipesController {
             // Register operation in system events log
             logService.registerIngredientDeleted(userName, ingredient.getIngredientId());
         }
+
+        // TODO delete instruction steps
 
         // Delete entity
         recipesRepository.deleteRecipe(recipeFromDb.getRecipeId());

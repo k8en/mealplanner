@@ -17,6 +17,7 @@
         <div class="form_block">
             <form th:action="@{/recipes/create}" method="post" th:object="${recipe}">
                 <input type="hidden" th:field="*{recipeId}"/>
+                <input type="hidden" th:field="*{instructionTypeId}"/>
 
                 <div class="form_element">
                     <label for="f_name">Название</label>

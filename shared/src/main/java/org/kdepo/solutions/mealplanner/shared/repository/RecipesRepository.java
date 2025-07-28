@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface RecipesRepository {
 
-    Recipe addRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs);
+    Recipe addRecipe(Integer recipeId, Integer instructionTypeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs);
 
     void addRecipeToMeal(Integer recipeId, Integer mealId, Integer orderNumber);
 
@@ -29,7 +29,6 @@ public interface RecipesRepository {
 
     void updateMealsContents(Integer mealId, Integer recipeId, Integer orderNumber);
 
-    void updateRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs);
-
+    void updateRecipe(Integer recipeId, Integer instructionTypeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs);
 
 }

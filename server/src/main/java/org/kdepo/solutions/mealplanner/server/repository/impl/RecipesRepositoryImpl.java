@@ -27,7 +27,7 @@ public class RecipesRepositoryImpl implements RecipesRepository {
     private static final BigDecimal DECIMAL_MULTIPLIER = BigDecimal.valueOf(10000L);
     private static final Integer DECIMAL_SCALE = 5;
 
-    private static final String SQL_ADD_RECIPE = "INSERT INTO recipes (recipe_id, name, description, source, portions, weight, calories, proteins, fats, carbs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SQL_ADD_RECIPE = "INSERT INTO recipes (recipe_id, instruction_type_id, name, description, source, portions, weight, calories, proteins, fats, carbs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_ADD_RECIPE_TO_MEAL = "INSERT INTO meals_contents (meal_id, recipe_id, order_number) VALUES (?, ?, ?);";
     private static final String SQL_DELETE_RECIPE = "DELETE FROM recipes WHERE recipe_id = ?";
     private static final String SQL_DELETE_RECIPE_FROM_MEAL = "DELETE FROM meals_contents WHERE recipe_id = ? AND meal_id = ?";
@@ -37,12 +37,12 @@ public class RecipesRepositoryImpl implements RecipesRepository {
             + " WHERE 1=1"
             + " /*FILTER*/"
             + " ORDER BY r.name ASC";
-    private static final String SQL_GET_ALL_RECIPES_FROM_MEAL = "SELECT r.recipe_id, r.name, r.description, r.source, r.portions, r.weight, r.calories, r.proteins, r.fats, r.carbs FROM meals_contents mc JOIN recipes r ON r.recipe_id = mc.recipe_id WHERE mc.meal_id = ? ORDER BY mc.order_number ASC";
+    private static final String SQL_GET_ALL_RECIPES_FROM_MEAL = "SELECT r.recipe_id, r.instruction_type_id, r.name, r.description, r.source, r.portions, r.weight, r.calories, r.proteins, r.fats, r.carbs FROM meals_contents mc JOIN recipes r ON r.recipe_id = mc.recipe_id WHERE mc.meal_id = ? ORDER BY mc.order_number ASC";
     private static final String SQL_GET_ORDER_NUMBER = "SELECT IFNULL(MAX(order_number) + 1, 1) AS order_number FROM meals_contents WHERE meal_id = ?";
     private static final String SQL_GET_RECIPE = "SELECT * FROM recipes WHERE recipe_id = ?";
     private static final String SQL_IS_USED = "SELECT recipe_id FROM meals_contents WHERE recipe_id = ? LIMIT 1";
     private static final String SQL_UPDATE_MEALS_CONTENTS = "UPDATE meals_contents SET order_number = ? WHERE meal_id = ? AND recipe_id = ?";
-    private static final String SQL_UPDATE_RECIPE = "UPDATE recipes SET name = ?, description = ?, source = ?, portions = ?, weight = ?, calories = ?, proteins = ?, fats = ?, carbs = ? WHERE recipe_id = ?";
+    private static final String SQL_UPDATE_RECIPE = "UPDATE recipes SET instruction_type_id = ?, name = ?, description = ?, source = ?, portions = ?, weight = ?, calories = ?, proteins = ?, fats = ?, carbs = ? WHERE recipe_id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -57,9 +57,9 @@ public class RecipesRepositoryImpl implements RecipesRepository {
     }
 
     @Override
-    public Recipe addRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        LOGGER.trace("[DBR][addRecipe] Invoked with parameters: recipeId={}, name={}, description={}, source={}, portions={}, weight={}, calories={}, proteins={}, fats={}, carbs={}",
-                recipeId, name, description, source, portions, weight, calories, proteins, fats, carbs
+    public Recipe addRecipe(Integer recipeId, Integer instructionTypeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
+        LOGGER.trace("[DBR][addRecipe] Invoked with parameters: recipeId={}, instructionTypeId={}, name={}, description={}, source={}, portions={}, weight={}, calories={}, proteins={}, fats={}, carbs={}",
+                recipeId, instructionTypeId, name, description, source, portions, weight, calories, proteins, fats, carbs
         );
 
         BigDecimal weightConvertedToDb = weight.stripTrailingZeros().multiply(DECIMAL_MULTIPLIER);
@@ -72,15 +72,16 @@ public class RecipesRepositoryImpl implements RecipesRepository {
                 SQL_ADD_RECIPE,
                 ps -> {
                     ps.setInt(1, recipeId);
-                    ps.setString(2, name);
-                    ps.setString(3, description);
-                    ps.setString(4, source);
-                    ps.setInt(5, portions);
-                    ps.setBigDecimal(6, weightConvertedToDb);
-                    ps.setBigDecimal(7, caloriesConvertedToDb);
-                    ps.setBigDecimal(8, proteinsConvertedToDb);
-                    ps.setBigDecimal(9, fatsConvertedToDb);
-                    ps.setBigDecimal(10, carbsConvertedToDb);
+                    ps.setInt(2, instructionTypeId);
+                    ps.setString(3, name);
+                    ps.setString(4, description);
+                    ps.setString(5, source);
+                    ps.setInt(6, portions);
+                    ps.setBigDecimal(7, weightConvertedToDb);
+                    ps.setBigDecimal(8, caloriesConvertedToDb);
+                    ps.setBigDecimal(9, proteinsConvertedToDb);
+                    ps.setBigDecimal(10, fatsConvertedToDb);
+                    ps.setBigDecimal(11, carbsConvertedToDb);
                 }
         );
 
@@ -252,9 +253,9 @@ public class RecipesRepositoryImpl implements RecipesRepository {
     }
 
     @Override
-    public void updateRecipe(Integer recipeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
-        LOGGER.trace("[DBR][updateRecipe] Invoked with parameters: recipeId={}, name={}, description={}, source={}, portions={}, weight={}, calories={}, proteins={}, fats={}, carbs={}",
-                recipeId, name, description, source, portions, weight, calories, proteins, fats, carbs
+    public void updateRecipe(Integer recipeId, Integer instructionTypeId, String name, String description, String source, Integer portions, BigDecimal weight, BigDecimal calories, BigDecimal proteins, BigDecimal fats, BigDecimal carbs) {
+        LOGGER.trace("[DBR][updateRecipe] Invoked with parameters: recipeId={}, instructionTypeId={}, name={}, description={}, source={}, portions={}, weight={}, calories={}, proteins={}, fats={}, carbs={}",
+                recipeId, instructionTypeId, name, description, source, portions, weight, calories, proteins, fats, carbs
         );
 
         BigDecimal weightConvertedToDb = weight.stripTrailingZeros().multiply(DECIMAL_MULTIPLIER);
@@ -266,22 +267,24 @@ public class RecipesRepositoryImpl implements RecipesRepository {
         jdbcTemplate.update(
                 SQL_UPDATE_RECIPE,
                 ps -> {
-                    ps.setString(1, name);
-                    ps.setString(2, description);
-                    ps.setString(3, source);
-                    ps.setInt(4, portions);
-                    ps.setBigDecimal(5, weightConvertedToDb);
-                    ps.setBigDecimal(6, caloriesConvertedToDb);
-                    ps.setBigDecimal(7, proteinsConvertedToDb);
-                    ps.setBigDecimal(8, fatsConvertedToDb);
-                    ps.setBigDecimal(9, carbsConvertedToDb);
-                    ps.setInt(10, recipeId);
+                    ps.setInt(1, instructionTypeId);
+                    ps.setString(2, name);
+                    ps.setString(3, description);
+                    ps.setString(4, source);
+                    ps.setInt(5, portions);
+                    ps.setBigDecimal(6, weightConvertedToDb);
+                    ps.setBigDecimal(7, caloriesConvertedToDb);
+                    ps.setBigDecimal(8, proteinsConvertedToDb);
+                    ps.setBigDecimal(9, fatsConvertedToDb);
+                    ps.setBigDecimal(10, carbsConvertedToDb);
+                    ps.setInt(11, recipeId);
                 }
         );
     }
 
     private Recipe convert(ResultSet rs) throws SQLException {
         Integer recipeId = rs.getInt("recipe_id");
+        Integer instructionTypeId = rs.getInt("instruction_type_id");
         String name = rs.getString("name");
         String description = rs.getString("description");
         String source = rs.getString("source");
@@ -311,6 +314,7 @@ public class RecipesRepositoryImpl implements RecipesRepository {
 
         Recipe recipe = new Recipe();
         recipe.setRecipeId(recipeId);
+        recipe.setInstructionTypeId(instructionTypeId);
         recipe.setName(name);
         recipe.setDescription(description);
         recipe.setSource(source);
