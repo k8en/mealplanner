@@ -108,26 +108,16 @@ public class DbConstructor {
             + "                               REFERENCES units (unit_id) \n"
             + ")";
 
-    private static final String SQL_CREATE_TABLE_INSTRUCTIONS = ""
-            + "CREATE TABLE instructions (\n"
-            + "    instruction_id      NUMERIC (5) PRIMARY KEY\n"
-            + "                                    NOT NULL\n"
-            + "                                    UNIQUE,\n"
-            + "    recipe_id           NUMERIC (5) NOT NULL\n"
-            + "                                    REFERENCES recipes (recipe_id),\n"
-            + "    instruction_type_id NUMERIC (1) NOT NULL\n"
-            + "                                    REFERENCES instruction_types (instruction_type_id)\n"
-            + ")";
-
     private static final String SQL_CREATE_TABLE_INSTRUCTIONS_STEPS = ""
             + "CREATE TABLE instructions_steps (\n"
             + "    instruction__step_id NUMERIC (5) PRIMARY KEY\n"
             + "                         NOT NULL\n"
             + "                         UNIQUE,\n"
-            + "    instruction_id       NUMERIC (5) NOT NULL\n"
-            + "                         REFERENCES instructions (instruction_id),\n"
+            + "    recipe_id            NUMERIC (5) NOT NULL\n"
+            + "                         REFERENCES recipes (recipe_id),\n"
             + "    name                 VARCHAR (50) NOT NULL,\n"
             + "    description          VARCHAR (2000) NOT NULL,\n"
+            + "    image                VARCHAR (250),\n"
             + "    order_number         NUMERIC (5)  NOT NULL\n"
             + ")";
 
@@ -196,7 +186,6 @@ public class DbConstructor {
     private static final List<String> SQL_INSERT_DATA_LINES = Arrays.asList(
             "INSERT INTO primary_keys (name, next_val) VALUES ('day_id', 1)"
             , "INSERT INTO primary_keys (name, next_val) VALUES ('ingredient_id', 1)"
-            , "INSERT INTO primary_keys (name, next_val) VALUES ('instruction_id', 1)"
             , "INSERT INTO primary_keys (name, next_val) VALUES ('instruction_step_id', 1)"
             , "INSERT INTO primary_keys (name, next_val) VALUES ('meal_id', 1)"
             , "INSERT INTO primary_keys (name, next_val) VALUES ('menu_id', 1)"
@@ -296,7 +285,6 @@ public class DbConstructor {
         createTableQueryList.add(SQL_CREATE_TABLE_RECIPES);
         createTableQueryList.add(SQL_CREATE_TABLE_RECIPES_TAGS);
         createTableQueryList.add(SQL_CREATE_TABLE_INGREDIENTS);
-        createTableQueryList.add(SQL_CREATE_TABLE_INSTRUCTIONS);
         createTableQueryList.add(SQL_CREATE_TABLE_INSTRUCTIONS_STEPS);
         createTableQueryList.add(SQL_CREATE_TABLE_MENU_TYPES);
         createTableQueryList.add(SQL_CREATE_TABLE_MENUS);

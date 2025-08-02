@@ -144,4 +144,8 @@ public class OperationsControlService {
     public boolean canDeleteMeal(String userName, Integer mealId) {
         return true;
     }
+
+    public boolean canCreateInstructionStep(String userName, Integer recipeId) {
+        return true;
+    }
 }

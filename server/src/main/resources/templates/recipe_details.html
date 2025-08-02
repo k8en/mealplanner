@@ -17,6 +17,8 @@
             <span class="ctrl_button"><a th:href="@{'/recipes/' + ${recipe.recipeId} + '/update'}">Редактировать рецепт</a></span>
             <span class="ctrl_button"><a th:href="@{'/recipes/' + ${recipe.recipeId} + '/delete'}">Удалить рецепт</a></span>
             <span class="ctrl_button"><a th:href="@{'/ingredients/create?recipe_id=' + ${recipe.recipeId}}">Добавить ингредиент</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(recipe.instructionTypeId==0)}"><a th:href="@{'/instructions/create?instruction_type_id=1&recipe_id=' + ${recipe.recipeId}}">Добавить простое описание</a></span>
+            <span class="ctrl_button" th:if="${#bools.isTrue(recipe.instructionTypeId==0)}"><a th:href="@{'/instructions/create?instruction_type_id=2&recipe_id=' + ${recipe.recipeId}}">Добавить пошаговое описание</a></span>
             <span class="ctrl_button"><a th:href="@{'/recipes/' + ${recipe.recipeId} + '/tags'}">Редактировать метки</a></span>
         </div>
 
@@ -80,10 +82,13 @@
                     </td>
                     <td style="vertical-align: top;"><!--RIGHT-->
                         <span>Описание:</span>
-                        <div th:switch="${#lists.size(recipe.paragraphs)}">
+                        <div th:switch="${#lists.size(instructionSteps)}">
                             <span th:case="'0'">Нет информации для отображения</span>
                             <div th:case="*">
-                                <p th:each="paragraph : ${recipe.paragraphs}"><span th:text="${paragraph}"></span></p>
+                                <div th:each="instructionStep : ${instructionSteps}">
+                                    <a th:href="@{'/instructions/' + ${instructionStep.instructionStepId}}"><span th:text="${instructionStep.name}"></span></a>
+                                    <p th:text="${instructionStep.description}"></p>
+                                </div>
                             </div>
                         </div>
                     </td>

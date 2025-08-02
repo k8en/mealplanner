@@ -6,6 +6,7 @@ import java.util.List;
 public class RecipeDto {
 
     private Integer recipeId;
+    private Integer instructionTypeId;
     private String name;
     private String source;
     private BigDecimal weight;
@@ -22,6 +23,14 @@ public class RecipeDto {
 
     public void setRecipeId(Integer recipeId) {
         this.recipeId = recipeId;
+    }
+
+    public Integer getInstructionTypeId() {
+        return instructionTypeId;
+    }
+
+    public void setInstructionTypeId(Integer instructionTypeId) {
+        this.instructionTypeId = instructionTypeId;
     }
 
     public String getName() {

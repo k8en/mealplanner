@@ -27,7 +27,7 @@ public class RecipesRepositoryImpl implements RecipesRepository {
     private static final BigDecimal DECIMAL_MULTIPLIER = BigDecimal.valueOf(10000L);
     private static final Integer DECIMAL_SCALE = 5;
 
-    private static final String SQL_ADD_RECIPE = "INSERT INTO recipes (recipe_id, instruction_type_id, name, description, source, portions, weight, calories, proteins, fats, carbs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SQL_ADD_RECIPE = "INSERT INTO recipes (recipe_id, instruction_type_id, name, description, source, portions, weight, calories, proteins, fats, carbs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_ADD_RECIPE_TO_MEAL = "INSERT INTO meals_contents (meal_id, recipe_id, order_number) VALUES (?, ?, ?);";
     private static final String SQL_DELETE_RECIPE = "DELETE FROM recipes WHERE recipe_id = ?";
     private static final String SQL_DELETE_RECIPE_FROM_MEAL = "DELETE FROM meals_contents WHERE recipe_id = ? AND meal_id = ?";

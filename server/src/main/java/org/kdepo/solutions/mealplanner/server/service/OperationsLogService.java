@@ -3,6 +3,7 @@ package org.kdepo.solutions.mealplanner.server.service;
 import jakarta.validation.Valid;
 import org.kdepo.solutions.mealplanner.shared.model.Day;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
+import org.kdepo.solutions.mealplanner.shared.model.InstructionStep;
 import org.kdepo.solutions.mealplanner.shared.model.Meal;
 import org.kdepo.solutions.mealplanner.shared.model.Menu;
 import org.kdepo.solutions.mealplanner.shared.model.Product;
@@ -112,6 +113,7 @@ public class OperationsLogService {
     public void registerRecipeCreated(String userName, Recipe recipe) {
         builder.setLength(0);
         builder.append("recipe_id=").append(recipe.getRecipeId());
+        builder.append(", instructionTypeId=").append(recipe.getInstructionTypeId());
         builder.append(", name=").append(recipe.getName());
         builder.append(", description=").append(recipe.getDescription());
         builder.append(", source=").append(recipe.getSource());
@@ -128,6 +130,7 @@ public class OperationsLogService {
     public void registerRecipeUpdated(String userName, Recipe oldData, @Valid Recipe newData) {
         builder.setLength(0);
         builder.append("recipe_id=").append(oldData.getRecipeId());
+        builder.append(", instructionTypeId=").append(oldData.getInstructionTypeId());
         builder.append(", name=").append(oldData.getName());
         builder.append(", description=").append(oldData.getDescription());
         builder.append(", source=").append(oldData.getSource());
@@ -141,6 +144,7 @@ public class OperationsLogService {
 
         builder.setLength(0);
         builder.append("recipe_id=").append(newData.getRecipeId());
+        builder.append(", instructionTypeId=").append(newData.getInstructionTypeId());
         builder.append(", name=").append(newData.getName());
         builder.append(", description=").append(newData.getDescription());
         builder.append(", source=").append(newData.getSource());
@@ -326,5 +330,17 @@ public class OperationsLogService {
 
     public void registerMealDeleted(String userName, Integer mealId) {
         register(userName, "D", "MEAL", String.valueOf(mealId), null);
+    }
+
+    public void registerInstructionStepCreated(String userName, InstructionStep instructionStepCreated) {
+        builder.setLength(0);
+        builder.append("instructionStepId=").append(instructionStepCreated.getInstructionStepId());
+        builder.append(", recipeId=").append(instructionStepCreated.getRecipeId());
+        builder.append(", name=").append(instructionStepCreated.getName());
+        builder.append(", description=").append(instructionStepCreated.getDescription());
+        builder.append(", image=").append(instructionStepCreated.getImage());
+        builder.append(", orderNumber=").append(instructionStepCreated.getOrderNumber());
+
+        register(userName, "C", "STEP", null, builder.toString());
     }
 }

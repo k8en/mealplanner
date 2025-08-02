@@ -6,11 +6,13 @@ import org.kdepo.solutions.mealplanner.server.service.OperationsControlService;
 import org.kdepo.solutions.mealplanner.server.service.OperationsLogService;
 import org.kdepo.solutions.mealplanner.shared.Constants;
 import org.kdepo.solutions.mealplanner.shared.model.Ingredient;
+import org.kdepo.solutions.mealplanner.shared.model.InstructionStep;
 import org.kdepo.solutions.mealplanner.shared.model.Recipe;
 import org.kdepo.solutions.mealplanner.shared.model.SelectableEntity;
 import org.kdepo.solutions.mealplanner.shared.model.Tag;
 import org.kdepo.solutions.mealplanner.shared.model.Unit;
 import org.kdepo.solutions.mealplanner.shared.repository.IngredientsRepository;
+import org.kdepo.solutions.mealplanner.shared.repository.InstructionsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.MealsRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.PrimaryKeysRepository;
 import org.kdepo.solutions.mealplanner.shared.repository.ProductsRepository;
@@ -37,7 +39,6 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +61,9 @@ public class RecipesController {
 
     @Autowired
     private IngredientsRepository ingredientsRepository;
+
+    @Autowired
+    private InstructionsRepository instructionsRepository;
 
     @Autowired
     private MealsRepository mealsRepository;
@@ -148,6 +152,7 @@ public class RecipesController {
         RecipeDto recipeDto = new RecipeDto();
 
         recipeDto.setRecipeId(recipe.getRecipeId());
+        recipeDto.setInstructionTypeId(recipe.getInstructionTypeId());
 
         if (recipe.getName() != null) {
             String portioningWord = getPortioningWord(recipe.getPortions());
@@ -183,20 +188,19 @@ public class RecipesController {
         }
         model.addAttribute("ingredients", ingredients);
 
-        String templateName = "recipe_details";
         if (Constants.InstructionType.UNDEFINED.equals(recipe.getInstructionTypeId())) {
+            // No instruction provided
+            model.addAttribute("instructionSteps", new ArrayList<InstructionStep>());
 
         } else if (Constants.InstructionType.PLAIN_TEXT.equals(recipe.getInstructionTypeId())) {
-            // Prepare instruction as paragraphs
-            List<String> paragraphs = new ArrayList<>();
-            if (recipe.getDescription() != null) {
-                String[] paragraphsArray = recipe.getDescription().split("\n");
-                paragraphs.addAll(Arrays.asList(paragraphsArray));
-                recipeDto.setParagraphs(paragraphs);
-            }
+            // Instruction as a single step without pictures
+            List<InstructionStep> instructionSteps = instructionsRepository.getAllInstructionStepsFromRecipe(recipe.getRecipeId());
+            model.addAttribute("instructionSteps", instructionSteps);
 
         } else if (Constants.InstructionType.STEP_BY_STEP.equals(recipe.getInstructionTypeId())) {
-            // TODO
+            // Instruction with multiple steps and pictures
+            List<InstructionStep> instructionSteps = instructionsRepository.getAllInstructionStepsFromRecipe(recipe.getRecipeId());
+            model.addAttribute("instructionSteps", instructionSteps);
 
         } else {
             LOGGER.warn("[WEB] Recipe {} has unknown instruction type {}", recipe.getRecipeId(), recipe.getInstructionTypeId());
@@ -208,7 +212,7 @@ public class RecipesController {
         List<Tag> tags = recipe.getTagsList();
         model.addAttribute("tags", tags);
 
-        return templateName;
+        return "recipe_details";
     }
 
     @GetMapping("/create")
