@@ -110,7 +110,7 @@ public class DbConstructor {
 
     private static final String SQL_CREATE_TABLE_INSTRUCTIONS_STEPS = ""
             + "CREATE TABLE instructions_steps (\n"
-            + "    instruction__step_id NUMERIC (5) PRIMARY KEY\n"
+            + "    instruction_step_id NUMERIC (5) PRIMARY KEY\n"
             + "                         NOT NULL\n"
             + "                         UNIQUE,\n"
             + "    recipe_id            NUMERIC (5) NOT NULL\n"

@@ -229,7 +229,7 @@ public class InstructionsController {
         // Register operation in system events log
         logService.registerInstructionStepCreated(userName, instructionStepCreated);
 
-        if (Constants.InstructionType.PLAIN_TEXT.equals(recipe.getInstructionTypeId())) {
+        if (Constants.InstructionType.UNDEFINED.equals(recipe.getInstructionTypeId())) {
             recipe.setInstructionTypeId(instructionStepId);
             recipesRepository.updateRecipe(
                     recipe.getRecipeId(),
@@ -245,7 +245,9 @@ public class InstructionsController {
                     recipe.getCarbs()
             );
 
-            // TODO register operation
+            Recipe recipeFromDb = recipesRepository.getRecipe(recipeId);
+
+            logService.registerRecipeUpdated(userName, recipeFromDb, recipe);
         }
 
         return "redirect:/recipes/" + recipeId;
