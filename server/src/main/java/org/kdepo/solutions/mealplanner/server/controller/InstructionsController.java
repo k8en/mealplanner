@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +49,35 @@ public class InstructionsController {
 
     @Autowired
     private OperationsLogService logService;
+
+    @GetMapping("/{id}")
+    public String showInstructionStepDetailsPage(@PathVariable Integer id, Model model) {
+        LOGGER.trace("[WEB] GET /instructions/{}", id);
+
+        // Authentication checks
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = null;
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            userName = authentication.getName();
+            model.addAttribute("userName", userName);
+        }
+        model.addAttribute("isLoggedIn", userName != null);
+
+        InstructionStep instructionStep = instructionsRepository.getInstructionStep(id);
+        if (instructionStep == null) {
+            LOGGER.warn("[WEB] Cannot show instructionStep details page: instructionStep {} was not found", id);
+            return "redirect:/recipes_list";
+        }
+
+        if (!controlService.canReadInstructionStep(userName, instructionStep.getInstructionStepId())) {
+            LOGGER.warn("[WEB] Cannot show instructionStep details page: user '{}' has no access to instructionStep {}", userName, id);
+            return "redirect:/recipes_list";
+        }
+
+        model.addAttribute("instructionStep", instructionStep);
+
+        return "instruction_step_1_details";
+    }
 
     @GetMapping("/create")
     public String showInstructionStepCreationForm(Model model,
@@ -96,7 +126,7 @@ public class InstructionsController {
             instructionStep.setImage(null);
             instructionStep.setOrderNumber(1);
 
-            templateName = "instruction_step_create_1";
+            templateName = "instruction_step_1_create";
 
         } else if (Constants.InstructionType.STEP_BY_STEP.equals(instructionTypeId)) {
             List<InstructionStep> steps = instructionsRepository.getAllInstructionStepsFromRecipe(recipeId);
@@ -107,7 +137,7 @@ public class InstructionsController {
             instructionStep.setImage(null);
             instructionStep.setOrderNumber(orderNumber);
 
-            templateName = "instruction_step_create_2";
+            templateName = "instruction_step_2_create";
         }
 
         model.addAttribute("instructionStep", instructionStep);
@@ -160,9 +190,9 @@ public class InstructionsController {
             FieldError fieldError = new FieldError("instructionStep", "name", "Поле не может быть пустым!");
             result.addError(fieldError);
             if (instructionTypeId == 1) {
-                return "instruction_step_create_1";
+                return "instruction_step_1_create";
             } else if (instructionTypeId == 2) {
-                return "instruction_step_create_2";
+                return "instruction_step_2_create";
             } else {
                 LOGGER.error("[WEB] Cannot accept instruction step creation form: instructionTypeId {} is unknown", instructionTypeId);
                 return "redirect:/recipes";
@@ -173,9 +203,9 @@ public class InstructionsController {
             FieldError fieldError = new FieldError("instructionStep", "name", "Название не может быть длиннее 50 символов!");
             result.addError(fieldError);
             if (instructionTypeId == 1) {
-                return "instruction_step_create_1";
+                return "instruction_step_1_create";
             } else if (instructionTypeId == 2) {
-                return "instruction_step_create_2";
+                return "instruction_step_2_create";
             } else {
                 LOGGER.error("[WEB] Cannot accept instruction step creation form: instructionTypeId {} is unknown", instructionTypeId);
                 return "redirect:/recipes";
@@ -187,9 +217,9 @@ public class InstructionsController {
             FieldError fieldError = new FieldError("instructionStep", "description", "Поле не может быть пустым!");
             result.addError(fieldError);
             if (instructionTypeId == 1) {
-                return "instruction_step_create_1";
+                return "instruction_step_1_create";
             } else if (instructionTypeId == 2) {
-                return "instruction_step_create_2";
+                return "instruction_step_2_create";
             } else {
                 LOGGER.error("[WEB] Cannot accept instruction step creation form: instructionTypeId {} is unknown", instructionTypeId);
                 return "redirect:/recipes";
@@ -200,9 +230,9 @@ public class InstructionsController {
             FieldError fieldError = new FieldError("instructionStep", "description", "Описание не может быть длиннее 2000 символов!");
             result.addError(fieldError);
             if (instructionTypeId == 1) {
-                return "instruction_step_create_1";
+                return "instruction_step_1_create";
             } else if (instructionTypeId == 2) {
-                return "instruction_step_create_2";
+                return "instruction_step_2_create";
             } else {
                 LOGGER.error("[WEB] Cannot accept instruction step creation form: instructionTypeId {} is unknown", instructionTypeId);
                 return "redirect:/recipes";

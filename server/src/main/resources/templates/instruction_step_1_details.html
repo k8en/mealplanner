@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      style="height: 100%;">
+<head>
+    <title>Просмотр текстового описания</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" th:href="@{/styles/common.css}">
+</head>
+<body class="body">
+<div class="page">
+    <div th:replace="~{fragment_header :: header}"/>
+    <div class="content">
+
+        <div class="ctrl_panel" th:if="${isLoggedIn}">
+            <span class="ctrl_button"><a th:href="@{'/instructions/' + ${instructionStep.instructionStepId} + '/update'}">Редактировать</a></span>
+            <span class="ctrl_button"><a th:href="@{'/instructions/' + ${instructionStep.instructionStepId} + '/delete'}">Удалить</a></span>
+        </div>
+
+        <table>
+            <tr>
+                <td>Название</td>
+                <td th:text="${instructionStep.name}"></td>
+            </tr>
+            <tr>
+                <td>Описание</td>
+                <td th:text="${instructionStep.description}"></td>
+            </tr>
+        </table>
+
+    </div>
+    <div th:replace="~{fragment_footer :: footer}"/>
+</div>
+</body>
+</html>

@@ -148,4 +148,8 @@ public class OperationsControlService {
     public boolean canCreateInstructionStep(String userName, Integer recipeId) {
         return true;
     }
+
+    public boolean canReadInstructionStep(String userName, Integer instructionStepId) {
+        return true;
+    }
 }
